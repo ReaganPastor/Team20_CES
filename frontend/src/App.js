@@ -13,7 +13,7 @@ function App() {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h1>Movie Booking App Frontend!</h1>
+      <h1>Movie Booking App Frontend</h1>
       <p>Backend says: {message}</p>
     </div>
   );
