@@ -1,1 +1,10 @@
+# System
 .DS_Store
+
+# Java
+*.class
+target/
+
+# Node/React
+node_modules/
+build/
