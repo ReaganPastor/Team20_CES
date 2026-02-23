@@ -5,8 +5,9 @@ function App() {
   
   const [movies, setMovies] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const genres = ["Sci-Fi", "Romance", "Thriller", "Crime"];
+  const genres = ["Sci-Fi", "Romance", "Thriller", "Crime", "Genre with No Movies"];
 
   useEffect(() => {
     fetch("http://localhost:8080/hello")
@@ -18,6 +19,7 @@ function App() {
   // Creates query to fetch movies by genre - Reagan
   const getMoviesByGenres = async (genres) => {
     try {
+      setLoading(true);
       // Build query string to properly for list
       const query = genres.map((g) => `genres=${encodeURIComponent(g)}`)
       .join("&");
@@ -31,6 +33,8 @@ function App() {
       setMovies(data);
     } catch (error) {
       console.error("Error fetching movies:", error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -63,15 +67,23 @@ function App() {
       ))}
 
       <h2>Movies</h2>
-      <p>Number of Movies: {movies.length}</p>
 
-      <ul>
-        {movies.map((movie) => (
-          <li key={movie.id}>
-            {movie.title} - {movie.genre}
-          </li>
-        ))}
-      </ul>
+      {loading ? (
+      <p>Loading movies...</p>
+      ) : movies.length === 0 ? (
+      <p>No movies were found.</p>
+      ) : (
+      <>
+        <p>Number of Movies: {movies.length}</p>
+        <ul>
+          {movies.map((movie) => (
+            <li key={movie.id}>
+              {movie.title} - {movie.genre}
+            </li>
+          ))}
+        </ul>
+      </>
+)}
     </div>
   );
 }
