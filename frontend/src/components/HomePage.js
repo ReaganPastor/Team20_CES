@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./FilterByGenre.css";
 import MovieCard from "./MovieCard";
+import Navigation from "./Navigation";
+import SearchForMovie from "./SearchForMovie";
 
 function HomePage() {
     const [message, setMessage] = useState(""); // state to store backend response
@@ -65,77 +67,79 @@ function HomePage() {
     // Returns html with layout of page, currently includes Backend Connection check, filters, and list of movies after filter - Reagan
     return (
         <div className="app-container">
-        <h1>Movie Booking App Frontend!!</h1>
-        <p>Backend says: {message}</p>
+            <Navigation />
+            <SearchForMovie />
+            <h1>Movie Booking App Frontend!!</h1>
+            <p>Backend says: {message}</p>
 
-        <h2>Select Genres</h2>
+            <h2>Select Genres</h2>
 
-        <div ref={dropdownRef} className="dropdown-container">
-            {/* Dropdown Button */}
-            <div
-            onClick={() => setIsOpen(!isOpen)}
-            className="dropdown-button"
-            >
-            {selectedGenres.length === 0 ? "Filter by Genre" : `${selectedGenres.length} Selected`}
-            <span className="dropdown-arrow" style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▼</span>
-            </div>
-
-            {/* Dropdown Menu */}
-            {isOpen && (
-            <div className="dropdown-menu">
-                {genres.map((genre) => (
-                <label
-                    key={genre}
-                    className={`genre-item ${selectedGenres.includes(genre) ? "checked" : ""}`}
+            <div ref={dropdownRef} className="dropdown-container">
+                {/* Dropdown Button */}
+                <div
+                onClick={() => setIsOpen(!isOpen)}
+                className="dropdown-button"
                 >
-                    <input
-                    type="checkbox"
-                    checked={selectedGenres.includes(genre)}
-                    onChange={() => handleGenreChange(genre)}
-                    />
-                    {genre}
-                </label>
-                ))}
-            </div>
-            )}
-        </div>
-
-        {/* Selected Pills */}
-        <div className="selected-pills">
-            {selectedGenres.length === 0 ? (
-            <span className="no-movies">None selected</span>
-            ) : (
-            selectedGenres.map((genre) => (
-                <div key={genre} className="pill" onClick={() => handleGenreChange(genre)}>
-                {genre} ×
+                {selectedGenres.length === 0 ? "Filter by Genre" : `${selectedGenres.length} Selected`}
+                <span className="dropdown-arrow" style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▼</span>
                 </div>
-            ))
+
+                {/* Dropdown Menu */}
+                {isOpen && (
+                <div className="dropdown-menu">
+                    {genres.map((genre) => (
+                    <label
+                        key={genre}
+                        className={`genre-item ${selectedGenres.includes(genre) ? "checked" : ""}`}
+                    >
+                        <input
+                        type="checkbox"
+                        checked={selectedGenres.includes(genre)}
+                        onChange={() => handleGenreChange(genre)}
+                        />
+                        {genre}
+                    </label>
+                    ))}
+                </div>
+                )}
+            </div>
+
+            {/* Selected Pills */}
+            <div className="selected-pills">
+                {selectedGenres.length === 0 ? (
+                <span className="no-movies">None selected</span>
+                ) : (
+                selectedGenres.map((genre) => (
+                    <div key={genre} className="pill" onClick={() => handleGenreChange(genre)}>
+                    {genre} ×
+                    </div>
+                ))
+                )}
+            </div>
+
+            <h2>Movies</h2>
+
+            {loading ? (
+            <p>Loading movies...</p>
+            ) : movies.length === 0 ? (
+            <p>No movies were found.</p>
+            ) : (
+            <>
+                <p>Number of Movies: {movies.length}</p>
+                <ul>
+                {movies.map((movie) => (
+                    <li key={movie.id}>
+                    {movie.title} - {movie.genre}
+                    </li>
+                ))}
+                </ul>
+            </>
             )}
-        </div>
-
-        <h2>Movies</h2>
-
-        {loading ? (
-        <p>Loading movies...</p>
-        ) : movies.length === 0 ? (
-        <p>No movies were found.</p>
-        ) : (
-        <>
-            <p>Number of Movies: {movies.length}</p>
-            <ul>
-            {movies.map((movie) => (
-                <li key={movie.id}>
-                {movie.title} - {movie.genre}
-                </li>
+            <div style={{ display: "flex", flexWrap: "wrap" }}>
+            {movies.map((movie, index) => (
+                <MovieCard key={index} movie={movie} />
             ))}
-            </ul>
-        </>
-        )}
-        <div style={{ display: "flex", flexWrap: "wrap" }}>
-        {movies.map((movie, index) => (
-            <MovieCard key={index} movie={movie} />
-        ))}
-        </div>
+            </div>
         </div>
     );
 }
