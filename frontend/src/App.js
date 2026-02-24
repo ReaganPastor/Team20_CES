@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 function App() {
   const [message, setMessage] = useState(""); // state to store backend response
@@ -6,6 +6,8 @@ function App() {
   const [movies, setMovies] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const genres = ["Sci-Fi", "Romance", "Thriller", "Crime", "Genre with No Movies"];
 
@@ -48,6 +50,22 @@ function App() {
     setSelectedGenres((prev) => prev.includes(genre) ? prev.filter((g) => g != genre) : [...prev, genre]);
   }
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // Returns html with layout of page, currently includes Backend Connection check, filters, and list of movies after filter - Reagan
   return (
     <div style={{ padding: "2rem" }}>
@@ -55,16 +73,65 @@ function App() {
       <p>Backend says: {message}</p>
 
       <h2>Select Genres</h2>
-      {genres.map((genre) => (
-        <label key={genre} style={{ display: "block" }}>
-          <input
-            type="checkbox"
-            checked={selectedGenres.includes(genre)}
-            onChange={() => handleGenreChange(genre)}
-          />
-          {genre}
-        </label>
-      ))}
+      
+      <div
+        ref={dropdownRef}
+        style={{
+          position: "relative",
+          width: "200px"
+        }}
+      >
+        {/* Dropdown Button */}
+        <div
+          onClick={() => setIsOpen(!isOpen)}
+          style={{
+            border: "1px solid #ccc",
+            padding: "10px",
+            borderRadius: "6px",
+            cursor: "pointer",
+            background: "white"
+          }}
+        >
+          Filter by Genre ▼
+        </div>
+
+        {/* Dropdown Menu */}
+        {isOpen && (
+          <div
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: 0,
+              right: 0,
+              border: "1px solid #ccc",
+              background: "white",
+              borderRadius: "6px",
+              marginTop: "5px",
+              padding: "10px",
+              boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
+            }}
+          >
+            {genres.map((genre) => (
+              <label
+                key={genre}
+                style={{ display: "block", marginBottom: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedGenres.includes(genre)}
+                  onChange={() => handleGenreChange(genre)}
+                />
+                {" "}{genre}
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Show Selected */}
+      <div style={{ marginTop: "20px" }}>
+        Selected: {selectedGenres.join(", ") || "None"}
+      </div>
 
       <h2>Movies</h2>
 
