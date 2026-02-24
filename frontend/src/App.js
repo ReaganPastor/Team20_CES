@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./FilterByGenre.css";
 import "./App.css";
+import MovieCard from "./components/MovieCard";
 
 function App() {
   const [message, setMessage] = useState(""); // state to store backend response
@@ -131,7 +132,12 @@ function App() {
           ))}
         </ul>
       </>
-)}
+    )}
+    <div style={{ display: "flex", flexWrap: "wrap" }}>
+      {movies.map((movie, index) => (
+        <MovieCard key={index} movie={movie} />
+      ))}
+    </div>
     </div>
   );
 }
