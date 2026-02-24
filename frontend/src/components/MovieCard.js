@@ -1,7 +1,10 @@
 import React from "react";
 import "./MovieCard.css";
+import { useNavigate } from "react-router-dom";
 
 function MovieCard({ movie }) {
+  const navigate = useNavigate();
+
   return (
     <div
       style={{
@@ -21,7 +24,7 @@ function MovieCard({ movie }) {
       <h2 style={{ fontSize: "18px" }}>{movie.title}</h2>
       <p><strong>Year:</strong> {movie.year}</p>
       <p><strong>Genre:</strong> {movie.genre}</p>
-      <button class="view-details-btn">View Details</button>
+      <button class="view-details-btn" onClick={() => navigate(`/movies/${movie.id}`)}>View Details</button>
     </div>
   );
 }

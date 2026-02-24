@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,5 +37,14 @@ public class MovieController {
         .anyMatch(g -> g.equalsIgnoreCase(movie.getGenre())))
         .collect(Collectors.toList());
 
+    }
+
+    @GetMapping("/movies/{id}")
+    public Movie getMovieById(@PathVariable Long id) {
+        System.out.println("Looking for movie id: " + id); // debug
+        return mockMovies.stream()
+            .filter(m -> m.getId().longValue() == id.longValue()) // works even if Long
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Movie not found with id " + id));
     }
 }
