@@ -1,38 +1,199 @@
 .App {
-  text-align: center;
+/* ---------------------------------------------
+   Web Page Styling
+---------------------------------------------- */
+
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Merriweather, serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/** Implaments a faint blue background with small icons pattern */
+/**.App {
+  /**min-height: 100vh;
+  background-color: #e3f2fd; /* faint blue */
+  /**background-image: 
+  url('/icons/clapperboard.png'),
+  url('/icons/projector.png'),
+  url('/icons/tape-recorder.png');
+  background-repeat: repeat;
+  background-size: 80px 80px;**/
+  /**padding: 0;
+  margin: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Container for the whole app */
+.App {
+  position: relative;
+  min-height: 100vh;
+  background-color: #e3f2fd; /* The faint blue base */
+  overflow-x: hidden;
 }
+
+/* Background layer that holds the "polka dots" */
+.background-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Allows clicking through icons to buttons */
+  z-index: 0;
+}
+
+/* Styling for each individual small icon */
+.bg-icon {
+  position: absolute;
+  width: 25px; /* Small "polka dot" size */
+  height: auto;
+  opacity: 0.15; /* Makes them faint */
+}
+
+
+/* Wrap your main content to sit above the background */
+.App-header, .search-container, .main-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------------------------------------------
+   Header
+---------------------------------------------- */
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  background-color: #0a2a47; /* dark blue */
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  justify-content: space-between; /* pushes logo left, nav right */
+  padding: 1.5rem 3rem;
   color: white;
 }
 
-.App-link {
+/* Logo container */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Logo image */
+.logo-img {
+  width: 55px;
+  height: auto;
+}
+
+/* Logo text (smaller than nav) */
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem; /* smaller */
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* ---------------- NAVIGATION TABS ---------------- */
+
+.nav-tabs {
+  display: flex;
+  justify-content: space-between;
+  width: 50%; /* spreads tabs across header */
+}
+
+.nav-tabs a {
+  text-decoration: none;
+  color: white;
+  font-size: 1.4rem; /* bigger than logo */
+  font-weight: bold;
+  letter-spacing: 1px;
+  transition: color 0.2s ease;
+}
+
+.nav-tabs a:hover {
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+/* ---------------------------------------------
+   Search Bar Under Header
+---------------------------------------------- */
+
+.search-container {
+  margin: 1rem auto;
+  width: 90%;
+  max-width: 600px;
+  display: flex;
+}
+
+.search-container input {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border: 2px solid #0a2a47;
+  border-radius: 5px 0 0 5px;
+  font-size: 1rem;
+}
+
+.search-container button {
+  padding: 0.7rem 1rem;
+  background-color: #0a2a47;
+  color: white;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* ---------------------------------------------
+   Movie List Section
+---------------------------------------------- */
+
+.movie-list {
+  margin: 1.5rem auto;
+  width: 90%;
+  max-width: 900px;
+}
+
+.movie-list h2 {
+  color: #0a2a47;
+  margin-bottom: 0.5rem;
+}
+
+.movie-list ul {
+  padding: 0;
+  list-style: none;
+}
+
+.movie-list li {
+  background: white;
+  border-radius: 6px;
+  padding: 0.8rem;
+  margin-bottom: 0.7rem;
+  font-size: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* ---------------------------------------------
+   Simple Responsive Behavior
+---------------------------------------------- */
+
+@media (max-width: 600px) {
+  nav {
+    gap: 1rem;
+    font-size: 1rem;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .search-container {
+    flex-direction: column;
   }
+
+  .search-container input,
+  .search-container button {
+    width: 100%;
+    border-radius: 5px;
+  }
+
+  .search-container button {
+    margin-top: 0.5rem;
+  }
+}
+
 }
