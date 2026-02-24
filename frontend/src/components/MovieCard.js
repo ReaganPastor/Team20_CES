@@ -14,7 +14,7 @@ function MovieCard({ movie }) {
       }}
     >
     <img
-        src={movie.posterUrl} // add a posterUrl to your movie data
+        src={movie.posterUrl}
         alt={movie.title}
         style={{ width: "100%", borderRadius: "8px" }}
     />
