@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
+import "./FilterByGenre.css";
+import "./App.css";
 
 function App() {
   const [message, setMessage] = useState(""); // state to store backend response
@@ -53,84 +55,63 @@ function App() {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Returns html with layout of page, currently includes Backend Connection check, filters, and list of movies after filter - Reagan
   return (
-    <div style={{ padding: "2rem" }}>
+    <div className="app-container">
       <h1>Movie Booking App Frontend!!</h1>
       <p>Backend says: {message}</p>
 
       <h2>Select Genres</h2>
-      
-      <div
-        ref={dropdownRef}
-        style={{
-          position: "relative",
-          width: "200px"
-        }}
-      >
+
+      <div ref={dropdownRef} className="dropdown-container">
         {/* Dropdown Button */}
         <div
           onClick={() => setIsOpen(!isOpen)}
-          style={{
-            border: "1px solid #ccc",
-            padding: "10px",
-            borderRadius: "6px",
-            cursor: "pointer",
-            background: "white"
-          }}
+          className="dropdown-button"
         >
-          Filter by Genre ▼
+          {selectedGenres.length === 0 ? "Filter by Genre" : `${selectedGenres.length} Selected`}
+          <span className="dropdown-arrow" style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▼</span>
         </div>
 
         {/* Dropdown Menu */}
         {isOpen && (
-          <div
-            style={{
-              position: "absolute",
-              top: "100%",
-              left: 0,
-              right: 0,
-              border: "1px solid #ccc",
-              background: "white",
-              borderRadius: "6px",
-              marginTop: "5px",
-              padding: "10px",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
-            }}
-          >
+          <div className="dropdown-menu">
             {genres.map((genre) => (
               <label
                 key={genre}
-                style={{ display: "block", marginBottom: "5px" }}
+                className={`genre-item ${selectedGenres.includes(genre) ? "checked" : ""}`}
               >
                 <input
                   type="checkbox"
                   checked={selectedGenres.includes(genre)}
                   onChange={() => handleGenreChange(genre)}
                 />
-                {" "}{genre}
+                {genre}
               </label>
             ))}
           </div>
         )}
       </div>
 
-      {/* Show Selected */}
-      <div style={{ marginTop: "20px" }}>
-        Selected: {selectedGenres.join(", ") || "None"}
+      {/* Selected Pills */}
+      <div className="selected-pills">
+        {selectedGenres.length === 0 ? (
+          <span className="no-movies">None selected</span>
+        ) : (
+          selectedGenres.map((genre) => (
+            <div key={genre} className="pill" onClick={() => handleGenreChange(genre)}>
+              {genre} ×
+            </div>
+          ))
+        )}
       </div>
 
       <h2>Movies</h2>
