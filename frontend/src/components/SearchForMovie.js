@@ -1,4 +1,3 @@
-//import React from "react";
 import "./SearchForMovie.css";
 import React, { useEffect, useState } from "react";
 
