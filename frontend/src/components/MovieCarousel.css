@@ -1,0 +1,61 @@
+/* Container holding arrows + movie cards */
+.carousel-container {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+
+/* Arrow buttons */
+.carousel-arrow {
+  font-size: 28px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background-color: #f0f0f0;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.carousel-arrow:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+.carousel-arrow:hover:not(:disabled) {
+  background-color: #ffb6c1; /* cute pink hover */
+  color: white;
+  transform: scale(1.1);
+}
+
+/* Cards container */
+.carousel-cards {
+  display: flex;
+  overflow: hidden;
+  flex-wrap: nowrap;
+  margin: 0 10px;
+  scroll-behavior: smooth; /* smooth scrolling if we switch to scroll in future */
+}
+
+/* Optional: gap between cards (if needed) */
+.carousel-cards > div {
+  margin-right: 10px;
+}
+
+/* Responsive: shrink number of visible cards on smaller screens */
+@media (max-width: 768px) {
+  .carousel-cards {
+    gap: 8px;
+  }
+
+  .carousel-arrow {
+    font-size: 24px;
+    width: 32px;
+    height: 32px;
+  }
+}

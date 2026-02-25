@@ -1,7 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "./Navigation.css";
 
 function Navigation() {
+    const navigate = useNavigate();
+
     return(
         <div>
             {/* HEADER */}
@@ -20,7 +23,7 @@ function Navigation() {
                 </div>
 
                 <nav className="nav-tabs">
-                <a href="#">Movies</a>
+                <a href="#" onClick={() => navigate("/")}>Movies</a>
                 <a href="#">Promotions</a>
                 <a href="#">Sign Up / Login</a>
                 </nav>
