@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import Navigation from "./Navigation";
 
 function ViewDetails() {
   const { id } = useParams();
@@ -16,6 +17,7 @@ function ViewDetails() {
 
   return (
     <div>
+      <Navigation />
       <h2>{movie.title}</h2>
       <p><strong>Genre:</strong> {movie.genre}</p>
       <p><strong>Year:</strong> {movie.year}</p>
