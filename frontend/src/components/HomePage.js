@@ -65,6 +65,8 @@ function HomePage() {
     }, []);
 
     // Returns html with layout of page, currently includes Backend Connection check, filters, and list of movies after filter - Reagan
+    const currentlyRunningMovies = movies.filter((m) => m.year <= 2010); // ADDED - chris
+    const comingSoonMovies = movies.filter((m) => m.year > 2010); // ADDED - chris
     return (
         <div className="app-container">
             <Navigation />
@@ -138,7 +140,7 @@ function HomePage() {
                     </div>
                 ))
             )}
-        </div>
+        </div>x
     </div>
 </div>
 
@@ -156,6 +158,21 @@ function HomePage() {
             {movies.map((movie, index) => (
                 <MovieCard key={index} movie={movie} />
             ))}
+            </div>
+            <h2>Currently Running</h2>
+
+            <div style={{ display: "flex", flexWrap: "wrap" }}>
+                {currentlyRunningMovies.map((movie, index) => (
+                    <MovieCard key={index} movie={movie} />
+                ))}
+            </div>
+
+            <h2>Coming Soon</h2>
+
+            <div style={{ display: "flex", flexWrap: "wrap" }}>
+                {comingSoonMovies.map((movie, index) => (
+                    <MovieCard key={index} movie={movie} />
+                ))}
             </div>
         </div>
     );
