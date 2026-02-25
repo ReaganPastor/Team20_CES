@@ -24,24 +24,24 @@ function HomePage() {
     // Creates query to fetch movies by genre - Reagan
     const getMoviesByGenres = async (genres) => {
         try {
-        setLoading(true);
-        // Build query string to properly for list
-        const query = genres.map((g) => `genres=${encodeURIComponent(g)}`)
-        .join("&");
+            setLoading(true);
 
-        // Fetch response from the backend
-        const resp = await fetch(`http://localhost:8080/movies${query ? `?${query}` : ""}`);
+            // Build query string for multiple genres
+            const query = genres.map(g => `genre=${encodeURIComponent(g)}`).join("&");
 
-        // Get JSON response
-        const data = await resp.json();
+            const resp = await fetch(
+            `http://localhost:8080/movies${query ? `?${query}` : ""}`
+            );
 
-        setMovies(data);
+            const data = await resp.json();
+            setMovies(data);
+
         } catch (error) {
-        console.error("Error fetching movies:", error);
+            console.error("Error fetching movies:", error);
         } finally {
-        setLoading(false);
+            setLoading(false);
         }
-    }
+    };
 
     // Calls getMoviesByGenre when effect occurs - Reagan
     useEffect(() => {
@@ -72,7 +72,7 @@ function HomePage() {
             <Navigation />
 
 <div className="filter-search-row">
-    <SearchForMovie />
+    <SearchForMovie setMovies={setMovies} />
 
     <div className="genre-section">
         <div ref={dropdownRef} className="dropdown-container">
