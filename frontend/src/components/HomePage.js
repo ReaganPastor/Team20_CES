@@ -125,7 +125,7 @@ function HomePage() {
         <div className="selected-pills">
             {selectedGenres.length === 0 ? (
                 <span className="no-movies">
-                    None selected
+                    No Genre Selected
                 </span>
             ) : (
                 selectedGenres.map((genre) => (
