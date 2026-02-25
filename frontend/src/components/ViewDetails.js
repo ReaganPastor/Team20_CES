@@ -19,6 +19,12 @@ function ViewDetails() {
       <h2>{movie.title}</h2>
       <p><strong>Genre:</strong> {movie.genre}</p>
       <p><strong>Year:</strong> {movie.year}</p>
+
+      {/* ADDED rating */}
+      <p><strong>Rating:</strong> {movie.rating}</p>
+
+      {/* ADDED description */}
+      <p><strong>Description:</strong> {movie.description}</p>
     </div>
   );
 }
