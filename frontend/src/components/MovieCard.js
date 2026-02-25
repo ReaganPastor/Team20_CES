@@ -24,6 +24,7 @@ function MovieCard({ movie }) {
       <h2 style={{ fontSize: "18px" }}>{movie.title}</h2>
       <p><strong>Year:</strong> {movie.year}</p>
       <p><strong>Genre:</strong> {movie.genre}</p>
+      <p><strong>Duration:</strong> {movie.durationMinutes} min</p> {/* ADDED duration */}
       <button class="view-details-btn" onClick={() => navigate(`/movies/${movie.id}`)}>View Details</button>
     </div>
   );
