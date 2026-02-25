@@ -65,114 +65,109 @@ function HomePage() {
     }, []);
 
     // Returns html with layout of page, currently includes Backend Connection check, filters, and list of movies after filter - Reagan
-    const currentlyRunningMovies = movies.filter((m) => m.year <= 2010); // ADDED - chris
-    const comingSoonMovies = movies.filter((m) => m.year > 2010); // ADDED - chris
+    const currentlyRunningMovies = movies.filter((m) => m.status === "NOW_PLAYING"); // ADDED - chris
+    const comingSoonMovies = movies.filter((m) => m.status === "COMING_SOON"); // ADDED - chris
     return (
         <div className="app-container">
             <Navigation />
 
-<div className="filter-search-row">
-    <SearchForMovie setMovies={setMovies} />
+            <div className="filter-search-row">
+                <SearchForMovie setMovies={setMovies} />
 
-    <div className="genre-section">
-        <div ref={dropdownRef} className="dropdown-container">
-            {/* Dropdown Button */}
-            <div
-                onClick={() => setIsOpen(!isOpen)}
-                className="dropdown-button"
-            >
-                {selectedGenres.length === 0
-                    ? "Filter by Genre"
-                    : `${selectedGenres.length} Selected`}
-                <span
-                    className="dropdown-arrow"
-                    style={{
-                        transform: isOpen
-                            ? "rotate(180deg)"
-                            : "rotate(0deg)"
-                    }}
-                >
-                    ▼
-                </span>
+                <div className="genre-section">
+                    <div ref={dropdownRef} className="dropdown-container">
+                        {/* Dropdown Button */}
+                        <div
+                            onClick={() => setIsOpen(!isOpen)}
+                            className="dropdown-button"
+                        >
+                            {selectedGenres.length === 0
+                                ? "Filter by Genre"
+                                : `${selectedGenres.length} Selected`}
+                            <span
+                                className="dropdown-arrow"
+                                style={{
+                                    transform: isOpen
+                                        ? "rotate(180deg)"
+                                        : "rotate(0deg)"
+                                }}
+                            >
+                                ▼
+                            </span>
+                        </div>
+
+                        {isOpen && (
+                            <div className="dropdown-menu">
+                                {genres.map((genre) => (
+                                    <label
+                                        key={genre}
+                                        className={`genre-item ${
+                                            selectedGenres.includes(genre)
+                                                ? "checked"
+                                                : ""
+                                        }`}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedGenres.includes(genre)}
+                                            onChange={() =>
+                                                handleGenreChange(genre)
+                                            }
+                                        />
+                                        {genre}
+                                    </label>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Selected Pills */}
+                    <div className="selected-pills">
+                        {selectedGenres.length === 0 ? (
+                            <span className="no-movies">
+                                No Genre Selected
+                            </span>
+                        ) : (
+                            selectedGenres.map((genre) => (
+                                <div
+                                    key={genre}
+                                    className="pill"
+                                    onClick={() =>
+                                        handleGenreChange(genre)
+                                    }
+                                >
+                                    {genre} ×
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
             </div>
 
-            {isOpen && (
-                <div className="dropdown-menu">
-                    {genres.map((genre) => (
-                        <label
-                            key={genre}
-                            className={`genre-item ${
-                                selectedGenres.includes(genre)
-                                    ? "checked"
-                                    : ""
-                            }`}
-                        >
-                            <input
-                                type="checkbox"
-                                checked={selectedGenres.includes(genre)}
-                                onChange={() =>
-                                    handleGenreChange(genre)
-                                }
-                            />
-                            {genre}
-                        </label>
-                    ))}
-                </div>
-            )}
-        </div>
-
-        {/* Selected Pills */}
-        <div className="selected-pills">
-            {selectedGenres.length === 0 ? (
-                <span className="no-movies">
-                    No Genre Selected
-                </span>
+            <h2>Currently Running</h2>
+            <div style={{ display: "flex", flexWrap: "wrap" }}>
+            {currentlyRunningMovies.length === 0 ? (
+                <p style={{ fontStyle: "italic", color: "#555" }}>
+                No movies found
+                </p>
             ) : (
-                selectedGenres.map((genre) => (
-                    <div
-                        key={genre}
-                        className="pill"
-                        onClick={() =>
-                            handleGenreChange(genre)
-                        }
-                    >
-                        {genre} ×
-                    </div>
+                currentlyRunningMovies.map((movie, index) => (
+                <MovieCard key={index} movie={movie} />
                 ))
             )}
-        </div>
-    </div>
-</div>
-
-            <h2>Movies</h2>
-
-            {loading ? (
-            <p>Loading movies...</p>
-            ) : movies.length === 0 ? (
-            <p>No movies were found.</p>
-            ) : (
-            <>
-            </>
-            )}
-            <div style={{ display: "flex", flexWrap: "wrap" }}>
-            {movies.map((movie, index) => (
-                <MovieCard key={index} movie={movie} />
-            ))}
-            </div>
-            <h2>Currently Running</h2>
-
-            <div style={{ display: "flex", flexWrap: "wrap" }}>
-                {currentlyRunningMovies.map((movie, index) => (
-                    <MovieCard key={index} movie={movie} />
-                ))}
             </div>
 
             <h2>Coming Soon</h2>
-
             <div style={{ display: "flex", flexWrap: "wrap" }}>
-                {comingSoonMovies.map((movie, index) => (
-                    <MovieCard key={index} movie={movie} />
-                ))}
+            {comingSoonMovies.length === 0 ? (
+                <p style={{ fontStyle: "italic", color: "#555" }}>
+                No movies found
+                </p>
+            ) : (
+                comingSoonMovies.map((movie, index) => (
+                <MovieCard key={index} movie={movie} />
+                ))
+            )}
             </div>
         </div>
     );
