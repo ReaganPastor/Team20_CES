@@ -72,7 +72,7 @@ function HomePage() {
             <Navigation />
 
 <div className="filter-search-row">
-    <SearchForMovie />
+    <SearchForMovie setMovies={setMovies} />
 
     <div className="genre-section">
         <div ref={dropdownRef} className="dropdown-container">
