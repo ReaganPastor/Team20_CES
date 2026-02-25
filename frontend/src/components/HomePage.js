@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./FilterByGenre.css";
-import MovieCard from "./MovieCard";
+import MovieCarousel from "./MovieCarousel";
 import Navigation from "./Navigation";
 import SearchForMovie from "./SearchForMovie";
 
@@ -144,31 +144,21 @@ function HomePage() {
                 </div>
             </div>
 
+            {/* Currently Running */}
             <h2>Currently Running</h2>
-            <div style={{ display: "flex", flexWrap: "wrap" }}>
             {currentlyRunningMovies.length === 0 ? (
-                <p style={{ fontStyle: "italic", color: "#555" }}>
-                No movies found
-                </p>
+            <p style={{ fontStyle: "italic", color: "#555" }}>No movies found</p>
             ) : (
-                currentlyRunningMovies.map((movie, index) => (
-                <MovieCard key={index} movie={movie} />
-                ))
+            <MovieCarousel movies={currentlyRunningMovies} moviesPerPage={6} />
             )}
-            </div>
 
+            {/* Coming Soon*/}
             <h2>Coming Soon</h2>
-            <div style={{ display: "flex", flexWrap: "wrap" }}>
             {comingSoonMovies.length === 0 ? (
-                <p style={{ fontStyle: "italic", color: "#555" }}>
-                No movies found
-                </p>
+            <p style={{ fontStyle: "italic", color: "#555" }}>No movies found</p>
             ) : (
-                comingSoonMovies.map((movie, index) => (
-                <MovieCard key={index} movie={movie} />
-                ))
+            <MovieCarousel movies={comingSoonMovies} moviesPerPage={6} />
             )}
-            </div>
         </div>
     );
 }
