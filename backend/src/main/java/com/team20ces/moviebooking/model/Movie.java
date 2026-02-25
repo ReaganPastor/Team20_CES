@@ -1,40 +1,25 @@
 package com.team20ces.moviebooking.model;
 
-/*
- * This class represents a Movie object in our system.
- * This is the "shape" of the movie that gets converted into JSON
- * and sent to the frontend.
- */
 public class Movie {
 
-    // Unique identifier for each movie
     private Long id;
-
-    // Movie title (ex: Dune)
     private String title;
 
-    // Status of movie (NOW_PLAYING or COMING_SOON)
+    // NOW_PLAYING / COMING_SOON
     private String status;
-
-    // Movie genre/category (ex: Sci-Fi, Comedy)
-    private String genre;
-
-    // Official MPAA rating (PG, PG-13, R, etc.)
     private String mpaaRating;
-
-    // URL for the movie poster image
+    private String genre;
     private String posterUrl;
+    private int year;
+    private double rating;
+    private String description;
+    private int durationMinutes;
 
-    /*
-     * Default constructor (required for Spring Boot / JSON mapping)
-     */
-    public Movie() { }
+    public Movie() {}
 
-    /*
-     * Constructor to easily create movie objects
-     */
     public Movie(Long id, String title, String status,
-                 String genre, String mpaaRating, String posterUrl) {
+                 String genre, String mpaaRating, String posterUrl,
+                 int year, double rating, String description, int durationMinutes) {
 
         this.id = id;
         this.title = title;
@@ -42,33 +27,35 @@ public class Movie {
         this.genre = genre;
         this.mpaaRating = mpaaRating;
         this.posterUrl = posterUrl;
+        this.year = year;
+        this.rating = rating;
+        this.description = description;
+        this.durationMinutes = durationMinutes;
     }
 
-    // Getters 
+    // Getters
 
     public Long getId() { return id; }
-
     public String getTitle() { return title; }
-
     public String getStatus() { return status; }
-
     public String getGenre() { return genre; }
-
     public String getMpaaRating() { return mpaaRating; }
-
     public String getPosterUrl() { return posterUrl; }
+    public int getYear() { return year; }
+    public double getRating() { return rating; }
+    public String getDescription() { return description; }
+    public int getDurationMinutes() { return durationMinutes; }
 
     // Setters
 
     public void setId(Long id) { this.id = id; }
-
     public void setTitle(String title) { this.title = title; }
-
     public void setStatus(String status) { this.status = status; }
-
     public void setGenre(String genre) { this.genre = genre; }
-
     public void setMpaaRating(String mpaaRating) { this.mpaaRating = mpaaRating; }
-
     public void setPosterUrl(String posterUrl) { this.posterUrl = posterUrl; }
+    public void setYear(int year) { this.year = year; }
+    public void setRating(double rating) { this.rating = rating; }
+    public void setDescription(String description) { this.description = description; }
+    public void setDurationMinutes(int durationMinutes) { this.durationMinutes = durationMinutes; }
 }

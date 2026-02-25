@@ -7,18 +7,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-
-/*
- * This controller exposes REST API endpoints for movies.
- * These endpoints are used by the React frontend.
- */
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/movies")
 @CrossOrigin(origins = "http://localhost:3000")
 public class MovieController {
 
-    // MovieService to call on business logic methods
     private final MovieService movieService;
 
     public MovieController(MovieService movieService) {
@@ -27,45 +23,39 @@ public class MovieController {
 
     /*
      * GET /movies
-     * Returns all movies.
+     * Optional filters:
+     * ?status=NOW_PLAYING
+     * ?genre=Sci-Fi
      */
     @GetMapping
     public List<Movie> getAllMovies(
-            @RequestParam Optional<String> status) {
+            @RequestParam Optional<String> status,
+            @RequestParam(name="genre", required=false) List<String> genres) {
 
-        return movieService.getAll(status);
+        if (genres == null) genres = new ArrayList<>();
+        return movieService.getAll(status, genres);
     }
 
     /*
      * GET /movies/{id}
-     * Returns one movie by ID.
-     * If not found, returns 404.
      */
     @GetMapping("/{id}")
     public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
 
         Optional<Movie> movie = movieService.getById(id);
 
-        // If movie exists, return 200 OK
-        if (movie.isPresent()) {
-            return ResponseEntity.ok(movie.get());
-        }
-
-        // Otherwise return 404 Not Found
-        return ResponseEntity.notFound().build();
+        return movie.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /*
      * GET /movies/search?title=...
-     * Searches movies by title.
-     * If title is missing or blank, return 400.
      */
     @GetMapping("/search")
     public ResponseEntity<List<Movie>> searchMovies(
             @RequestParam Optional<String> title,
             @RequestParam Optional<String> status) {
 
-        // Validate title
         if (title.isEmpty() || title.get().isBlank()) {
             return ResponseEntity.badRequest().build();
         }
