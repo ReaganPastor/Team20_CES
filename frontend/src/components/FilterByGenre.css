@@ -1,14 +1,14 @@
 /* General Page Styling */
 body {
   font-family: 'Arial', sans-serif;
-  background: #121212;
-  color: #fff;
+  background: #0f172a; /* deep navy */
+  color: #f1f5f9; /* soft white */
   margin: 0;
   padding: 2rem;
 }
 
 h1 {
-  color: #FF3D00;
+  color: #60a5fa; /* light blue */
 }
 
 h2 {
@@ -23,22 +23,22 @@ h2 {
 
 /* Dropdown Button */
 .dropdown-button {
-  border: 1px solid #444;
+  border: 1px solid #334155;
   padding: 12px;
   border-radius: 8px;
   cursor: pointer;
-  background: #1E1E1E;
-  color: #fff;
+  background: #1e293b; /* slate blue */
+  color: #f1f5f9;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-weight: bold;
   user-select: none;
-  transition: background 0.2s;
+  transition: background 0.2s ease;
 }
 
 .dropdown-button:hover {
-  background: #2a2a2a;
+  background: #334155;
 }
 
 /* Dropdown Arrow */
@@ -52,12 +52,12 @@ h2 {
   top: 100%;
   left: 0;
   right: 0;
-  border: 1px solid #444;
-  background: #1E1E1E;
+  border: 1px solid #334155;
+  background: #1e293b;
   border-radius: 8px;
   margin-top: 5px;
   padding: 10px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
   z-index: 10;
 }
 
@@ -70,22 +70,22 @@ h2 {
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
-  color: #ccc;
+  color: #cbd5e1; /* muted light blue */
 }
 
 .genre-item:hover {
-  background: #333;
+  background: #334155;
 }
 
 .genre-item input[type="checkbox"] {
   margin-right: 10px;
-  accent-color: #FF3D00;
+  accent-color: #2563eb; /* blue accent */
 }
 
 /* Checked Genre */
 .genre-item.checked {
-  background: #FF3D00;
-  color: #fff;
+  background: #2563eb;
+  color: white;
 }
 
 /* Selected Pills Container */
@@ -98,7 +98,7 @@ h2 {
 
 /* Individual Pill */
 .pill {
-  background: #FF3D00;
+  background: #2563eb;
   padding: 5px 12px;
   border-radius: 20px;
   font-size: 0.9rem;
@@ -111,12 +111,37 @@ h2 {
 }
 
 .pill:hover {
-  background: #ff5f30;
+  background: #1d4ed8;
 }
 
 /* Loading & No Movies */
 .loading,
 .no-movies {
   margin-top: 10px;
-  color: #aaa;
+  color: #94a3b8; /* softer muted blue-gray */
+}
+
+.filter-search-row {
+  display: flex;
+  gap: 2rem;
+  width: 90%;
+  max-width: 1100px;
+  margin: 2rem auto;
+  align-items: flex-start;
+}
+
+/* Genre section takes 1/3 */
+.genre-section {
+  flex: 1;
+}
+
+/* Make dropdown full width inside its column */
+.dropdown-container {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .filter-search-row {
+    flex-direction: column;
+  }
 }
