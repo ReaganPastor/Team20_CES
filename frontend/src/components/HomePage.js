@@ -140,7 +140,7 @@ function HomePage() {
                     </div>
                 ))
             )}
-        </div>x
+        </div>
     </div>
 </div>
 
