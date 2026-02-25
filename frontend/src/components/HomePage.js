@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./FilterByGenre.css";
-import MovieCard from "./MovieCard";
 import MovieCarousel from "./MovieCarousel";
 import Navigation from "./Navigation";
 import SearchForMovie from "./SearchForMovie";
@@ -150,7 +149,7 @@ function HomePage() {
             {currentlyRunningMovies.length === 0 ? (
             <p style={{ fontStyle: "italic", color: "#555" }}>No movies found</p>
             ) : (
-            <MovieCarousel movies={currentlyRunningMovies} moviesPerPage={1} />
+            <MovieCarousel movies={currentlyRunningMovies} moviesPerPage={6} />
             )}
 
             {/* Coming Soon*/}
@@ -158,7 +157,7 @@ function HomePage() {
             {comingSoonMovies.length === 0 ? (
             <p style={{ fontStyle: "italic", color: "#555" }}>No movies found</p>
             ) : (
-            <MovieCarousel movies={comingSoonMovies} moviesPerPage={4} />
+            <MovieCarousel movies={comingSoonMovies} moviesPerPage={6} />
             )}
         </div>
     );

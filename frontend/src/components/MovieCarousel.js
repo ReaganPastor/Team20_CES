@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import MovieCard from "./MovieCard";
 import "./MovieCarousel.css";
 
-function MovieCarousel({ movies, moviesPerPage = 4 }) {
+function MovieCarousel({ movies, moviesPerPage = 6 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePrev = () => setCurrentIndex(prev => Math.max(prev - moviesPerPage, 0));
