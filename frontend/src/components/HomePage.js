@@ -69,11 +69,7 @@ function HomePage() {
         <div className="app-container">
             <Navigation />
             <SearchForMovie />
-            <h1>Movie Booking App Frontend!!</h1>
-            <p>Backend says: {message}</p>
-
-            <h2>Select Genres</h2>
-
+            
             <div ref={dropdownRef} className="dropdown-container">
                 {/* Dropdown Button */}
                 <div
@@ -125,14 +121,6 @@ function HomePage() {
             <p>No movies were found.</p>
             ) : (
             <>
-                <p>Number of Movies: {movies.length}</p>
-                <ul>
-                {movies.map((movie) => (
-                    <li key={movie.id}>
-                    {movie.title} - {movie.genre}
-                    </li>
-                ))}
-                </ul>
             </>
             )}
             <div style={{ display: "flex", flexWrap: "wrap" }}>
