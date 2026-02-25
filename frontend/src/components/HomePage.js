@@ -68,50 +68,79 @@ function HomePage() {
     return (
         <div className="app-container">
             <Navigation />
-            <SearchForMovie />
-            
-            <div ref={dropdownRef} className="dropdown-container">
-                {/* Dropdown Button */}
-                <div
+
+<div className="filter-search-row">
+    <SearchForMovie />
+
+    <div className="genre-section">
+        <div ref={dropdownRef} className="dropdown-container">
+            {/* Dropdown Button */}
+            <div
                 onClick={() => setIsOpen(!isOpen)}
                 className="dropdown-button"
+            >
+                {selectedGenres.length === 0
+                    ? "Filter by Genre"
+                    : `${selectedGenres.length} Selected`}
+                <span
+                    className="dropdown-arrow"
+                    style={{
+                        transform: isOpen
+                            ? "rotate(180deg)"
+                            : "rotate(0deg)"
+                    }}
                 >
-                {selectedGenres.length === 0 ? "Filter by Genre" : `${selectedGenres.length} Selected`}
-                <span className="dropdown-arrow" style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▼</span>
-                </div>
+                    ▼
+                </span>
+            </div>
 
-                {/* Dropdown Menu */}
-                {isOpen && (
+            {isOpen && (
                 <div className="dropdown-menu">
                     {genres.map((genre) => (
-                    <label
-                        key={genre}
-                        className={`genre-item ${selectedGenres.includes(genre) ? "checked" : ""}`}
-                    >
-                        <input
-                        type="checkbox"
-                        checked={selectedGenres.includes(genre)}
-                        onChange={() => handleGenreChange(genre)}
-                        />
-                        {genre}
-                    </label>
+                        <label
+                            key={genre}
+                            className={`genre-item ${
+                                selectedGenres.includes(genre)
+                                    ? "checked"
+                                    : ""
+                            }`}
+                        >
+                            <input
+                                type="checkbox"
+                                checked={selectedGenres.includes(genre)}
+                                onChange={() =>
+                                    handleGenreChange(genre)
+                                }
+                            />
+                            {genre}
+                        </label>
                     ))}
                 </div>
-                )}
-            </div>
+            )}
+        </div>
 
-            {/* Selected Pills */}
-            <div className="selected-pills">
-                {selectedGenres.length === 0 ? (
-                <span className="no-movies">None selected</span>
-                ) : (
+        {/* Selected Pills */}
+        <div className="selected-pills">
+            {selectedGenres.length === 0 ? (
+                <span className="no-movies">
+                    None selected
+                </span>
+            ) : (
                 selectedGenres.map((genre) => (
-                    <div key={genre} className="pill" onClick={() => handleGenreChange(genre)}>
-                    {genre} ×
+                    <div
+                        key={genre}
+                        className="pill"
+                        onClick={() =>
+                            handleGenreChange(genre)
+                        }
+                    >
+                        {genre} ×
                     </div>
                 ))
-                )}
-            </div>
+            )}
+        </div>
+    </div>
+</div>
 
             <h2>Movies</h2>
 

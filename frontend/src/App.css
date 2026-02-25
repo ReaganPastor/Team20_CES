@@ -36,10 +36,3 @@
     transform: rotate(360deg);
   }
 }
-
-.app-container {
-  padding: 2rem;
-  font-family: 'Arial', sans-serif;
-  background: #121212;
-  color: #fff;
-}
