@@ -65,13 +65,8 @@ function HomePage() {
     }, []);
 
     // Returns html with layout of page, currently includes Backend Connection check, filters, and list of movies after filter - Reagan
-<<<<<<< HEAD
-    const currentlyRunningMovies = movies.filter((m) => m.year <= 2010); // ADDED - chris
-    const comingSoonMovies = movies.filter((m) => m.year > 2010); // ADDED - chris
-=======
     const currentlyRunningMovies = movies.filter((m) => m.status === "NOW_PLAYING"); // ADDED - chris
     const comingSoonMovies = movies.filter((m) => m.status === "COMING_SOON"); // ADDED - chris
->>>>>>> origin/main
     return (
         <div className="app-container">
             <Navigation />
@@ -125,14 +120,6 @@ function HomePage() {
                             </div>
                         )}
                     </div>
-<<<<<<< HEAD
-                ))
-            )}
-        </div>x
-    </div>
-</div>
-=======
->>>>>>> origin/main
 
                     {/* Selected Pills */}
                     <div className="selected-pills">
@@ -156,23 +143,6 @@ function HomePage() {
                     </div>
                 </div>
             </div>
-<<<<<<< HEAD
-            <h2>Currently Running</h2>
-
-            <div style={{ display: "flex", flexWrap: "wrap" }}>
-                {currentlyRunningMovies.map((movie, index) => (
-                    <MovieCard key={index} movie={movie} />
-                ))}
-            </div>
-
-            <h2>Coming Soon</h2>
-
-            <div style={{ display: "flex", flexWrap: "wrap" }}>
-                {comingSoonMovies.map((movie, index) => (
-                    <MovieCard key={index} movie={movie} />
-                ))}
-            </div>
-=======
 
             {/* Currently Running */}
             <h2>Currently Running</h2>
@@ -189,7 +159,6 @@ function HomePage() {
             ) : (
             <MovieCarousel movies={comingSoonMovies} moviesPerPage={6} />
             )}
->>>>>>> origin/main
         </div>
     );
 }

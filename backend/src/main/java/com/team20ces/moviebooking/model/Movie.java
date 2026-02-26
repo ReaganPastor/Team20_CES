@@ -15,8 +15,18 @@ public class Movie {
     private String description;
     private int durationMinutes;
 
+    // ChrisKim added this
+    private String country;
+
+    // ChrisKim added this
+    private String production;
+
+    // ChrisKim added this
+    private String cast;
+
     public Movie() {}
 
+    // ChrisKim added this - keep the original 10-arg constructor that MovieService uses
     public Movie(Long id, String title, String status,
                  String genre, String mpaaRating, String posterUrl,
                  int year, double rating, String description, int durationMinutes) {
@@ -33,6 +43,18 @@ public class Movie {
         this.durationMinutes = durationMinutes;
     }
 
+    // ChrisKim added this - optional extended constructor if you want to set extra fields via constructor
+    public Movie(Long id, String title, String status,
+                 String genre, String mpaaRating, String posterUrl,
+                 int year, double rating, String description, int durationMinutes,
+                 String country, String production, String cast) {
+
+        this(id, title, status, genre, mpaaRating, posterUrl, year, rating, description, durationMinutes);
+        this.country = country;
+        this.production = production;
+        this.cast = cast;
+    }
+
     // Getters
 
     public Long getId() { return id; }
@@ -46,6 +68,15 @@ public class Movie {
     public String getDescription() { return description; }
     public int getDurationMinutes() { return durationMinutes; }
 
+    // ChrisKim added this
+    public String getCountry() { return country; }
+
+    // ChrisKim added this
+    public String getProduction() { return production; }
+
+    // ChrisKim added this
+    public String getCast() { return cast; }
+
     // Setters
 
     public void setId(Long id) { this.id = id; }
@@ -58,4 +89,13 @@ public class Movie {
     public void setRating(double rating) { this.rating = rating; }
     public void setDescription(String description) { this.description = description; }
     public void setDurationMinutes(int durationMinutes) { this.durationMinutes = durationMinutes; }
+
+    // ChrisKim added this
+    public void setCountry(String country) { this.country = country; }
+
+    // ChrisKim added this
+    public void setProduction(String production) { this.production = production; }
+
+    // ChrisKim added this
+    public void setCast(String cast) { this.cast = cast; }
 }
