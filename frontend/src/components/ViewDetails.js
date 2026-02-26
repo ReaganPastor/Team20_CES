@@ -85,15 +85,10 @@ function ViewDetails() {
          
           <p><strong>Duration:</strong> {movie.durationMinutes} min</p>
 
-         
-          <p><strong>Country:</strong> {movie.country || "Unknown"}</p>
-
-          
-          <p><strong>Production:</strong> {movie.production || "Unknown"}</p>
-
-         
-          <p><strong>Cast:</strong> {movie.cast || "Unknown"}</p>
-
+          {/* we will implement these later */}
+          {/* <p><strong>Country:</strong> {movie.country || "Unknown"}</p> */}
+          {/* <p><strong>Production:</strong> {movie.production || "Unknown"}</p> */}
+          {/* <p><strong>Cast:</strong> {movie.cast || "Unknown"}</p> */} 
          
           {isNowPlaying ? (
             <div style={{ marginTop: "18px" }}>
@@ -125,7 +120,7 @@ function ViewDetails() {
               </div>
             </div>
           ) : (
-            // ChrisKim added this
+           
             <p style={{ marginTop: "18px", color: "#94a3b8" }}>
               <strong>Coming Soon:</strong> Booking is not available yet.
             </p>

@@ -15,18 +15,14 @@ public class Movie {
     private String description;
     private int durationMinutes;
 
-    // ChrisKim added this
-    private String country;
-
-    // ChrisKim added this
-    private String production;
-
-    // ChrisKim added this
-    private String cast;
+    // Implement later
+    // private String country;
+    // private String production;
+    // private String cast;
 
     public Movie() {}
 
-    // ChrisKim added this - keep the original 10-arg constructor that MovieService uses
+   
     public Movie(Long id, String title, String status,
                  String genre, String mpaaRating, String posterUrl,
                  int year, double rating, String description, int durationMinutes) {
@@ -43,7 +39,8 @@ public class Movie {
         this.durationMinutes = durationMinutes;
     }
 
-    // ChrisKim added this - optional extended constructor if you want to set extra fields via constructor
+    // implement later
+    /* 
     public Movie(Long id, String title, String status,
                  String genre, String mpaaRating, String posterUrl,
                  int year, double rating, String description, int durationMinutes,
@@ -54,6 +51,7 @@ public class Movie {
         this.production = production;
         this.cast = cast;
     }
+   */
 
     // Getters
 
@@ -68,14 +66,10 @@ public class Movie {
     public String getDescription() { return description; }
     public int getDurationMinutes() { return durationMinutes; }
 
-    // ChrisKim added this
-    public String getCountry() { return country; }
-
-    // ChrisKim added this
-    public String getProduction() { return production; }
-
-    // ChrisKim added this
-    public String getCast() { return cast; }
+   // implement later 
+   // public String getCountry() { return country; }
+   // public String getProduction() { return production; }
+   // public String getCast() { return cast; }
 
     // Setters
 
@@ -90,12 +84,8 @@ public class Movie {
     public void setDescription(String description) { this.description = description; }
     public void setDurationMinutes(int durationMinutes) { this.durationMinutes = durationMinutes; }
 
-    // ChrisKim added this
-    public void setCountry(String country) { this.country = country; }
-
-    // ChrisKim added this
-    public void setProduction(String production) { this.production = production; }
-
-    // ChrisKim added this
-    public void setCast(String cast) { this.cast = cast; }
+    // implement later
+    // public void setCountry(String country) { this.country = country; }
+    // public void setProduction(String production) { this.production = production; }
+    // public void setCast(String cast) { this.cast = cast; }
 }
