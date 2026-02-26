@@ -44,7 +44,17 @@ function BookingPage() {
         <div className="ticket-section">
 
           <div className="ticket-row">
+            <div className="ticket-label">Child</div>
+            <input className="ticket-input" type="number" id="childTickets" />
+          </div>
+
+          <div className="ticket-row">
             <div className="ticket-label">Adult</div>
+            <input className="ticket-input" type="number" />
+          </div>
+
+          <div className="ticket-row">
+            <div className="ticket-label">Senior</div>
             <input className="ticket-input" type="number" />
           </div>
 
