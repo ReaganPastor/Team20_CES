@@ -34,11 +34,21 @@ function ViewDetails() {
   
   const showtimes = isNowPlaying ? ["12:30 PM", "2:45 PM", "5:10 PM", "7:30 PM", "9:50 PM"] : [];
 
-  
+  /*
   const handleBookTickets = () => {
     if (!selectedShowtime) return;
     setBookingMessage(`Booked "${movie.title}" at ${selectedShowtime} (placeholder, remove later).`);
   };
+`*/
+
+  function handleBookTickets(showtime) {
+    navigate("/book", {
+      state: {
+        movie: movie,
+        showtime: showtime
+      }
+    });
+  }
 
   return (
     <div>
@@ -147,7 +157,7 @@ function ViewDetails() {
            {/* Handles if showtime is selected then shows the booking button*/}
             {isNowPlaying && (
               <button
-                onClick={handleBookTickets}
+                onClick={() => handleBookTickets(selectedShowtime)}
                 disabled={!selectedShowtime}
                 style={{
                   padding: "10px 16px",
