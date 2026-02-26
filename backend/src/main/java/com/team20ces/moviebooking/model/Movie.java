@@ -15,8 +15,14 @@ public class Movie {
     private String description;
     private int durationMinutes;
 
+    // Implement later
+    // private String country;
+    // private String production;
+    // private String cast;
+
     public Movie() {}
 
+   
     public Movie(Long id, String title, String status,
                  String genre, String mpaaRating, String posterUrl,
                  int year, double rating, String description, int durationMinutes) {
@@ -33,6 +39,20 @@ public class Movie {
         this.durationMinutes = durationMinutes;
     }
 
+    // implement later
+    /* 
+    public Movie(Long id, String title, String status,
+                 String genre, String mpaaRating, String posterUrl,
+                 int year, double rating, String description, int durationMinutes,
+                 String country, String production, String cast) {
+
+        this(id, title, status, genre, mpaaRating, posterUrl, year, rating, description, durationMinutes);
+        this.country = country;
+        this.production = production;
+        this.cast = cast;
+    }
+   */
+
     // Getters
 
     public Long getId() { return id; }
@@ -46,6 +66,11 @@ public class Movie {
     public String getDescription() { return description; }
     public int getDurationMinutes() { return durationMinutes; }
 
+   // implement later 
+   // public String getCountry() { return country; }
+   // public String getProduction() { return production; }
+   // public String getCast() { return cast; }
+
     // Setters
 
     public void setId(Long id) { this.id = id; }
@@ -58,4 +83,9 @@ public class Movie {
     public void setRating(double rating) { this.rating = rating; }
     public void setDescription(String description) { this.description = description; }
     public void setDurationMinutes(int durationMinutes) { this.durationMinutes = durationMinutes; }
+
+    // implement later
+    // public void setCountry(String country) { this.country = country; }
+    // public void setProduction(String production) { this.production = production; }
+    // public void setCast(String cast) { this.cast = cast; }
 }
