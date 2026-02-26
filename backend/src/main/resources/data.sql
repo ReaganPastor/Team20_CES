@@ -4,7 +4,7 @@
 -- DB should store web paths like /posters/movie1.jpg and /trailers/movie1.mp4
 -- data.sql
 INSERT INTO movies (title, description, rating, genre, poster_path, trailer_path, status) VALUES
-('Interstellar', 'A team travels through a wormhole in space to ensure humanity''s survival.', 'PG-13', 'Sci-Fi', '/posters/Interstellar.jpeg', '/trailers/Interstellar_Trailer.mp4', 'Currently Running'),
+('Interstellar', 'A team travels through a wormhole in space to ensure humanity''s survival.', 'PG-13', 'Sci-Fi', '/posters/Interstellar.jpeg', '/trailers/Intersellar_Trailer.mp4', 'Currently Running'),
 
 ('The Dark Knight', 'Batman faces the Joker, a criminal mastermind causing chaos in Gotham City.', 'PG-13', 'Action', '/posters/The_Dark_Knight.jpeg', '/trailers/Dark_Knight_Trailer.mp4', 'Currently Running'),
 
@@ -22,7 +22,8 @@ INSERT INTO movies (title, description, rating, genre, poster_path, trailer_path
 
 ('Cinderella', 'A classic fairy tale of kindness, courage, and transformation.', 'G', 'Family', '/posters/Cinderella.jpeg', '/trailers/Cinderella_Trailer.mp4', 'Coming Soon'),
 
-('Cars', 'A race car learns humility and friendship in a small town.', 'G', 'Animation', '/posters/Cars.jpeg', '/trailers/Cars_Trailer.mp4', 'Coming Soon');
+('Cars', 'A race car learns humility and friendship in a small town.', 'G', 'Animation', '/posters/Cars.jpeg', '/trailers/Cars_1_Trailer.mp4', 'Coming Soon');
+
 
 
 -- Showings (3 Showings per movie, across multiple dates for filter demo)
@@ -46,5 +47,5 @@ SELECT id, DATE '2026-03-08', TIME '17:00'
 FROM movies;
 INSERT INTO showings (movie_id, show_date, show_time)
 SELECT id, DATE '2026-03-08', TIME '20:00'
-FROM movies;
 
+FROM movies;
