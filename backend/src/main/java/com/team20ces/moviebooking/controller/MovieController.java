@@ -58,4 +58,11 @@ public class MovieController {
 
         return ResponseEntity.ok(results);
     }
+
+    // GET /movies/genres
+    @GetMapping("/genres")
+    public ResponseEntity<List<String>> getGenres() {
+        List<String> genres = movieService.getAllGenres();
+        return ResponseEntity.ok(genres);
+    }
 }
