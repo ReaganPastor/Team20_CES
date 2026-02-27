@@ -17,9 +17,19 @@ function MovieCard({ movie }) {
       }}
     >
       
-      <img src={movie.poster_path} alt={movie.title} style={{ width: "100%", borderRadius: "8px" }} />
+      <img 
+        src={movie.poster_path} 
+        alt={movie.title}
+        onError={(e) => {
+            // Only set fallback once
+            if (e.target.src !== "/icons/NoPoster.png") {
+              e.target.src = "/icons/NoPoster.png";
+            }
+        }}
+        style={{ width: "100%", height: "285px", borderRadius: "8px" }} 
+      />
       <h2 style={{ fontSize: "18px" }}>{movie.title}</h2>
-      <p><strong>Year:</strong> {movie.year}</p>
+      <p><strong>Rating:</strong> {movie.rating}</p>
       <p><strong>Genre:</strong> {movie.genre}</p>
       {/*<p><strong>Duration:</strong> {movie.durationMinutes} min</p> */}{/* ADDED duration */}
       <button class="view-details-btn" onClick={() => navigate(`/movies/${movie.id}`)}>View Details</button>

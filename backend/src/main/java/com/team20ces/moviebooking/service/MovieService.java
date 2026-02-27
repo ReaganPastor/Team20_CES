@@ -91,4 +91,10 @@ public class MovieService {
                 params.toArray()
         );
     }
+
+    // MovieService.java
+    public List<String> getAllGenres() {
+        String sql = "SELECT DISTINCT genre FROM movies ORDER BY genre";
+        return jdbcTemplate.queryForList(sql, String.class);
+    }
 }
