@@ -1,4 +1,5 @@
 package com.team20ces.moviebooking.model;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Movie {
 
@@ -37,7 +38,9 @@ public class Movie {
     public String getDescription() { return description; }
     public String getRating() { return rating; }
     public String getGenre() { return genre; }
+    @JsonProperty("poster_path")
     public String getPosterPath() { return poster_path; }
+    @JsonProperty("trailer_path")
     public String getTrailerPath() { return trailer_path; }
     public String getStatus() { return status; }
 
