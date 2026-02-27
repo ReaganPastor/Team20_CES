@@ -75,6 +75,7 @@ function ViewDetails() {
           }}
           style={{
             width: "300px",
+            height: "450px",
             borderRadius: "12px",
             boxShadow: "0 6px 18px rgba(0,0,0,0.5)"
           }}
