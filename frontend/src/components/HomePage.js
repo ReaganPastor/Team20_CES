@@ -14,13 +14,6 @@ function HomePage() {
 
     const genres = ["Sci-Fi", "Romance", "Thriller", "Crime", "Genre with No Movies"];
 
-    useEffect(() => {
-        fetch("http://localhost:8080/hello")
-        .then((res) => res.text())
-        .then((data) => setMessage(data))
-        .catch(() => setMessage("Error connecting to backend"));
-    }, []);
-
     // Creates query to fetch movies by genre - Reagan
     const getMoviesByGenres = async (genres) => {
         try {
@@ -65,8 +58,8 @@ function HomePage() {
     }, []);
 
     // Returns html with layout of page, currently includes Backend Connection check, filters, and list of movies after filter - Reagan
-    const currentlyRunningMovies = movies.filter((m) => m.status === "NOW_PLAYING"); // ADDED - chris
-    const comingSoonMovies = movies.filter((m) => m.status === "COMING_SOON"); // ADDED - chris
+    const currentlyRunningMovies = movies.filter((m) => m.status === "Currently Running"); // ADDED - chris
+    const comingSoonMovies = movies.filter((m) => m.status === "Coming Soon"); // ADDED - chris
     return (
         <div className="app-container">
             <Navigation />
