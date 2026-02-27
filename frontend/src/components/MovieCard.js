@@ -16,15 +16,12 @@ function MovieCard({ movie }) {
         boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
       }}
     >
-    <img
-        src={movie.posterUrl}
-        alt={movie.title}
-        style={{ width: "100%", borderRadius: "8px" }}
-    />
+      
+      <img src={movie.poster_path} alt={movie.title} style={{ width: "100%", borderRadius: "8px" }} />
       <h2 style={{ fontSize: "18px" }}>{movie.title}</h2>
       <p><strong>Year:</strong> {movie.year}</p>
       <p><strong>Genre:</strong> {movie.genre}</p>
-      <p><strong>Duration:</strong> {movie.durationMinutes} min</p> {/* ADDED duration */}
+      {/*<p><strong>Duration:</strong> {movie.durationMinutes} min</p> */}{/* ADDED duration */}
       <button class="view-details-btn" onClick={() => navigate(`/movies/${movie.id}`)}>View Details</button>
     </div>
   );
