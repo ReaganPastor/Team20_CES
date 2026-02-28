@@ -37,7 +37,18 @@ function ViewDetails() {
   
   const handleBookTickets = () => {
     if (!selectedShowtime) return;
-    setBookingMessage(`Booked "${movie.title}" at ${selectedShowtime} (placeholder, remove later).`);
+  
+    
+    // setBookingMessage(`Booked "${movie.title}" at ${selectedShowtime} (placeholder, remove later).`);
+  
+    navigate("/booking", {
+      state: {
+        movieId: movie.id,
+        movieTitle: movie.title,
+        posterUrl: movie.posterUrl,
+        showtime: selectedShowtime
+      }
+    });
   };
 
   return (
