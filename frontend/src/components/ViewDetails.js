@@ -178,7 +178,6 @@ function ViewDetails() {
               </button>
             )}
           </div>
-
           
           {bookingMessage && (
             <p style={{ marginTop: "12px", color: "#93c5fd" }}>
