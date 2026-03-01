@@ -1,0 +1,140 @@
+/* Full page */
+.booking-page {
+  min-height: 100vh;
+  background-color: #020617;
+  color: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+
+/* Main booking container */
+.booking-card {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 30px;
+  width: 420px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+}
+
+
+/* Movie title */
+.booking-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+
+/* Showtime text */
+.booking-showtime {
+  color: #94a3b8;
+  margin-bottom: 25px;
+}
+
+
+/* Ticket section */
+.ticket-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+
+/* Each row */
+.ticket-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+/* Label */
+.ticket-label {
+  font-weight: bold;
+}
+
+
+/* Input */
+.ticket-input {
+  width: 70px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background-color: #020617;
+  color: #f1f5f9;
+  text-align: center;
+  font-size: 15px;
+}
+
+
+.ticket-input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+
+/* Total section */
+.total-section {
+  border-top: 1px solid #334155;
+  margin-top: 20px;
+  padding-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+
+/* Buttons row */
+.button-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+
+/* Back button (matches your other pages) */
+.back-button {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #f1f5f9;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+
+.back-button:hover {
+  background: #334155;
+}
+
+
+/* Checkout button */
+.checkout-button {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+
+.checkout-button:hover {
+  background: #1d4ed8;
+}
+
+
+.checkout-button:disabled {
+  background: #1d4ed8;
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -29,27 +29,26 @@ function ViewDetails() {
   if (!movie) return <p>Loading movie details...</p>;
 
 
-  const isNowPlaying = (movie.status || "").toUpperCase() === "NOW_PLAYING";
+  const isNowPlaying = (movie.status || "") === "Currently Running";
 
   
   const showtimes = isNowPlaying ? ["12:30 PM", "2:45 PM", "5:10 PM", "7:30 PM", "9:50 PM"] : [];
 
-  
+  /*
   const handleBookTickets = () => {
     if (!selectedShowtime) return;
-  
-    
-    // setBookingMessage(`Booked "${movie.title}" at ${selectedShowtime} (placeholder, remove later).`);
-  
-    navigate("/booking", {
+    setBookingMessage(`Booked "${movie.title}" at ${selectedShowtime} (placeholder, remove later).`);
+  };
+`*/
+
+  function handleBookTickets(showtime) {
+    navigate("/book", {
       state: {
-        movieId: movie.id,
-        movieTitle: movie.title,
-        posterUrl: movie.posterUrl,
-        showtime: selectedShowtime
+        movie: movie,
+        showtime: showtime
       }
     });
-  };
+  }
 
   return (
     <div>
@@ -65,18 +64,22 @@ function ViewDetails() {
         }}
       >
         
-        <div>
-          <img
-            src={movie.posterUrl}
-            alt={movie.title}
-            style={{
-              width: "300px",
-              borderRadius: "12px",
-              boxShadow: "0 6px 18px rgba(0,0,0,0.5)"
-            }}
-          />
-        </div>
-
+        <img
+          src={movie.poster_path}
+          alt={movie.title}
+          onError={(e) => {
+            // Only set fallback once
+            if (e.target.src !== "/icons/NoPoster.png") {
+              e.target.src = "/icons/NoPoster.png";
+            }
+          }}
+          style={{
+            width: "300px",
+            height: "450px",
+            borderRadius: "12px",
+            boxShadow: "0 6px 18px rgba(0,0,0,0.5)"
+          }}
+        />
        
         <div style={{ maxWidth: "700px" }}>
           
@@ -158,7 +161,7 @@ function ViewDetails() {
            {/* Handles if showtime is selected then shows the booking button*/}
             {isNowPlaying && (
               <button
-                onClick={handleBookTickets}
+                onClick={() => handleBookTickets(selectedShowtime)}
                 disabled={!selectedShowtime}
                 style={{
                   padding: "10px 16px",
@@ -175,7 +178,6 @@ function ViewDetails() {
               </button>
             )}
           </div>
-
           
           {bookingMessage && (
             <p style={{ marginTop: "12px", color: "#93c5fd" }}>
@@ -183,6 +185,20 @@ function ViewDetails() {
             </p>
           )}
         </div>
+      </div>
+
+      <div style={{ marginTop: "40px", textAlign: "center" }}>
+        <h2 style={{ marginBottom: "12px" }}>Trailer</h2>
+        <video
+          controls
+          width="640"
+          style={{
+            borderRadius: "12px",
+            boxShadow: "0 6px 18px rgba(0,0,0,0.5)"
+          }}
+        >
+          <source src={movie.trailer_path} type="video/mp4" />
+        </video>
       </div>
     </div>
   );
