@@ -4,17 +4,13 @@ import HomePage from "./components/HomePage";
 import ViewDetails from "./components/ViewDetails";
 import BookingPage from "./components/BookingPage";
 
-
-import BookingPage from "./components/BookingPage";
-
-
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/movies/:id" element={<ViewDetails />} />        
-        <Route path="/booking" element={<BookingPage />} /> 
+        <Route path="/movies/:id" element={<ViewDetails />} />
+        <Route path="/book" element={<BookingPage />} />
       </Routes>
     </Router>
   );
