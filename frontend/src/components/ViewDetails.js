@@ -40,7 +40,7 @@ function ViewDetails() {
     setBookingMessage(`Booked "${movie.title}" at ${selectedShowtime} (placeholder, remove later).`);
   };
 `*/
-
+  /** 
   function handleBookTickets(showtime) {
     navigate("/book", {
       state: {
@@ -49,7 +49,7 @@ function ViewDetails() {
       }
     });
   }
-
+  */
   return (
     <div>
       <Navigation />
@@ -161,7 +161,7 @@ function ViewDetails() {
            {/* Handles if showtime is selected then shows the booking button*/}
             {isNowPlaying && (
               <button
-                onClick={() => handleBookTickets(selectedShowtime)}
+                onClick={() => navigate(`/movies/${movie.id}/book`)}
                 disabled={!selectedShowtime}
                 style={{
                   padding: "10px 16px",
