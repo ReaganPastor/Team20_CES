@@ -78,7 +78,15 @@ function BookingPage() {
         {/* Booking Section */}
         <div className="booking-info-box">
           <div className="movie-info">
-            <img src={movie.poster_path} alt={movie.title} className="movie-poster" />
+            <img
+              src={movie.poster_path}
+              alt={movie.title}
+              className="movie-poster"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/icons/NoPoster.png";
+              }}
+            />
             <div>
               <h3>{movie.title}</h3>
               <p><strong>Time:</strong> {passedShowtime || movie.showtime}</p>
