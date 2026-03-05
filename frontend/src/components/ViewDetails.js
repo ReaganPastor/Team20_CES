@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Navigation from "./Navigation";
+import "./ViewDetails.css";
 
 function ViewDetails() {
   const { id } = useParams();
@@ -29,128 +30,105 @@ function ViewDetails() {
   return (
     <div>
       <Navigation />
+    
+      <div className="view-details-page">
+        {/* Movie info + poster */}
+        <div className="movie-card">
+          <img
+            src={movie.poster_path}
+            alt={movie.title}
+            onError={(e) => { if (e.target.src !== "/icons/NoPoster.png") e.target.src = "/icons/NoPoster.png"; }}
+          />
 
-      <div
-        style={{
-          display: "flex",
-          gap: "40px",
-          padding: "40px",
-          alignItems: "flex-start"
-        }}
-      >
-        <img
-          src={movie.poster_path}
-          alt={movie.title}
-          onError={(e) => {
-            if (e.target.src !== "/icons/NoPoster.png") {
-              e.target.src = "/icons/NoPoster.png";
-            }
-          }}
-          style={{
-            width: "300px",
-            height: "450px",
-            borderRadius: "12px",
-            boxShadow: "0 6px 18px rgba(0,0,0,0.5)"
-          }}
-        />
+          <div className="movie-info">
+            <h1>{movie.title}</h1>
+            <p><strong>Genre:</strong> {movie.genre}</p>
+            {/* <p><strong>Year:</strong> {movie.year}</p> */}
+            <p><strong>Rating:</strong> {movie.rating}</p>
+            <p><strong>Description:</strong> {movie.description}</p>
+            {/* <p><strong>Duration:</strong> {movie.durationMinutes} min</p> */}
 
-        <div style={{ maxWidth: "700px" }}>
-          <h1 style={{ fontSize: "2.5rem", marginBottom: "20px" }}>{movie.title}</h1>
-          <p><strong>Genre:</strong> {movie.genre}</p>
-          <p><strong>Year:</strong> {movie.year}</p>
-          <p><strong>Rating:</strong> {movie.rating}</p>
-          <p><strong>Description:</strong> {movie.description}</p>
-          <p><strong>Duration:</strong> {movie.durationMinutes} min</p>
+            {/* Showtime + booking buttons in sub-box */}
+            <div className="booking-section">
+              {isNowPlaying ? (
+                <div className="showtimes-wrapper">
+                  <p>Select Showtime:</p>
+                  <div className="showtimes-buttons">
+                    {showtimes.map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => { setSelectedShowtime(t); setBookingMessage(""); }}
+                        style={{
+                          padding: "10px 14px",
+                          borderRadius: "10px",
+                          border: selectedShowtime === t ? "2px solid #2563eb" : "1px solid #334155",
+                          background: selectedShowtime === t ? "#0b2a5b" : "#1e293b",
+                          color: "#f1f5f9",
+                          cursor: "pointer",
+                          fontWeight: "bold"
+                        }}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="coming-soon">Coming Soon: Booking is not available yet.</p>
+              )}
 
-          {isNowPlaying ? (
-            <div style={{ marginTop: "18px" }}>
-              <p style={{ marginBottom: "8px" }}><strong>Select Showtime:</strong></p>
+              <div className="button-row">
+                <button
+                  onClick={() => navigate("/")}
+                  style={{
+                    padding: "10px 16px",
+                    borderRadius: "10px",
+                    border: "1px solid #334155",
+                    background: "#1e293b",
+                    color: "#f1f5f9",
+                    cursor: "pointer",
+                    fontWeight: "bold"
+                  }}
+                >
+                  Back to Homepage
+                </button>
 
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-                {showtimes.map((t) => (
+                {isNowPlaying && (
                   <button
-                    key={t}
-                    onClick={() => {
-                      setSelectedShowtime(t);
-                      setBookingMessage("");
-                    }}
+                    onClick={() =>
+                      navigate(`/movies/${movie.id}/book`, { state: { selectedShowtime } })
+                    }
+                    disabled={!selectedShowtime}
                     style={{
-                      padding: "10px 14px",
+                      padding: "10px 16px",
                       borderRadius: "10px",
-                      border: selectedShowtime === t ? "2px solid #2563eb" : "1px solid #334155",
-                      background: selectedShowtime === t ? "#0b2a5b" : "#1e293b",
-                      color: "#f1f5f9",
-                      cursor: "pointer",
-                      fontWeight: "bold"
+                      border: "none",
+                      background: !selectedShowtime ? "#1d4ed8" : "#2563eb",
+                      color: "white",
+                      cursor: !selectedShowtime ? "not-allowed" : "pointer",
+                      fontWeight: "bold",
+                      opacity: !selectedShowtime ? 0.6 : 1
                     }}
                   >
-                    {t}
+                    Book Tickets
                   </button>
-                ))}
+                )}
               </div>
+
+              {bookingMessage && (
+                <p style={{ marginTop: "12px", color: "#93c5fd" }}>{bookingMessage}</p>
+              )}
             </div>
-          ) : (
-            <p style={{ marginTop: "18px", color: "#94a3b8" }}>
-              <strong>Coming Soon:</strong> Booking is not available yet.
-            </p>
-          )}
-
-          <div style={{ display: "flex", gap: "12px", marginTop: "20px", alignItems: "center" }}>
-            <button
-              onClick={() => navigate("/")}
-              style={{
-                padding: "10px 16px",
-                borderRadius: "10px",
-                border: "1px solid #334155",
-                background: "#1e293b",
-                color: "#f1f5f9",
-                cursor: "pointer",
-                fontWeight: "bold"
-              }}
-            >
-              Back to Homepage
-            </button>
-
-            {isNowPlaying && (
-              <button
-                onClick={() =>
-                  navigate(`/movies/${movie.id}/book`, { state: { selectedShowtime } })
-                }
-                disabled={!selectedShowtime}
-                style={{
-                  padding: "10px 16px",
-                  borderRadius: "10px",
-                  border: "none",
-                  background: !selectedShowtime ? "#1d4ed8" : "#2563eb",
-                  color: "white",
-                  cursor: !selectedShowtime ? "not-allowed" : "pointer",
-                  fontWeight: "bold",
-                  opacity: !selectedShowtime ? 0.6 : 1
-                }}
-              >
-                Book Tickets
-              </button>
-            )}
           </div>
-
-          {bookingMessage && (
-            <p style={{ marginTop: "12px", color: "#93c5fd" }}>{bookingMessage}</p>
-          )}
         </div>
-      </div>
 
-      <div style={{ marginTop: "40px", textAlign: "center" }}>
-        <h2 style={{ marginBottom: "12px" }}>Trailer</h2>
-        <video
-          controls
-          width="640"
-          style={{ borderRadius: "12px", boxShadow: "0 6px 18px rgba(0,0,0,0.5)" }}
-        >
-          <source 
-            src={movie.trailer_path}
-            type="video/mp4" 
-          />
-        </video>
+        {/* Trailer section */}
+        <div className="trailer-section">
+          <h2>Trailer</h2>
+          <video controls>
+            <source src={movie.trailer_path} type="video/mp4" />
+          </video>
+        </div>
       </div>
     </div>
   );
