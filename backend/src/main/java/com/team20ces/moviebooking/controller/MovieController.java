@@ -21,6 +21,25 @@ public class MovieController {
         this.movieService = movieService;
     }
 
+    // POST /movies
+    @PostMapping
+    public ResponseEntity<Movie> addMovie(@RequestBody Movie movie) {
+        Movie savedMovie = movieService.addMovie(movie);
+        return ResponseEntity.ok(savedMovie);
+    }
+
+    // DELETE /movies/{id}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
+        boolean deleted = movieService.deleteMovie(id);
+
+        if (deleted) {
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } else {
+            return ResponseEntity.notFound().build(); // 404 Not Found
+        }
+    }
+
     // GET /movies
     @GetMapping
     public List<Movie> getAllMovies(
