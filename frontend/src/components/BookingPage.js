@@ -1,10 +1,19 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
 import Navigation from "./Navigation";
 
 function BookingPage() {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { id } = useParams();
+  const [movie, setMovie] = useState(null);
+
+  useEffect(() => {
+    fetch(`http://localhost:8080/movies/${id}`)
+      .then(res => res.json())
+      .then(data => setMovie(data))
+      .catch(err => console.error(err));
+  }, [id]);
+
 
   const rows = ["A","B","C","D","E","F","G","H"];
   const cols = [1,2,3,4,5,6,7,8,9,10,11,12];
@@ -13,7 +22,7 @@ function BookingPage() {
 
   const [selectedSeats, setSelectedSeats] = useState([]);
 
-  if (!state) {
+  if (!movie) {
     return (
       <div>
         <Navigation />
@@ -25,9 +34,9 @@ function BookingPage() {
     );
   }
 
-  const { movieTitle, posterUrl, showtime } = state;
+  //const { movieTitle, posterUrl, showtime } = state;
 
-  const panelWidth = "1050px"; // change this if you want it more right / left 
+  const panelWidth = "1050px";
 
   const seatIsWheelchair = (seat) => wheelchairSeats.includes(seat);
 
@@ -42,7 +51,7 @@ function BookingPage() {
   const confirm = () => {
     if (selectedSeats.length === 0) return;
     alert(
-      `Movie: ${movieTitle}\nTime: ${showtime}\nSeats: ${selectedSeats.sort().join(", ")}`
+      `Movie: ${movie.title}\nTime: ${movie.showtime}\nSeats: ${selectedSeats.sort().join(", ")}`
     );
   };
 
@@ -158,13 +167,13 @@ function BookingPage() {
 
               <div style={{ display: "flex", gap: "12px" }}>
                 <img
-                  src={posterUrl}
-                  alt={movieTitle}
+                  src={movie.poster_path}
+                  alt={movie.title}
                   style={{ width: "110px", borderRadius: "10px" }}
                 />
                 <div>
-                  <p style={{ margin: 0, fontWeight: "bold" }}>{movieTitle}</p>
-                  <p style={{ marginTop: "8px" }}><strong>Time:</strong> {showtime}</p>
+                  <p style={{ margin: 0, fontWeight: "bold" }}>{movie.title}</p>
+                  <p style={{ marginTop: "8px" }}><strong>Time:</strong> {movie.showtime}</p>
                 </div>
               </div>
 
@@ -184,8 +193,32 @@ function BookingPage() {
               </div>
 
               <div style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
-                <button onClick={() => navigate(-1)}>Back</button>
-                <button onClick={confirm} disabled={selectedSeats.length === 0}>
+                <button
+                  onClick={() => navigate(-1)}
+                  style={{
+                    padding: "10px 16px",
+                    borderRadius: "10px",
+                    border: "1px solid #334155",
+                    background: "#1e293b",
+                    color: "#f1f5f9",
+                    cursor: "pointer",
+                    fontWeight: "bold"
+                  }}
+                >
+                  Back to Movie Details
+                </button>
+                <button onClick={confirm} 
+                disabled={selectedSeats.length === 0}
+                style={{
+                  padding: "10px 16px",
+                  borderRadius: "10px",
+                  border: "none",
+                  background: selectedSeats.length == 0 ? "#1d4ed8" : "#2563eb",
+                  color: "white",
+                  cursor: selectedSeats.length === 0 ? "not-allowed" : "pointer",
+                  fontWeight: "bold",
+                  opacity: selectedSeats.length == 0 ? 0.6 : 1
+                }}>
                   Confirm
                 </button>
               </div>
