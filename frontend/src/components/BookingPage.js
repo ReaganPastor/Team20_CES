@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Navigation from "./Navigation";
 import "./BookingPage.css";
@@ -6,6 +6,9 @@ import "./BookingPage.css";
 function BookingPage() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const location = useLocation();
+  const passedShowtime = location.state?.selectedShowtime || ""; // <-- get showtime from state
+
   const [movie, setMovie] = useState(null);
 
   useEffect(() => {
@@ -19,7 +22,7 @@ function BookingPage() {
   const cols = [1,2,3,4,5,6,7,8,9,10,11,12];
   const wheelchairSeats = ["A1","A2","A11","A12"];
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const [tickets, setTickets] = useState({ adult: 0, child: 0, senior: 0 }); // start at 0
+  const [tickets, setTickets] = useState({ adult: 0, child: 0, senior: 0 });
   const prices = { adult: 12, child: 8, senior: 10 };
 
   if (!movie) return (
@@ -49,7 +52,7 @@ function BookingPage() {
   };
 
   const handleTicketChange = (type, value) => {
-    let val = Math.max(0, parseInt(value) || 0); // min 0
+    let val = Math.max(0, parseInt(value) || 0);
     const newTickets = { ...tickets, [type]: val };
     const newTotal = Object.values(newTickets).reduce((a,b) => a+b, 0);
 
@@ -63,7 +66,7 @@ function BookingPage() {
   const confirm = () => {
     if (selectedSeats.length === 0) return;
     alert(
-      `Movie: ${movie.title}\nTime: ${movie.showtime}\nSeats: ${selectedSeats.sort().join(", ")}\nTickets: Adult-${tickets.adult}, Child-${tickets.child}, Senior-${tickets.senior}\nTotal: $${totalPrice}`
+      `Movie: ${movie.title}\nTime: ${passedShowtime || movie.showtime}\nSeats: ${selectedSeats.sort().join(", ")}\nTickets: Adult-${tickets.adult}, Child-${tickets.child}, Senior-${tickets.senior}\nTotal: $${totalPrice}`
     );
   };
 
@@ -72,14 +75,13 @@ function BookingPage() {
       <Navigation />
 
       <div className="booking-container">
-
         {/* Booking Section */}
         <div className="booking-info-box">
           <div className="movie-info">
             <img src={movie.poster_path} alt={movie.title} className="movie-poster" />
             <div>
               <h3>{movie.title}</h3>
-              <p><strong>Time:</strong> {movie.showtime}</p>
+              <p><strong>Time:</strong> {passedShowtime || movie.showtime}</p>
             </div>
           </div>
 
