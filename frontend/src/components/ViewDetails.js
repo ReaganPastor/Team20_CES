@@ -6,11 +6,7 @@ function ViewDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [movie, setMovie] = useState(null);
-
- 
   const [selectedShowtime, setSelectedShowtime] = useState("");
-
-  
   const [bookingMessage, setBookingMessage] = useState("");
 
   useEffect(() => {
@@ -20,7 +16,6 @@ function ViewDetails() {
       .catch(err => console.error(err));
   }, [id]);
 
- 
   useEffect(() => {
     setSelectedShowtime("");
     setBookingMessage("");
@@ -28,33 +23,13 @@ function ViewDetails() {
 
   if (!movie) return <p>Loading movie details...</p>;
 
-
   const isNowPlaying = (movie.status || "") === "Currently Running";
-
-  
   const showtimes = isNowPlaying ? ["12:30 PM", "2:45 PM", "5:10 PM", "7:30 PM", "9:50 PM"] : [];
 
-  /*
-  const handleBookTickets = () => {
-    if (!selectedShowtime) return;
-    setBookingMessage(`Booked "${movie.title}" at ${selectedShowtime} (placeholder, remove later).`);
-  };
-`*/
-  /** 
-  function handleBookTickets(showtime) {
-    navigate("/book", {
-      state: {
-        movie: movie,
-        showtime: showtime
-      }
-    });
-  }
-  */
   return (
     <div>
       <Navigation />
 
-      
       <div
         style={{
           display: "flex",
@@ -63,12 +38,10 @@ function ViewDetails() {
           alignItems: "flex-start"
         }}
       >
-        
         <img
           src={movie.poster_path}
           alt={movie.title}
           onError={(e) => {
-            // Only set fallback once
             if (e.target.src !== "/icons/NoPoster.png") {
               e.target.src = "/icons/NoPoster.png";
             }
@@ -80,36 +53,19 @@ function ViewDetails() {
             boxShadow: "0 6px 18px rgba(0,0,0,0.5)"
           }}
         />
-       
-        <div style={{ maxWidth: "700px" }}>
-          
-          <h1 style={{ fontSize: "2.5rem", marginBottom: "20px" }}>
-            {movie.title}
-          </h1>
 
+        <div style={{ maxWidth: "700px" }}>
+          <h1 style={{ fontSize: "2.5rem", marginBottom: "20px" }}>{movie.title}</h1>
           <p><strong>Genre:</strong> {movie.genre}</p>
           <p><strong>Year:</strong> {movie.year}</p>
-
-          {/* ADDED rating */}
           <p><strong>Rating:</strong> {movie.rating}</p>
-
-          {/* ADDED description */}
           <p><strong>Description:</strong> {movie.description}</p>
-
-         
           <p><strong>Duration:</strong> {movie.durationMinutes} min</p>
 
-          {/* we will implement these later */}
-          {/* <p><strong>Country:</strong> {movie.country || "Unknown"}</p> */}
-          {/* <p><strong>Production:</strong> {movie.production || "Unknown"}</p> */}
-          {/* <p><strong>Cast:</strong> {movie.cast || "Unknown"}</p> */} 
-         
           {isNowPlaying ? (
             <div style={{ marginTop: "18px" }}>
-             
               <p style={{ marginBottom: "8px" }}><strong>Select Showtime:</strong></p>
 
-             
               <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
                 {showtimes.map((t) => (
                   <button
@@ -134,15 +90,12 @@ function ViewDetails() {
               </div>
             </div>
           ) : (
-           
             <p style={{ marginTop: "18px", color: "#94a3b8" }}>
               <strong>Coming Soon:</strong> Booking is not available yet.
             </p>
           )}
 
-          
           <div style={{ display: "flex", gap: "12px", marginTop: "20px", alignItems: "center" }}>
-            
             <button
               onClick={() => navigate("/")}
               style={{
@@ -158,10 +111,11 @@ function ViewDetails() {
               Back to Homepage
             </button>
 
-           {/* Handles if showtime is selected then shows the booking button*/}
             {isNowPlaying && (
               <button
-                onClick={() => navigate(`/movies/${movie.id}/book`)}
+                onClick={() =>
+                  navigate(`/movies/${movie.id}/book`, { state: { selectedShowtime } })
+                }
                 disabled={!selectedShowtime}
                 style={{
                   padding: "10px 16px",
@@ -178,11 +132,9 @@ function ViewDetails() {
               </button>
             )}
           </div>
-          
+
           {bookingMessage && (
-            <p style={{ marginTop: "12px", color: "#93c5fd" }}>
-              {bookingMessage}
-            </p>
+            <p style={{ marginTop: "12px", color: "#93c5fd" }}>{bookingMessage}</p>
           )}
         </div>
       </div>
@@ -192,10 +144,7 @@ function ViewDetails() {
         <video
           controls
           width="640"
-          style={{
-            borderRadius: "12px",
-            boxShadow: "0 6px 18px rgba(0,0,0,0.5)"
-          }}
+          style={{ borderRadius: "12px", boxShadow: "0 6px 18px rgba(0,0,0,0.5)" }}
         >
           <source src={movie.trailer_path} type="video/mp4" />
         </video>

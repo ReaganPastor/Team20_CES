@@ -21,9 +21,9 @@ function MovieCard({ movie }) {
         src={movie.poster_path} 
         alt={movie.title}
         onError={(e) => {
-            // Only set fallback once
-            if (e.target.src !== "/icons/NoPoster.png") {
-              e.target.src = "/icons/NoPoster.png";
+            // Fall back to default image if poster fails to load
+            if (e.target.src !== "../icons/NoPoster.png") {
+              e.target.src = "../icons/NoPoster.png";
             }
         }}
         style={{ width: "100%", height: "285px", borderRadius: "8px" }} 
