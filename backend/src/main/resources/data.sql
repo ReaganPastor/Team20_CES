@@ -4,7 +4,7 @@
 -- DB should store web paths like /posters/movie1.jpg and /trailers/movie1.mp4
 -- data.sql
 INSERT INTO movies (title, description, rating, genre, poster_path, trailer_path, status) VALUES
-('Interstellar', 'A team travels through a wormhole in space to ensure humanity''s survival.', 'PG-13', 'Sci-Fi', '/posters/Interstellar.png', '/trailers/Intersellar_Trailer.mp4', 'Currently Running'),
+('Interstellar', 'A team travels through a wormhole in space to ensure humanity''s survival.', 'PG-13', 'Sci-Fi', '/posters/Interstella.png', '/trailers/Intersellar_Trailer.mp4', 'Currently Running'),
 
 ('The Dark Knight', 'Batman faces the Joker, a criminal mastermind causing chaos in Gotham City.', 'PG-13', 'Action', '/posters/The_Dark_Knight.png', '/trailers/Dark_Knight_Trailer.mp4', 'Currently Running'),
 
