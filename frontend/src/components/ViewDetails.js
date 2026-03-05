@@ -146,7 +146,10 @@ function ViewDetails() {
           width="640"
           style={{ borderRadius: "12px", boxShadow: "0 6px 18px rgba(0,0,0,0.5)" }}
         >
-          <source src={movie.trailer_path} type="video/mp4" />
+          <source 
+            src={movie.trailer_path}
+            type="video/mp4" 
+          />
         </video>
       </div>
     </div>
