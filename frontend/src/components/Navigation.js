@@ -24,7 +24,7 @@ function Navigation() {
             <nav className="nav-tabs">
                 <a href="#" onClick={() => navigate("/")}>Movies</a>
                 <a href="#">Promotions</a>
-                <span onClick={() => navigate("/login")}>Login</span>
+                <a href="#" onClick={() => navigate("/login")}>Login</a>
             </nav>
         </header>
     );
