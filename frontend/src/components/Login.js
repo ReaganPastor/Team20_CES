@@ -13,6 +13,7 @@ const Login = () => {
 
   const navigate = useNavigate();
 
+  // Load remembered user if any
   useEffect(() => {
     const remembered = JSON.parse(localStorage.getItem("rememberedUser"));
     if (remembered) {
@@ -31,29 +32,29 @@ const Login = () => {
       return;
     }
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
-    if (!passwordRegex.test(password)) {
-      setError(
-        "Password must be at least 8 characters with uppercase, number, and symbol"
-      );
-      return;
-    }
-
     try {
       const res = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
-      });
+        credentials: "include", // only if backend needs cookies
+    });
 
-      const data = await res.json();
+      // Safely parse JSON
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        setError("Invalid server response");
+        return;
+      }
 
       if (!res.ok) {
         setError(data.error || "Login failed");
         return;
       }
 
-      // Save username/password if Remember Me
+      // Save credentials if Remember Me is checked
       if (rememberMe) {
         localStorage.setItem(
           "rememberedUser",
@@ -69,12 +70,13 @@ const Login = () => {
           : "Login successful! Redirecting to user dashboard..."
       );
 
-      // Redirect after short delay
+      // Redirect after 1 second
       setTimeout(() => {
         if (data.role === "admin") navigate("/admin");
         else navigate("/dashboard");
       }, 1000);
     } catch (err) {
+      console.error(err);
       setError("Server error. Please try again later.");
     }
   };

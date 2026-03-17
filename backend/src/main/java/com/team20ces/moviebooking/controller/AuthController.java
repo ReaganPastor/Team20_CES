@@ -24,36 +24,45 @@ import java.util.UUID;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final PasswordEncoder encoder; // Use the Spring bean
 
-    @Autowired
-    private PasswordEncoder encoder; // Inject Spring's PasswordEncoder bean
+    public AuthController(UserService userService, PasswordEncoder encoder) {
+        this.userService = userService;
+        this.encoder = encoder;
+    }
 
     private Map<String, Long> resetTokens = new HashMap<>();
 
     // ---------- LOGIN ----------
-    @PostMapping("/login")
+   @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
-
-        if (req.getUsername() == null || req.getPassword() == null)
+        System.out.println("Login attempt: " + req.getUsername() + " / " + req.getPassword());
+        if (req.getUsername() == null || req.getPassword() == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Fill all fields"));
+        }
 
         Optional<User> userOpt = userService.findByUsername(req.getUsername());
-        if (userOpt.isEmpty())
+        if (userOpt.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid credentials"));
+        }
 
         User user = userOpt.get();
 
-        if ("suspended".equals(user.getStatus()))
-            return ResponseEntity.status(403).body(Map.of("error", "Account suspended"));
+        // Check user status
+        switch (user.getStatus()) {
+            case "suspended":
+                return ResponseEntity.status(403).body(Map.of("error", "Account suspended"));
+            case "unverified":
+                return ResponseEntity.status(403).body(Map.of("error", "Please verify your account"));
+        }
 
-        if ("unverified".equals(user.getStatus()))
-            return ResponseEntity.status(403).body(Map.of("error", "Please verify your account"));
-
-        if (!encoder.matches(req.getPassword(), user.getPasswordHash()))
+        // Check password
+        if (!encoder.matches(req.getPassword(), user.getPasswordHash())) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid credentials"));
+        }
 
+        // Success! Return role or token if needed
         return ResponseEntity.ok(Map.of("role", user.getRole()));
     }
 

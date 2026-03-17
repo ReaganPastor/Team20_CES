@@ -17,13 +17,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().disable()
+            .csrf().disable() // For REST APIs
+            .cors()           // Enable CORS support
+            .and()
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints
-                .requestMatchers("/api/auth/**").permitAll()   // login, forgot, reset
-                .requestMatchers("/movies/**").permitAll() // allow anyone to see movies
-
-                // Everything else requires authentication
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/movies/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin().disable();
