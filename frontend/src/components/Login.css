@@ -1,0 +1,178 @@
+/* ---------- LOGIN PAGE ---------- */
+.login-page {
+  display: flex;
+  justify-content: center; /* horizontally center login card */
+  padding: 40px 20px;      /* top padding to place near top */
+  color: #f1f5f9;
+  /* remove flex stretch */
+  align-items: flex-start;  /* top align login box */
+}
+
+/* ---------- LOGIN CARD ---------- */
+.login-card {
+  background: linear-gradient(145deg, #020617, #0a0f22);
+  padding: 30px 25px;
+  border-radius: 16px;
+  box-shadow: 0 0 12px 2px rgba(59, 130, 246, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 350px;
+  text-align: center;
+
+  /* prevent stretching vertically */
+  align-self: flex-start;  
+}
+
+/* INPUT FIELDS */
+.centered-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #3b82f6;
+  background: #0a0f22;
+  color: #f1f5f9;
+  font-size: 14px;
+
+  /* make width + padding behave correctly */
+  box-sizing: border-box;
+
+  /* center text */
+  text-align: center;
+}
+
+.centered-input::placeholder {
+  color: #94a3b8;
+}
+
+/* OPTIONS ROW */
+.options-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #f1f5f9;
+}
+
+.options-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.forgot-password {
+  color: #3b82f6;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* BUTTON ROW: Login + Sign Up */
+.button-row.horizontal-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.button-row.horizontal-buttons button {
+  flex: 1;
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  background: #3b82f6;
+  color: #f1f5f9;
+  cursor: pointer;
+}
+
+.button-row.horizontal-buttons button:hover {
+  background: #2563eb;
+}
+
+/* ERROR / SUCCESS MESSAGES */
+.error {
+  color: #f87171;
+  font-size: 14px;
+  text-align: center;
+}
+
+.success {
+  color: #34d399;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ---------- MODAL ---------- */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  background-color: rgba(0,0,0,0.7);
+
+  display: flex;
+  justify-content: center; /* horizontal center */
+  align-items: center;     /* vertical center */
+}
+
+.forgot-modal {
+  background: linear-gradient(145deg, #020617, #0a0f22);
+  padding: 30px 20px;
+  border-radius: 16px;
+  max-width: 350px;
+  width: 90%;
+  box-shadow: 0 0 12px 2px rgba(59,130,246,0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: #f1f5f9;
+  text-align: center;
+  position: relative; /* for close button */
+}
+
+.forgot-modal h2 {
+  margin-bottom: 16px;
+}
+
+.forgot-modal input[type="email"] {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #3b82f6;
+  background: #0a0f22;
+  color: #f1f5f9;
+  font-size: 14px;
+  box-sizing: border-box;  /* fixes text shift */
+  text-align: center;
+}
+
+.forgot-modal input::placeholder {
+  color: #94a3b8;
+}
+
+.forgot-modal button {
+  padding: 10px 0;
+  border-radius: 8px;
+  border: none;
+  background: #3b82f6;
+  color: #f1f5f9;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.forgot-modal button:hover {
+  background: #2563eb;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #f1f5f9;
+  cursor: pointer;
+}
