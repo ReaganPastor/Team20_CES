@@ -33,6 +33,15 @@ function MovieCard({ movie }) {
       <p><strong>Genre:</strong> {movie.genre}</p>
       {/*<p><strong>Duration:</strong> {movie.durationMinutes} min</p> */}{/* ADDED duration */}
       <button class="view-details-btn" onClick={() => navigate(`/movies/${movie.id}`)}>View Details</button>
+
+      {localStorage.getItem("role") === "user" && (
+        <button>❤️ Favorite</button>
+      )}
+
+      {localStorage.getItem("role") === "admin" && (
+        <button>✏️ Edit</button>
+      )}
+
     </div>
   );
 }

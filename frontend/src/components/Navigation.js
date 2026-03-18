@@ -5,6 +5,12 @@ import logo from "../icons/projectorLogo.png"; // <- correct import from src/ico
 
 function Navigation() {
     const navigate = useNavigate();
+    const handleLogout = () => {
+        localStorage.removeItem("role");
+        localStorage.removeItem("username");
+        localStorage.removeItem("token");
+        navigate("/");
+    };
 
     return(
         <header className="App-header">
@@ -23,8 +29,17 @@ function Navigation() {
 
             <nav className="nav-tabs">
                 <a href="#" onClick={() => navigate("/")}>Movies</a>
-                <a href="#">Promotions</a>
-                <a href="#" onClick={() => navigate("/login")}>Login</a>
+
+                {localStorage.getItem("role") === "admin" && (
+                    <a href="#">Promotions</a>
+                )}
+
+                {localStorage.getItem("role") === "user" || localStorage.getItem("role") === "admin" && (
+                    <a href="#" onClick={() => handleLogout()}>Logout</a>
+                )}
+                {!localStorage.getItem("role") && (
+                    <a href="#" onClick={() => navigate("/login")}>Login</a>
+                )}
             </nav>
         </header>
     );

@@ -28,58 +28,62 @@ const Login = () => {
     setSuccess("");
 
     if (!username || !password) {
-      setError("Please fill in all fields");
-      return;
+        setError("Please fill in all fields");
+        return;
     }
 
     try {
-      const res = await fetch("http://localhost:8080/api/auth/login", {
+        const res = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
-        credentials: "include", // only if backend needs cookies
-    });
+        credentials: "include",
+        });
 
-      // Safely parse JSON
-      let data;
-      try {
+        let data;
+        try {
         data = await res.json();
-      } catch {
+        } catch {
         setError("Invalid server response");
         return;
-      }
+        }
 
-      if (!res.ok) {
+        if (!res.ok) {
         setError(data.error || "Login failed");
         return;
-      }
+        }
+        
+        // STORE AUTH DATA HERE
+        localStorage.setItem("role", data.role);
+        //localStorage.setItem("username", data.username);
+        localStorage.setItem("role", data.role);
 
-      // Save credentials if Remember Me is checked
-      if (rememberMe) {
+        // Save credentials if Remember Me is checked
+        if (rememberMe) {
         localStorage.setItem(
-          "rememberedUser",
-          JSON.stringify({ username, password })
+            "rememberedUser",
+            JSON.stringify({ username, password })
         );
-      } else {
+        } else {
         localStorage.removeItem("rememberedUser");
-      }
+        }
 
-      setSuccess(
+        setSuccess(
         data.role === "admin"
-          ? "Login successful! Redirecting to admin dashboard..."
-          : "Login successful! Redirecting to user dashboard..."
-      );
+            ? "Login successful! Redirecting..."
+            : "Login successful! Redirecting..."
+        );
 
-      // Redirect after 1 second
-      setTimeout(() => {
-        if (data.role === "admin") navigate("/admin");
-        else navigate("/dashboard");
-      }, 1000);
+        // Redirect after 1 second
+        setTimeout(() => {
+        navigate("/homepage");
+        }, 1000);
+
     } catch (err) {
-      console.error(err);
-      setError("Server error. Please try again later.");
+        console.error(err);
+        setError("Server error. Please try again later.");
     }
-  };
+};
 
   return (
     <div className="login-page">
