@@ -1,0 +1,107 @@
+/* ---------- PAGE ---------- */
+.login-page {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #f1f5f9;
+  align-items: flex-start;
+}
+
+/* ---------- CARD ---------- */
+.login-card {
+  background: linear-gradient(145deg, #020617, #0a0f22);
+  padding: 30px 25px;
+  border-radius: 16px;
+  box-shadow: 0 0 12px 2px rgba(59, 130, 246, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* Increased gap for better spacing */
+  width: 100%;
+  max-width: 350px;
+  text-align: center;
+  align-self: flex-start;
+}
+
+/* ---------- INPUTS ---------- */
+.centered-input {
+  width: 100%;
+  padding: 10px 12px; /* Slightly larger padding */
+  border-radius: 6px;
+  border: 1px solid #3b82f6;
+  background: #0a0f22;
+  color: #f1f5f9;
+  font-size: 14px;
+  box-sizing: border-box;
+  text-align: center;
+  margin-bottom: 12px; /* Add margin to separate inputs */
+}
+
+.centered-input::placeholder {
+  color: #94a3b8;
+}
+
+/* ---------- BUTTONS ---------- */
+.button-row.horizontal-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px; /* Add spacing above buttons */
+}
+
+.button-row.horizontal-buttons button {
+  flex: 1;
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  background: #3b82f6;
+  color: #f1f5f9;
+  cursor: pointer;
+}
+
+.button-row.horizontal-buttons button:hover {
+  background: #2563eb;
+}
+
+/* ---------- TEXT LINKS ---------- */
+.forgot-password {
+  color: #3b82f6;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 12px;
+  margin-top: 8px; /* More spacing for clarity */
+  display: block;
+}
+
+/* ---------- MESSAGES ---------- */
+.error {
+  color: #f87171;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 8px; /* space after error */
+}
+
+.success {
+  color: #34d399;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 8px; /* space after success */
+}
+
+/* ---------- BACK TO LOGIN BUTTON ---------- */
+.button-back {
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  background: #3b82f6;
+  color: #f1f5f9;
+  cursor: pointer;
+  margin-top: 16px;
+  width: 100%;
+}
+
+.button-back:hover {
+  background: #2563eb;
+}
