@@ -13,6 +13,19 @@ function HomePage() {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const [genres, setGenres] = useState([]);
+    const [role, setRole] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        const storedRole = localStorage.getItem("role");
+
+        if (token) {
+            setIsLoggedIn(true);
+            setRole(storedRole);
+        }
+    }, []);
+
 
     useEffect(() => {
         const fetchGenres = async () => {
