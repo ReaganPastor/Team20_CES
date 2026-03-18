@@ -4,6 +4,7 @@ import com.team20ces.moviebooking.service.UserService;
 import com.team20ces.moviebooking.model.User;
 import com.team20ces.moviebooking.dto.LoginRequest;
 import com.team20ces.moviebooking.dto.ResetRequest;
+import com.team20ces.moviebooking.dto.SignupRequest;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -79,9 +80,8 @@ public class AuthController {
         String token = UUID.randomUUID().toString();
         resetTokens.put(token, userOpt.get().getId());
 
-        // In real app, integrate nodemailer or other email service to send the token to user's email with reset instructions
-        return res.status(200).json({ message: "Password reset instructions sent to your email" });
-
+        // In real app, integrate email service to send token
+        return ResponseEntity.ok(Map.of("message", "Password reset instructions sent to your email"));
     }
 
     // ---------- RESET PASSWORD ----------
@@ -107,6 +107,52 @@ public class AuthController {
         resetTokens.remove(req.getToken());
 
         return ResponseEntity.ok(Map.of("message","Password updated"));
+    }
+
+
+    // ---------- SIGNUP ----------
+    @PostMapping("/signup")
+    public ResponseEntity<?> signup(@RequestBody SignupRequest req) {
+
+        // 1️⃣ Validate required fields
+        if (req.getUsername() == null || req.getUsername().isEmpty() ||
+            req.getEmail() == null || req.getEmail().isEmpty() ||
+            req.getPassword() == null || req.getPassword().isEmpty()) {
+
+            return ResponseEntity.badRequest().body(Map.of("error", "Fill all fields"));
+        }
+
+        // 2️⃣ Check if username or email already exists
+        if (userService.findByUsername(req.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Username already taken"));
+        }
+        if (userService.findByEmail(req.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email already registered"));
+        }
+
+        // 3️⃣ Generate new ID (simulate auto-increment)
+        long newId = userService.getAllUsers().stream()
+                .mapToLong(User::getId)
+                .max()
+                .orElse(0L) + 1;
+
+        // 4️⃣ Create new User object using full-args constructor
+        User newUser = new User(
+                newId,
+                req.getUsername(),
+                req.getEmail(),
+                encoder.encode(req.getPassword()), // password hash
+                (req.getRole() == null || req.getRole().isEmpty() ? "user" : req.getRole()),
+                "unverified" // default status
+        );
+
+        // 5️⃣ Add user to in-memory list
+        userService.getAllUsers().add(newUser);
+
+        // 6️⃣ Return success message
+        return ResponseEntity.ok(Map.of(
+            "message", "User registered successfully. Please verify your email to activate the account"
+        ));
     }
 
     // ---------- TEST: Show all users (temporary, for debugging) ----------
