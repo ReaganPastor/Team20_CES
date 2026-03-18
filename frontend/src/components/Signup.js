@@ -15,10 +15,12 @@ export default function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // Handle input changes
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Validate inputs
   const validate = () => {
     let newErrors = {};
 
@@ -44,41 +46,47 @@ export default function Signup() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Determine password strength
+  const getPasswordStrength = () => {
+    const pwd = form.password;
+    if (!pwd) return "";
+
+    let strength = 0;
+    if (pwd.length >= 8) strength++;
+    if (/[A-Z]/.test(pwd)) strength++;
+    if (/[0-9]/.test(pwd)) strength++;
+    if (/[^A-Za-z0-9]/.test(pwd)) strength++;
+
+    if (strength <= 1) return "Weak";
+    if (strength === 2 || strength === 3) return "Medium";
+    if (strength === 4) return "Strong";
+  };
+
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
     try {
-      const response = await fetch("http://localhost:8080/api/auth/signup", {
+      const res = await fetch("http://localhost:8080/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: form.username,
-          email: form.email,
-          password: form.password,
-        }),
+        body: JSON.stringify(form),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok) {
-        console.error("Signup failed:", data.error);
-        alert(data.error || "Signup failed");
-      } else {
-        console.log("Signup successful! User info saved:", form);
+      if (res.ok) {
+        console.log("Signup successful:", form);
         setSuccess(true);
+      } else {
+        console.log("Signup failed:", data);
+        alert(data.error || "Signup failed");
       }
     } catch (err) {
-      console.error("Cannot connect to server", err);
+      console.error("Error connecting to backend:", err);
       alert("Cannot connect to server");
     }
-  };
-
-  const getPasswordStrength = () => {
-    if (form.password.length >= 12) return "Strong";
-    if (form.password.length >= 8) return "Medium";
-    if (form.password.length > 0) return "Weak";
-    return "";
   };
 
   if (success) {
@@ -101,7 +109,6 @@ export default function Signup() {
     <div className="login-page">
       <div className="login-card">
         <h2>Create Account</h2>
-
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -141,9 +148,10 @@ export default function Signup() {
           </div>
 
           {form.password && (
-            <p className="success">Strength: {getPasswordStrength()}</p>
+            <p className={`success ${getPasswordStrength().toLowerCase()}`}>
+              Strength: {getPasswordStrength()}
+            </p>
           )}
-
           {errors.password && <p className="error">{errors.password}</p>}
 
           <div>
@@ -157,14 +165,11 @@ export default function Signup() {
             />
             <span
               className="forgot-password"
-              onClick={() =>
-                setShowConfirmPassword(!showConfirmPassword)
-              }
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
               {showConfirmPassword ? "Hide" : "Show"}
             </span>
           </div>
-
           {errors.confirmPassword && (
             <p className="error">{errors.confirmPassword}</p>
           )}
