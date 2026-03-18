@@ -79,10 +79,9 @@ public class AuthController {
         String token = UUID.randomUUID().toString();
         resetTokens.put(token, userOpt.get().getId());
 
-        return ResponseEntity.ok(Map.of(
-                "message","Reset token generated",
-                "token", token   // demo only
-        ));
+        // In real app, integrate nodemailer or other email service to send the token to user's email with reset instructions
+        return res.status(200).json({ message: "Password reset instructions sent to your email" });
+
     }
 
     // ---------- RESET PASSWORD ----------

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Login.css";
 
 const ForgotPasswordModal = ({ isOpen, onClose }) => {
@@ -25,6 +25,15 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
         setMessage(data.error || "Failed to send reset email");
       } else {
         setMessage("Password reset instructions sent to your email");
+
+        // Clear input
+        setEmail("");
+
+        // Automatically close modal after 2 seconds
+        setTimeout(() => {
+          setMessage(""); // optional: clear message
+          onClose();
+        }, 2000);
       }
     } catch (err) {
       setMessage("Server error. Try again later.");

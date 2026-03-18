@@ -31,10 +31,22 @@ function Navigation() {
                 <a href="#" onClick={() => navigate("/")}>Movies</a>
 
                 {localStorage.getItem("role") === "admin" && (
+                    <a href="#">Manage Movies</a>
+                )}
+
+                {localStorage.getItem("role") === "admin" && (
                     <a href="#">Promotions</a>
                 )}
 
-                {localStorage.getItem("role") === "user" || localStorage.getItem("role") === "admin" && (
+                {localStorage.getItem("role") === "admin" && (
+                    <a href="#">Users</a>
+                )}
+
+                {localStorage.getItem("role") === "admin" && (
+                    <a href="#">Showtimes</a>
+                )}
+
+                {(localStorage.getItem("role") === "user" || localStorage.getItem("role") === "admin") && (
                     <a href="#" onClick={() => handleLogout()}>Logout</a>
                 )}
                 {!localStorage.getItem("role") && (
