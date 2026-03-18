@@ -1,23 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Login.css";
 
-const ForgotPasswordModal = ({ isOpen, onClose, users }) => {
+const ForgotPasswordModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
-  const handleSend = () => {
+  const handleSend = async () => {
+    setMessage("");
     if (!email) {
       setMessage("Please enter your email");
       return;
     }
 
-    const user = users.find((u) => u.username.toLowerCase() === email.toLowerCase());
-    if (!user) {
-      setMessage("No account associated with this email");
-      return;
-    }
+    try {
+      const res = await fetch("http://localhost:8080/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
-    setMessage("Password reset instructions sent to your email");
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMessage(data.error || "Failed to send reset email");
+      } else {
+        setMessage("Password reset instructions sent to your email");
+
+        // Clear input
+        setEmail("");
+
+        // Automatically close modal after 2 seconds
+        setTimeout(() => {
+          setMessage(""); // optional: clear message
+          onClose();
+        }, 2000);
+      }
+    } catch (err) {
+      setMessage("Server error. Try again later.");
+    }
   };
 
   if (!isOpen) return null;

@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 import "./Login.css";
-
-const users = [
-  { username: "johnDoe", password: "Pass@1234", role: "user", status: "active" },
-  { username: "adminJane", password: "Admin@1234", role: "admin", status: "active" },
-  { username: "suspendedUser", password: "Test@1234", role: "user", status: "suspended" },
-  { username: "unverifiedUser", password: "Test@1234", role: "user", status: "unverified" },
-];
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -17,6 +11,9 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
+  const navigate = useNavigate();
+
+  // Load remembered user if any
   useEffect(() => {
     const remembered = JSON.parse(localStorage.getItem("rememberedUser"));
     if (remembered) {
@@ -26,54 +23,67 @@ const Login = () => {
     }
   }, []);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setError("");
     setSuccess("");
 
     if (!username || !password) {
-      setError("Please fill in all fields");
-      return;
+        setError("Please fill in all fields");
+        return;
     }
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
-    if (!passwordRegex.test(password)) {
-      setError(
-        "Password must be at least 8 characters with uppercase, number, and symbol"
-      );
-      return;
-    }
+    try {
+        const res = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+        credentials: "include",
+        });
 
-    const user = users.find((u) => u.username === username);
-    if (!user || user.password !== password) {
-      setError("Invalid credentials");
-      return;
-    }
+        let data;
+        try {
+        data = await res.json();
+        } catch {
+        setError("Invalid server response");
+        return;
+        }
 
-    if (user.status === "suspended") {
-      setError("Your account is suspended");
-      return;
-    }
+        if (!res.ok) {
+        setError(data.error || "Login failed");
+        return;
+        }
+        
+        // STORE AUTH DATA HERE
+        localStorage.setItem("role", data.role);
+        //localStorage.setItem("username", data.username);
+        localStorage.setItem("role", data.role);
 
-    if (user.status === "unverified") {
-      setError("Please verify your account");
-      return;
-    }
+        // Save credentials if Remember Me is checked
+        if (rememberMe) {
+        localStorage.setItem(
+            "rememberedUser",
+            JSON.stringify({ username, password })
+        );
+        } else {
+        localStorage.removeItem("rememberedUser");
+        }
 
-    if (rememberMe) {
-      localStorage.setItem(
-        "rememberedUser",
-        JSON.stringify({ username, password })
-      );
-    } else {
-      localStorage.removeItem("rememberedUser");
-    }
+        setSuccess(
+        data.role === "admin"
+            ? "Login successful! Redirecting..."
+            : "Login successful! Redirecting..."
+        );
 
-    setSuccess(
-      user.role === "admin"
-        ? "Login successful! Redirecting to admin dashboard..."
-        : "Login successful! Redirecting to user dashboard..."
-    );
-  };
+        // Redirect after 1 second
+        setTimeout(() => {
+        navigate("/homepage");
+        }, 1000);
+
+    } catch (err) {
+        console.error(err);
+        setError("Server error. Please try again later.");
+    }
+};
 
   return (
     <div className="login-page">
@@ -114,14 +124,13 @@ const Login = () => {
 
         <div className="button-row horizontal-buttons">
           <button onClick={handleLogin}>Login</button>
-          <button>Sign Up</button>
+          <button onClick={() => navigate("/signup")}>Sign Up</button>
         </div>
       </div>
 
       <ForgotPasswordModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        users={users}
       />
     </div>
   );
