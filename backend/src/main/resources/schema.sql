@@ -337,6 +337,47 @@ CREATE TABLE recommendations (
 );
 
 -- =========================================
+-- EMAIL VERIFICATION TOKENS
+-- =========================================
+CREATE TABLE email_verification_tokens (
+    id            BIGSERIAL PRIMARY KEY,
+    user_id        BIGINT NOT NULL,
+    token          VARCHAR(255) NOT NULL UNIQUE,
+    expires_at     TIMESTAMP NOT NULL,
+    used           BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_email_verification_tokens_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+-- =========================================
+-- PASSWORD RESET TOKENS
+-- =========================================
+CREATE TABLE password_reset_tokens (
+    id            BIGSERIAL PRIMARY KEY,
+    user_id        BIGINT NOT NULL,
+    token          VARCHAR(255) NOT NULL UNIQUE,
+    expires_at     TIMESTAMP NOT NULL,
+    used           BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_password_reset_tokens_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+-- =========================================
+-- INDEXES FOR TOKEN TABLES
+-- =========================================
+CREATE INDEX idx_email_verification_tokens_user_id
+    ON email_verification_tokens(user_id);
+
+CREATE INDEX idx_password_reset_tokens_user_id
+    ON password_reset_tokens(user_id);
+
+-- =========================================
 -- INDEXES
 -- =========================================
 

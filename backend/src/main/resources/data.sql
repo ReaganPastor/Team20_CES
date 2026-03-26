@@ -23,7 +23,7 @@ INSERT INTO customers (user_id, customer_status, is_registered)
 VALUES
 (1, 'ACTIVE', TRUE),
 (2, 'ACTIVE', TRUE),
-(3, 'ACTIVE', TRUE),
+(3, 'INACTIVE', TRUE),
 (4, 'INACTIVE', TRUE);
 
 -- =========================================
@@ -364,3 +364,21 @@ VALUES
 (2, 5, '2026-03-25 08:15:00'),
 (3, 7, '2026-03-25 08:20:00'),
 (4, 9, '2026-03-25 08:25:00');
+
+-- =========================================
+-- EMAIL VERIFICATION TOKENS
+-- =========================================
+INSERT INTO email_verification_tokens (user_id, token, expires_at, used, created_at)
+VALUES
+(1, 'verify-token-john-123', '2026-03-27 23:59:59', TRUE,  '2026-03-25 09:00:00'),
+(2, 'verify-token-jane-456', '2026-03-27 23:59:59', TRUE,  '2026-03-25 09:05:00'),
+(3, 'verify-token-michael-789', '2026-03-27 23:59:59', FALSE, '2026-03-25 09:10:00'),
+(4, 'verify-token-emily-321', '2026-03-27 23:59:59', FALSE, '2026-03-25 09:15:00');
+
+-- =========================================
+-- PASSWORD RESET TOKENS
+-- =========================================
+INSERT INTO password_reset_tokens (user_id, token, expires_at, used, created_at)
+VALUES
+(1, 'reset-token-john-111', '2026-03-26 23:59:59', TRUE,  '2026-03-25 14:00:00'),
+(2, 'reset-token-jane-222', '2026-03-26 23:59:59', FALSE, '2026-03-25 14:10:00');
