@@ -1,6 +1,7 @@
 -- =========================================
 -- DATA.SQL FOR CINEMA E-BOOKING SYSTEM
--- Matches the Deliverable 4 schema
+-- Sample data for users, movies, showtimes, bookings, and more
+-- This file is intended to populate the database with realistic demo data
 -- =========================================
 
 -- =========================================
