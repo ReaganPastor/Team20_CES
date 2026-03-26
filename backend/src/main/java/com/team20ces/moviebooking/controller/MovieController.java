@@ -2,13 +2,13 @@ package com.team20ces.moviebooking.controller;
 
 import com.team20ces.moviebooking.model.Movie;
 import com.team20ces.moviebooking.service.MovieService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/movies")
@@ -21,24 +21,38 @@ public class MovieController {
         this.movieService = movieService;
     }
 
-    /*
-     * GET /movies
-     * Optional filters:
-     * ?status=NOW_PLAYING
-     * ?genre=Sci-Fi
-     */
+    // POST /movies
+    @PostMapping
+    public ResponseEntity<Movie> addMovie(@RequestBody Movie movie) {
+        Movie savedMovie = movieService.addMovie(movie);
+        return ResponseEntity.ok(savedMovie);
+    }
+
+    // DELETE /movies/{id}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
+        boolean deleted = movieService.deleteMovie(id);
+
+        if (deleted) {
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } else {
+            return ResponseEntity.notFound().build(); // 404 Not Found
+        }
+    }
+
+    // GET /movies
     @GetMapping
     public List<Movie> getAllMovies(
             @RequestParam Optional<String> status,
             @RequestParam(name="genre", required=false) List<String> genres) {
 
-        if (genres == null) genres = new ArrayList<>();
+        if (genres == null)
+            genres = new ArrayList<>();
+
         return movieService.getAll(status, genres);
     }
 
-    /*
-     * GET /movies/{id}
-     */
+    // GET /movies/{id}
     @GetMapping("/{id}")
     public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
 
@@ -48,9 +62,7 @@ public class MovieController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    /*
-     * GET /movies/search?title=...
-     */
+    // GET /movies/search?title=...
     @GetMapping("/search")
     public ResponseEntity<List<Movie>> searchMovies(
             @RequestParam Optional<String> title,
@@ -64,5 +76,12 @@ public class MovieController {
                 movieService.searchByTitle(title.get(), status);
 
         return ResponseEntity.ok(results);
+    }
+
+    // GET /movies/genres
+    @GetMapping("/genres")
+    public ResponseEntity<List<String>> getGenres() {
+        List<String> genres = movieService.getAllGenres();
+        return ResponseEntity.ok(genres);
     }
 }

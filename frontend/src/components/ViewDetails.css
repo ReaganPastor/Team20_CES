@@ -1,0 +1,128 @@
+/* PAGE BACKGROUND */
+.view-details-page {
+  min-height: 100vh;
+  color: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  gap: 40px;
+}
+
+/* MAIN MOVIE CARD */
+.movie-card {
+  background: linear-gradient(145deg, #020617, #0a0f22);
+  border-radius: 16px;
+  box-shadow: 0 0 12px 2px rgba(59, 130, 246, 0.5);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  max-width: 1200px;
+  width: 100%;
+  padding: 30px;
+  justify-content: center;
+}
+
+/* Poster */
+.movie-card img {
+  width: 300px;
+  height: 450px;
+  border-radius: 12px;
+  box-shadow: 0 0 8px 2px rgba(59, 130, 246, 0.4);
+  object-fit: cover;
+}
+
+/* INFO COLUMN */
+.movie-info {
+  display: flex;
+  flex-direction: column;
+  max-width: 700px;
+  text-align: left;
+}
+
+.movie-info h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.movie-info p {
+  margin: 4px 0;
+}
+
+/* BOOKING SUB-BOX */
+.booking-section {
+  background: linear-gradient(145deg, #020617, #0a0f22);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 0 10px 2px rgba(59, 130, 246, 0.5);
+}
+
+/* Showtime buttons */
+.showtimes-wrapper {
+  margin-top: 10px;
+}
+
+.showtimes-wrapper p {
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.showtimes-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.coming-soon {
+  margin-top: 18px;
+  color: #94a3b8;
+  font-weight: bold;
+}
+
+/* BUTTON ROW */
+.button-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  align-items: center;
+}
+
+/* TRAILER BOX */
+.trailer-section {
+  background: linear-gradient(145deg, #020617, #0a0f22);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 0 0 12px 2px rgba(59, 130, 246, 0.5);
+}
+
+.trailer-section h2 {
+  margin-bottom: 12px;
+}
+
+.trailer-section video {
+  border-radius: 12px;
+  max-width: 100%;
+  height: auto;
+  box-shadow: 0 0 8px 2px rgba(59, 130, 246, 0.4);
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .movie-card {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .movie-info {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .trailer-section {
+    max-width: 100%;
+  }
+}

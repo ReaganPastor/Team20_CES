@@ -1,0 +1,75 @@
+/* Container matches genre filter card style */
+.showdate-filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: #1e293b; /* same slate-blue bg as genre dropdown */
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  align-items: flex-end;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Input group */
+.showdate-input-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 120px;
+}
+
+.showdate-input-group label {
+  font-weight: bold;
+  color: #cbd5e1; /* muted light blue */
+  margin-bottom: 0.3rem;
+}
+
+/* Date input */
+.showdate-input {
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #334155; /* matches genre dropdown border */
+  background: #0f172a; /* dark navy */
+  color: #f1f5f9; /* soft white text */
+  font-weight: 500;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.showdate-input:hover {
+  border-color: #60a5fa; /* light blue highlight on hover */
+}
+
+.showdate-input:focus {
+  border-color: #2563eb; /* blue accent focus */
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+}
+
+/* Clear button */
+.showdate-clear-btn {
+  background: #2563eb; /* blue accent */
+  color: #f1f5f9;
+  font-weight: bold;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.showdate-clear-btn:hover {
+  background: #1d4ed8; /* slightly darker blue on hover */
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+  .showdate-filter-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .showdate-clear-btn {
+    width: 100%;
+  }
+}
