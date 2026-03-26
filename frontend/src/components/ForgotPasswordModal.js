@@ -1,0 +1,69 @@
+import React, { useState, useEffect } from "react";
+import "./Login.css";
+
+const ForgotPasswordModal = ({ isOpen, onClose }) => {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSend = async () => {
+    setMessage("");
+    if (!email) {
+      setMessage("Please enter your email");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8080/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMessage(data.error || "Failed to send reset email");
+      } else {
+        setMessage("Password reset instructions sent to your email");
+
+        // Clear input
+        setEmail("");
+
+        // Automatically close modal after 2 seconds
+        setTimeout(() => {
+          setMessage(""); // optional: clear message
+          onClose();
+        }, 2000);
+      }
+    } catch (err) {
+      setMessage("Server error. Try again later.");
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal">
+      <div className="forgot-modal">
+        <span className="close" onClick={onClose}>
+          &times;
+        </span>
+        <h2>Reset Password</h2>
+        <input
+          type="email"
+          placeholder="Enter your registered email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <button onClick={handleSend}>Send Reset Email</button>
+        {message && (
+          <div className={message.includes("sent") ? "success" : "error"}>
+            {message}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ForgotPasswordModal;
