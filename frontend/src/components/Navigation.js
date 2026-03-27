@@ -1,36 +1,60 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./Navigation.css";
+import logo from "../icons/projectorLogo.png"; // <- correct import from src/icons
 
 function Navigation() {
     const navigate = useNavigate();
+    const handleLogout = () => {
+        localStorage.removeItem("role");
+        localStorage.removeItem("username");
+        localStorage.removeItem("token");
+        navigate("/");
+    };
 
     return(
-        <div>
-            {/* HEADER */}
-            <header className="App-header">
-                <div className="logo">
+        <header className="App-header">
+            <div className="logo">
                 <img
-                    src="../icons/projectorLogo.png"
+                    src={logo}  // <- use the imported logo
                     alt="CES Logo"
                     className="logo-img"
                 />
                 <div className="logo-text">
-                <span>Cinema</span>
-                <span>E-booking</span>
-                <span>System</span>
+                    <span>Cinema</span>
+                    <span>E-booking</span>
+                    <span>System</span>
                 </div>
-                </div>
+            </div>
 
-                <nav className="nav-tabs">
+            <nav className="nav-tabs">
                 <a href="#" onClick={() => navigate("/")}>Movies</a>
-                <a href="#">Promotions</a>
-                <a href="#">Sign Up / Login</a>
-                </nav>
-            </header>
-        </div>
-    );
 
+                {localStorage.getItem("role") === "admin" && (
+                    <a href="#">Manage Movies</a>
+                )}
+
+                {localStorage.getItem("role") === "admin" && (
+                    <a href="#">Promotions</a>
+                )}
+
+                {localStorage.getItem("role") === "admin" && (
+                    <a href="#">Users</a>
+                )}
+
+                {localStorage.getItem("role") === "admin" && (
+                    <a href="#">Showtimes</a>
+                )}
+
+                {(localStorage.getItem("role") === "user" || localStorage.getItem("role") === "admin") && (
+                    <a href="#" onClick={() => handleLogout()}>Logout</a>
+                )}
+                {!localStorage.getItem("role") && (
+                    <a href="#" onClick={() => navigate("/login")}>Login</a>
+                )}
+            </nav>
+        </header>
+    );
 }
 
 export default Navigation;

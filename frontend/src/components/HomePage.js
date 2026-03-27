@@ -3,6 +3,7 @@ import "./FilterByGenre.css";
 import MovieCarousel from "./MovieCarousel";
 import Navigation from "./Navigation";
 import SearchForMovie from "./SearchForMovie";
+import ShowDatesFilter from "./ShowDateFilter";
 
 function HomePage() {
     const [message, setMessage] = useState(""); // state to store backend response
@@ -12,6 +13,19 @@ function HomePage() {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const [genres, setGenres] = useState([]);
+    const [role, setRole] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        const storedRole = localStorage.getItem("role");
+
+        if (token) {
+            setIsLoggedIn(true);
+            setRole(storedRole);
+        }
+    }, []);
+
 
     useEffect(() => {
         const fetchGenres = async () => {
@@ -59,7 +73,7 @@ function HomePage() {
         setSelectedGenres((prev) => prev.includes(genre) ? prev.filter((g) => g != genre) : [...prev, genre]);
     }
 
-    // Close dropdown when clicking outside
+    // Close genre dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
         if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -71,11 +85,15 @@ function HomePage() {
     }, []);
 
 
-    // Returns html with layout of page, currently includes Backend Connection check, filters, and list of movies after filter - Reagan
-    const currentlyRunningMovies = movies.filter((m) => m.status === "Currently Running"); // ADDED - chris
-    const comingSoonMovies = movies.filter((m) => m.status === "Coming Soon"); // ADDED - chris
+    const handleDateChange = (start, end) => {
+        console.log("Selected dates:", start, end);
+    };
+
+
+    const currentlyRunningMovies = movies.filter((m) => m.status === "Currently Running");
+    const comingSoonMovies = movies.filter((m) => m.status === "Coming Soon");
     return (
-        <div className="app-container">
+        <div>
             <Navigation />
 
             <div className="filter-search-row">
@@ -144,12 +162,14 @@ function HomePage() {
                         )}
                     </div>
                 </div>
+
+                <ShowDatesFilter onChange={handleDateChange} />
             </div>
 
             {/* Currently Running */}
             <h2>Currently Running</h2>
             {currentlyRunningMovies.length === 0 ? (
-            <p style={{ fontStyle: "italic", color: "#555" }}>No movies found</p>
+            <p style={{ fontStyle: "italic", color: "#555"}}>No movies found</p>
             ) : (
             <MovieCarousel movies={currentlyRunningMovies} moviesPerPage={6} />
             )}

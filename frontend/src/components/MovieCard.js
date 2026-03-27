@@ -21,9 +21,9 @@ function MovieCard({ movie }) {
         src={movie.poster_path} 
         alt={movie.title}
         onError={(e) => {
-            // Only set fallback once
-            if (e.target.src !== "/icons/NoPoster.png") {
-              e.target.src = "/icons/NoPoster.png";
+            // Fall back to default image if poster fails to load
+            if (e.target.src !== "../icons/NoPoster.png") {
+              e.target.src = "../icons/NoPoster.png";
             }
         }}
         style={{ width: "100%", height: "285px", borderRadius: "8px" }} 
@@ -33,6 +33,15 @@ function MovieCard({ movie }) {
       <p><strong>Genre:</strong> {movie.genre}</p>
       {/*<p><strong>Duration:</strong> {movie.durationMinutes} min</p> */}{/* ADDED duration */}
       <button class="view-details-btn" onClick={() => navigate(`/movies/${movie.id}`)}>View Details</button>
+
+      {localStorage.getItem("role") === "user" && (
+        <button>❤️ Favorite</button>
+      )}
+
+      {localStorage.getItem("role") === "admin" && (
+        <button>✏️ Edit</button>
+      )}
+
     </div>
   );
 }
