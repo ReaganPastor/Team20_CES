@@ -24,7 +24,7 @@ function ViewDetails() {
 
   if (!movie) return <p>Loading movie details...</p>;
 
-  const isNowPlaying = (movie.status || "") === "Currently Running";
+  const isNowPlaying = (movie.status || "") === "CURRENTLY_RUNNING";
   const showtimes = isNowPlaying ? ["12:30 PM", "2:45 PM", "5:10 PM", "7:30 PM", "9:50 PM"] : [];
 
   return (

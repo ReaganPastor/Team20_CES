@@ -90,8 +90,8 @@ function HomePage() {
     };
 
 
-    const currentlyRunningMovies = movies.filter((m) => m.status === "Currently Running");
-    const comingSoonMovies = movies.filter((m) => m.status === "Coming Soon");
+    const currentlyRunningMovies = movies.filter((m) => m.status === "CURRENTLY_RUNNING");
+    const comingSoonMovies = movies.filter((m) => m.status === "COMING_SOON");
     return (
         <div>
             <Navigation />
