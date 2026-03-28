@@ -1,8 +1,9 @@
 package com.team20ces.moviebooking.service;
 
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -13,16 +14,18 @@ public class EmailService {
     private JavaMailSender mailSender;
 
     /**
-     * Send an email asynchronously to avoid blocking the main thread.
+     * Send an email asynchronously (supports HTML content).
      */
     @Async
     public void sendEmail(String to, String subject, String body) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(body);
-            message.setFrom("reaganelizabeth@gmail.com"); // must match verified sender
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body, true); // <-- true = HTML content
+            helper.setFrom("reaganelizabeth@gmail.com");
 
             mailSender.send(message);
 

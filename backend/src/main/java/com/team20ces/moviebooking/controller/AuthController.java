@@ -69,11 +69,23 @@ public class AuthController {
         // 6️⃣ Add user to in-memory list
         userService.getAllUsers().add(newUser);
 
-        // 7️⃣ Send verification email
+        // 7️⃣ Send verification email (HTML with button)
         String verificationLink = "http://localhost:8080/api/auth/verify?token=" + token;
-        String emailBody = "Hi " + newUser.getUsername() + ",\n\n" +
-                "Please verify your account by clicking the link below:\n" +
-                verificationLink;
+
+        String emailBody = "<!DOCTYPE html>" +
+                "<html>" +
+                "<body style='font-family:Arial,sans-serif;'>" +
+                "<p>Hi " + newUser.getUsername() + ",</p>" +
+                "<p>Thank you for signing up! Please verify your account by clicking the button below:</p>" +
+                "<a href='" + verificationLink + "' " +
+                "style='display:inline-block;padding:12px 24px;margin:10px 0;" +
+                "font-size:16px;color:#ffffff;background-color:#1a73e8;text-decoration:none;" +
+                "border-radius:5px;'>Verify Account</a>" +
+                "<p>If the button doesn’t work, copy and paste this link into your browser:</p>" +
+                "<p>" + verificationLink + "</p>" +
+                "<p>Welcome aboard!</p>" +
+                "</body>" +
+                "</html>";
 
         emailService.sendEmail(
                 newUser.getEmail(),
