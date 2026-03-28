@@ -69,15 +69,16 @@ public class AuthController {
         // Add user to in-memory list
         userService.getAllUsers().add(newUser);
 
-        // Send verification email
-        String verificationLink = "http://localhost:8080/api/auth/verify?token=" + token;
+        // Send verification email for signup
+        String verificationLink = "http://localhost:3000/email-verified?token=" + token + "&username=" + newUser.getUsername();
 
         String emailBody = "<!DOCTYPE html>" +
                 "<html>" +
                 "<body style='font-family:Arial,sans-serif;color:#f1f5f9;background-color:#0a0f22;padding:20px;'>" +
                 "<p>Hi " + newUser.getUsername() + ",</p>" +
-                "<p>Thank you for signing up! Please verify your account by copying and pasting the following URL into your browser:</p>" +
-                "<p style='color:#2563eb;'>" + verificationLink + "</p>" +
+                "<p>Thank you for signing up! Please verify your account by clicking the link below or copy/paste it into your browser:</p>" +
+                //"<p><a href='" + verificationLink + "' style='color:#2563eb;'>Verify Email</a></p>" +
+                verificationLink +
                 "<p>Welcome aboard!</p>" +
                 "</body>" +
                 "</html>";
@@ -134,7 +135,6 @@ public class AuthController {
         }
     }
 
-    // In AuthController.java
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> req) {
         String username = req.get("username");
@@ -213,29 +213,32 @@ public class AuthController {
     // ---------- RESET PASSWORD ----------
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> req) {
-        String email = req.get("email");
         String token = req.get("token");
+        String email = req.get("email");
         String newPassword = req.get("newPassword");
 
-        if (email == null || token == null || newPassword == null) {
+        if (token == null || email == null || newPassword == null || newPassword.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields"));
         }
 
         Optional<User> userOpt = userService.findByEmail(email);
+
         if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Invalid token or email"));
+            return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
         }
 
         User user = userOpt.get();
 
         if (!token.equals(user.getResetToken())) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Invalid token"));
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid or expired reset link"));
         }
 
-        // Update password and clear token
+        // Update password
         user.setPasswordHash(encoder.encode(newPassword));
+
+        // Clear the token to invalidate the link
         user.setResetToken(null);
 
-        return ResponseEntity.ok(Map.of("message", "Password updated successfully! You can now log in."));
+        return ResponseEntity.ok(Map.of("message", "Password reset successfully!"));
     }
 }
