@@ -27,7 +27,6 @@ public class AuthController {
     private EmailService emailService;
 
     // ---------- SIGNUP ----------
-    // ---------- SIGNUP ----------
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest req) {
 
@@ -167,5 +166,76 @@ public class AuthController {
             "role", user.getRole(),
             "username", user.getUsername()
         ));
+    }
+
+    // ---------- FORGOT PASSWORD ----------
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> req) {
+        String email = req.get("email");
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email is required"));
+        }
+
+        Optional<User> userOpt = userService.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            // Don't reveal that email doesn't exist for security
+            return ResponseEntity.ok(Map.of("message", "If that email exists, a reset link has been sent"));
+        }
+
+        User user = userOpt.get();
+
+        // Generate reset token
+        String token = UUID.randomUUID().toString();
+        user.setResetToken(token);
+
+        // Email link to React page
+        String resetLink = "http://localhost:3000/reset-password?token=" + token + "&email=" + user.getEmail();
+
+        String emailBody = "<!DOCTYPE html>" +
+                "<html>" +
+                "<body style='font-family:Arial,sans-serif;color:#f1f5f9;background-color:#0a0f22;padding:20px;'>" +
+                "<p>Hi " + user.getUsername() + ",</p>" +
+                "<p>We received a request to reset your password. Click the link below to set a new password:</p>" +
+                "<p style='color:#2563eb;'><a href='" + resetLink + "'>Reset Password</a></p>" +
+                "<p>If you didn't request this, please ignore this email.</p>" +
+                "</body>" +
+                "</html>";
+
+        emailService.sendEmail(
+                user.getEmail(),
+                "Reset Your Password",
+                emailBody
+        );
+
+        return ResponseEntity.ok(Map.of("message", "If that email exists, a reset link has been sent"));
+    }
+
+    // ---------- RESET PASSWORD ----------
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> req) {
+        String email = req.get("email");
+        String token = req.get("token");
+        String newPassword = req.get("newPassword");
+
+        if (email == null || token == null || newPassword == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields"));
+        }
+
+        Optional<User> userOpt = userService.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid token or email"));
+        }
+
+        User user = userOpt.get();
+
+        if (!token.equals(user.getResetToken())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid token"));
+        }
+
+        // Update password and clear token
+        user.setPasswordHash(encoder.encode(newPassword));
+        user.setResetToken(null);
+
+        return ResponseEntity.ok(Map.of("message", "Password updated successfully! You can now log in."));
     }
 }

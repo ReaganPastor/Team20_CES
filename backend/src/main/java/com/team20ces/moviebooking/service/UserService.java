@@ -28,6 +28,8 @@ public class UserService {
                 encoder.encode("Test@123"), "user", "suspended"));
         users.add(new User(4L, "unverified", "u@email.com",
                 encoder.encode("Test@123"), "user", "unverified"));
+        users.add(new User(5L, "rpastor", "reaganelizabeth@gmail.com",
+                encoder.encode("MyPassword"), "admin", "active"));
     }
 
     public Optional<User> findByUsername(String username) {
