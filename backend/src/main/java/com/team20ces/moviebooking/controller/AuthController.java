@@ -27,10 +27,11 @@ public class AuthController {
     private EmailService emailService;
 
     // ---------- SIGNUP ----------
+    // ---------- SIGNUP ----------
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest req) {
 
-        // 1️⃣ Validate required fields
+        // Validate required fields
         if (req.getUsername() == null || req.getUsername().isEmpty() ||
             req.getEmail() == null || req.getEmail().isEmpty() ||
             req.getPassword() == null || req.getPassword().isEmpty()) {
@@ -38,7 +39,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", "Fill all fields"));
         }
 
-        // 2️⃣ Check if username or email already exists
+        // Check if username or email already exists
         if (userService.findByUsername(req.getUsername()).isPresent()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Username already taken"));
         }
@@ -46,13 +47,13 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", "Email already registered"));
         }
 
-        // 3️⃣ Generate new ID
+        // Generate new ID
         long newId = userService.getAllUsers().stream()
                 .mapToLong(User::getId)
                 .max()
                 .orElse(0L) + 1;
 
-        // 4️⃣ Create new User object
+        // Create new User object
         User newUser = new User(
                 newId,
                 req.getUsername(),
@@ -62,27 +63,22 @@ public class AuthController {
                 "unverified"
         );
 
-        // 5️⃣ Generate unique verification token
+        // Generate unique verification token
         String token = UUID.randomUUID().toString();
         newUser.setVerificationToken(token);
 
-        // 6️⃣ Add user to in-memory list
+        // Add user to in-memory list
         userService.getAllUsers().add(newUser);
 
-        // 7️⃣ Send verification email (HTML with button)
+        // Send verification email
         String verificationLink = "http://localhost:8080/api/auth/verify?token=" + token;
 
         String emailBody = "<!DOCTYPE html>" +
                 "<html>" +
-                "<body style='font-family:Arial,sans-serif;'>" +
+                "<body style='font-family:Arial,sans-serif;color:#f1f5f9;background-color:#0a0f22;padding:20px;'>" +
                 "<p>Hi " + newUser.getUsername() + ",</p>" +
-                "<p>Thank you for signing up! Please verify your account by clicking the button below:</p>" +
-                "<a href='" + verificationLink + "' " +
-                "style='display:inline-block;padding:12px 24px;margin:10px 0;" +
-                "font-size:16px;color:#ffffff;background-color:#1a73e8;text-decoration:none;" +
-                "border-radius:5px;'>Verify Account</a>" +
-                "<p>If the button doesn’t work, copy and paste this link into your browser:</p>" +
-                "<p>" + verificationLink + "</p>" +
+                "<p>Thank you for signing up! Please verify your account by copying and pasting the following URL into your browser:</p>" +
+                "<p style='color:#2563eb;'>" + verificationLink + "</p>" +
                 "<p>Welcome aboard!</p>" +
                 "</body>" +
                 "</html>";
@@ -93,7 +89,7 @@ public class AuthController {
                 emailBody
         );
 
-        // 8️⃣ Return success message
+        // Return success message
         return ResponseEntity.ok(Map.of(
                 "message", "User registered successfully. Please check your email to verify the account"
         ));
@@ -101,23 +97,24 @@ public class AuthController {
 
     // ---------- VERIFY EMAIL ----------
     @GetMapping("/verify")
-    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
-
+    public ResponseEntity<Void> verifyEmail(@RequestParam String token) {
         Optional<User> userOpt = userService.findByVerificationToken(token);
 
         if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Invalid or expired token");
+            // Redirect to a generic error page in React
+            return ResponseEntity.status(302)
+                    .header("Location", "http://localhost:3000/email-verified?status=error")
+                    .build();
         }
 
         User user = userOpt.get();
-
-        // mark user as verified
         user.setStatus("verified");
-
-        // clear the token
         user.setVerificationToken(null);
 
-        return ResponseEntity.ok("Email verified successfully!");
+        // Redirect to React page with success status
+        return ResponseEntity.status(302)
+                .header("Location", "http://localhost:3000/email-verified?status=success&username=" + user.getUsername())
+                .build();
     }
 
     // ---------- GET ALL USERS (for Postman testing) ----------
