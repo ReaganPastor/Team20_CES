@@ -7,8 +7,8 @@ public class User {
     private String passwordHash;
     private String role;
     private String status;
+    private String verificationToken; // NEW
 
-    // Constructor, getters, setters
     public User(Long id, String username, String email, String passwordHash, String role, String status) {
         this.id = id;
         this.username = username;
@@ -16,6 +16,7 @@ public class User {
         this.passwordHash = passwordHash;
         this.role = role;
         this.status = status;
+        this.verificationToken = null; // default
     }
 
     public Long getId() { return id; }
@@ -24,5 +25,9 @@ public class User {
     public String getPasswordHash() { return passwordHash; }
     public String getRole() { return role; }
     public String getStatus() { return status; }
+    public String getVerificationToken() { return verificationToken; }
+
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public void setStatus(String status) { this.status = status; }
+    public void setVerificationToken(String verificationToken) { this.verificationToken = verificationToken; }
 }
