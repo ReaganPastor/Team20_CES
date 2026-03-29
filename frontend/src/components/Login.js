@@ -27,64 +27,62 @@ const Login = () => {
     setError("");
     setSuccess("");
 
-    
+    // ===== CHRIS FRONTEND CHANGE =====
     if (!username.trim() || !password.trim()) {
-        setError("Please fill in all fields");
-        return;
+      setError("Please fill in all fields");
+      return;
     }
-   
+    // ===== CHRIS FRONTEND CHANGE END =====
 
     try {
-        const res = await fetch("http://localhost:8080/api/auth/login", {
+      const res = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        
+        // ===== CHRIS FRONTEND CHANGE =====
         body: JSON.stringify({ username: username.trim(), password: password.trim() }),
-       
+        // ===== CHRIS FRONTEND CHANGE END =====
         credentials: "include",
-        });
+      });
 
-        let data;
-        try {
+      let data;
+      try {
         data = await res.json();
-        } catch {
-          setError("Invalid server response");
-          return;
-        }
+      } catch {
+        setError("Invalid server response");
+        return;
+      }
 
-        if (!res.ok) {
-          setError(data.error || "Login failed");
-          return;
-        }
-        
-        // STORE AUTH DATA HERE
-        
-        if (data.role) {
-          localStorage.setItem("role", data.role);
-        }
-        
+      if (!res.ok) {
+        setError(data.error || "Login failed");
+        return;
+      }
 
-        // Save credentials if Remember Me is checked
-        if (rememberMe) {
+      // STORE AUTH DATA HERE
+      if (data.role) {
+        localStorage.setItem("role", data.role);
+      }
+
+      // Save credentials if Remember Me is checked
+      if (rememberMe) {
         localStorage.setItem(
-            "rememberedUser",
-            JSON.stringify({ username, password })
+          "rememberedUser",
+          JSON.stringify({ username, password })
         );
-        } else {
+      } else {
         localStorage.removeItem("rememberedUser");
-        }
+      }
 
-        setSuccess("Login successful! Redirecting...");
+      setSuccess("Login successful! Redirecting...");
 
-        setTimeout(() => {
+      setTimeout(() => {
         navigate("/homepage");
-        }, 1000);
+      }, 1000);
 
     } catch (err) {
-        console.error(err);
-        setError("Server error. Please try again later.");
+      console.error(err);
+      setError("Server error. Please try again later.");
     }
-};
+  };
 
   return (
     <div className="login-page">

@@ -5,19 +5,19 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
-  
+  // ===== CHRIS FRONTEND CHANGE =====
   useEffect(() => {
     if (!isOpen) {
       setEmail("");
       setMessage("");
     }
   }, [isOpen]);
-  
+  // ===== CHRIS FRONTEND CHANGE END =====
 
   const handleSend = async () => {
     setMessage("");
 
-    
+    // ===== CHRIS FRONTEND CHANGE =====
     if (!email.trim()) {
       setMessage("Please enter your email");
       return;
@@ -27,15 +27,15 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
       setMessage("Please enter a valid email");
       return;
     }
-   
+    // ===== CHRIS FRONTEND CHANGE END =====
 
     try {
       const res = await fetch("http://localhost:8080/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        
+        // ===== CHRIS FRONTEND CHANGE =====
         body: JSON.stringify({ email: email.trim() }),
-        
+        // ===== CHRIS FRONTEND CHANGE END =====
       });
 
       const data = await res.json();

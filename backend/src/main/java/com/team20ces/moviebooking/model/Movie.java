@@ -12,6 +12,11 @@ public class Movie {
     private String trailer_path;
     private String status;
 
+    
+    // added because get/setDurationMinutes was using a field that did not exist
+    private int durationMinutes;
+   
+
     // Implement later
     // private String country;
     // private String production;
@@ -19,10 +24,26 @@ public class Movie {
 
     public Movie() {}
 
-   
+    
     public Movie(Long id, String title, String status,
                  String genre, String mpaaRating, String posterUrl,
                  int year, double rating, String description, int durationMinutes) {
+
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.rating = String.valueOf(rating);
+        this.genre = genre;
+        this.poster_path = posterUrl;
+        this.trailer_path = null;
+        this.status = status;
+        this.durationMinutes = durationMinutes;
+    }
+    
+    // added overloaded constructor to match MovieService.java
+    public Movie(Long id, String title, String description,
+                 String rating, String genre, String poster_path,
+                 String trailer_path, String status) {
 
         this.id = id;
         this.title = title;
@@ -33,6 +54,7 @@ public class Movie {
         this.trailer_path = trailer_path;
         this.status = status;
     }
+    
 
     // implement later
     /* 
