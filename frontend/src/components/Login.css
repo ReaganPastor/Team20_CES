@@ -89,6 +89,22 @@
   background: #2563eb;
 }
 
+/* Small button for Email Verified page */
+.small-button {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  background: #3b82f6;
+  color: #f1f5f9;
+  cursor: pointer;
+}
+
+.small-button:hover {
+  background: #2563eb;
+}
+
 /* ERROR / SUCCESS MESSAGES */
 .error {
   color: #f87171;

@@ -13,28 +13,24 @@ import java.util.Optional;
 public class UserService {
 
     private final PasswordEncoder encoder;
-
-    // <-- Make sure this is declared here
     private List<User> users = new ArrayList<>();
 
     @Autowired
     public UserService(PasswordEncoder encoder) {
         this.encoder = encoder;
 
-        // Add test users here
+        // Test users
         users.add(new User(1L, "admin", "admin@email.com",
                 encoder.encode("Admin@123"), "admin", "active"));
-
         users.add(new User(2L, "user", "user@email.com",
                 encoder.encode("User@123"), "user", "active"));
-
         users.add(new User(3L, "suspended", "s@email.com",
                 encoder.encode("Test@123"), "user", "suspended"));
-
         users.add(new User(4L, "unverified", "u@email.com",
                 encoder.encode("Test@123"), "user", "unverified"));
+                /*
         users.add(new User(5L, "rpastor", "reaganelizabeth@gmail.com",
-                encoder.encode("Reagan@123"), "admin", "active"));
+                encoder.encode("MyPassword"), "admin", "active"));*/
     }
 
     public Optional<User> findByUsername(String username) {
@@ -46,6 +42,12 @@ public class UserService {
     public Optional<User> findByEmail(String email) {
         return users.stream()
                 .filter(u -> u.getEmail().equals(email))
+                .findFirst();
+    }
+
+    public Optional<User> findByVerificationToken(String token) {
+        return users.stream()
+                .filter(u -> token.equals(u.getVerificationToken()))
                 .findFirst();
     }
 
