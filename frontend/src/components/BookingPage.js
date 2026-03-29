@@ -7,16 +7,9 @@ function BookingPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
-  const passedShowtime = location.state?.selectedShowtime || "";
+  const passedShowtime = location.state?.selectedShowtime || ""; // <-- get showtime from state
 
   const [movie, setMovie] = useState(null);
-  const [selectedSeats, setSelectedSeats] = useState([]);
-  const [tickets, setTickets] = useState({ adult: 0, child: 0, senior: 0 });
-  const prices = { adult: 12, child: 8, senior: 10 };
-
-  const rows = ["A","B","C","D","E","F","G","H"];
-  const cols = [1,2,3,4,5,6,7,8,9,10,11,12];
-  const wheelchairSeats = ["A1","A2","A11","A12"];
 
   useEffect(() => {
     fetch(`http://localhost:8080/movies/${id}`)
@@ -24,6 +17,13 @@ function BookingPage() {
       .then(data => setMovie(data))
       .catch(err => console.error(err));
   }, [id]);
+
+  const rows = ["A","B","C","D","E","F","G","H"];
+  const cols = [1,2,3,4,5,6,7,8,9,10,11,12];
+  const wheelchairSeats = ["A1","A2","A11","A12"];
+  const [selectedSeats, setSelectedSeats] = useState([]);
+  const [tickets, setTickets] = useState({ adult: 0, child: 0, senior: 0 });
+  const prices = { adult: 12, child: 8, senior: 10 };
 
   if (!movie) return (
     <div>

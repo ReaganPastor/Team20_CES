@@ -5,37 +5,18 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
-  
-  useEffect(() => {
-    if (!isOpen) {
-      setEmail("");
-      setMessage("");
-    }
-  }, [isOpen]);
-  
-
   const handleSend = async () => {
     setMessage("");
-
-    
-    if (!email.trim()) {
+    if (!email) {
       setMessage("Please enter your email");
       return;
     }
-
-    if (!/\S+@\S+\.\S+/.test(email.trim())) {
-      setMessage("Please enter a valid email");
-      return;
-    }
-   
 
     try {
       const res = await fetch("http://localhost:8080/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        
-        body: JSON.stringify({ email: email.trim() }),
-        
+        body: JSON.stringify({ email }),
       });
 
       const data = await res.json();
@@ -45,10 +26,12 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
       } else {
         setMessage("Password reset instructions sent to your email");
 
+        // Clear input
         setEmail("");
 
+        // Automatically close modal after 2 seconds
         setTimeout(() => {
-          setMessage("");
+          setMessage(""); // optional: clear message
           onClose();
         }, 2000);
       }
