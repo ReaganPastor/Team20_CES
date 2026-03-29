@@ -27,16 +27,20 @@ const Login = () => {
     setError("");
     setSuccess("");
 
-    if (!username || !password) {
+    
+    if (!username.trim() || !password.trim()) {
         setError("Please fill in all fields");
         return;
     }
+   
 
     try {
         const res = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        
+        body: JSON.stringify({ username: username.trim(), password: password.trim() }),
+       
         credentials: "include",
         });
 
@@ -54,9 +58,11 @@ const Login = () => {
         }
         
         // STORE AUTH DATA HERE
-        localStorage.setItem("role", data.role);
-        //localStorage.setItem("username", data.username);
-        localStorage.setItem("role", data.role);
+        
+        if (data.role) {
+          localStorage.setItem("role", data.role);
+        }
+        
 
         // Save credentials if Remember Me is checked
         if (rememberMe) {
@@ -68,13 +74,8 @@ const Login = () => {
         localStorage.removeItem("rememberedUser");
         }
 
-        setSuccess(
-        data.role === "admin"
-            ? "Login successful! Redirecting..."
-            : "Login successful! Redirecting..."
-        );
+        setSuccess("Login successful! Redirecting...");
 
-        // Redirect after 1 second
         setTimeout(() => {
         navigate("/homepage");
         }, 1000);
