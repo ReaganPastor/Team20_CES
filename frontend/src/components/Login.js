@@ -48,13 +48,13 @@ const Login = () => {
         try {
         data = await res.json();
         } catch {
-        setError("Invalid server response");
-        return;
+          setError("Invalid server response");
+          return;
         }
 
         if (!res.ok) {
-        setError(data.error || "Login failed");
-        return;
+          setError(data.error || "Login failed");
+          return;
         }
         
         // STORE AUTH DATA HERE

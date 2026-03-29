@@ -6,6 +6,8 @@ import BookingPage from "./components/BookingPage";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import EditProfile from "./components/EditProfile";
+import EmailVerified from "./components/EmailVerified";
+import ResetPassword from "./components/ResetPassword";
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/edit-profile" element={<EditProfile />} />
+        <Route path="/email-verified" element={<EmailVerified />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </Router>
   );
