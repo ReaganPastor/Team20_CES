@@ -97,32 +97,30 @@ public class AuthController {
 
     // ---------- VERIFY EMAIL ----------
     @GetMapping("/verify")
-    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
-        Optional<User> userOpt = userService.findByVerificationToken(token);
+    public ResponseEntity<Void> verifyEmail(@RequestParam String token) {
+        Optional<User> userOpt = userService.getAllUsers().stream()
+                .filter(u -> token.equals(u.getVerificationToken()) || "verified".equals(u.getStatus()))
+                .findFirst();
 
         if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "status", "error"
-            ));
+            // Token invalid or not found
+            return ResponseEntity.status(302)
+                    .header("Location", "http://localhost:3000/email-verified?status=error")
+                    .build();
         }
 
         User user = userOpt.get();
 
-        // Prevent double verification issues
-        if ("verified".equals(user.getStatus())) {
-            return ResponseEntity.ok(Map.of(
-                    "status", "success",
-                    "username", user.getUsername()
-            ));
+        // Only set verified if not already
+        if (!"verified".equals(user.getStatus())) {
+            user.setStatus("verified");
+            user.setVerificationToken(null);
         }
 
-        user.setStatus("verified");
-        user.setVerificationToken(null);
-
-        return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "username", user.getUsername()
-        ));
+        // Redirect to React page with username
+        return ResponseEntity.status(302)
+                .header("Location", "http://localhost:3000/email-verified?status=success&username=" + user.getUsername())
+                .build();
     }
 
     // ---------- GET ALL USERS (for Postman testing) ----------
