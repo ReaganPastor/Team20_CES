@@ -43,10 +43,8 @@ function ViewDetails() {
           <div className="movie-info">
             <h1>{movie.title}</h1>
             <p><strong>Genre:</strong> {movie.genre}</p>
-            {/* <p><strong>Year:</strong> {movie.year}</p> */}
             <p><strong>Rating:</strong> {movie.rating}</p>
             <p><strong>Description:</strong> {movie.description}</p>
-            {/* <p><strong>Duration:</strong> {movie.durationMinutes} min</p> */}
 
             {/* Showtime + booking buttons in sub-box */}
             <div className="booking-section">
@@ -120,15 +118,6 @@ function ViewDetails() {
               )}
             </div>
           </div>
-<<<<<<< HEAD
-          
-          {bookingMessage && (
-            <p style={{ marginTop: "12px", color: "#93c5fd" }}>
-              {bookingMessage}
-            </p>
-          )}
-=======
->>>>>>> main
         </div>
 
         {/* Trailer section */}
