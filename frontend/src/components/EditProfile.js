@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import "./EditProfile.css";
 import { useNavigate } from "react-router-dom";
-import MovieCard from "../components/MovieCard"; // Adjust path if needed
+import MovieCard from "../components/MovieCard"; // adjust path
+import "./EditProfile.css";
 
 export default function EditProfile() {
   const navigate = useNavigate();
@@ -14,26 +14,34 @@ export default function EditProfile() {
     newPassword: "",
     address: { street: "", city: "", state: "", zipCode: "" },
   });
-
-  const [newCard, setNewCard] = useState({ cardholderName: "", number: "", exp: "", cvv: "" });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [cardError, setCardError] = useState("");
+  const [newCard, setNewCard] = useState({ cardholderName: "", number: "", exp: "", cvv: "" });
 
   const token = localStorage.getItem("token");
+  const userId = Number(localStorage.getItem("userId"));
 
   // Fetch profile
   const fetchProfile = async () => {
+    if (!token || !userId) {
+      navigate("/login");
+      return;
+    }
+
     try {
-      const res = await fetch("http://localhost:8080/api/auth/profile", {
+      const res = await fetch(`http://localhost:8080/profile/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to load profile");
+        throw new Error(`Failed to load profile (${res.status})`);
       }
+
       const data = await res.json();
       setProfile(data);
+
+      // Populate form
       setForm({
         firstName: data.firstName || "",
         lastName: data.lastName || "",
@@ -48,40 +56,32 @@ export default function EditProfile() {
   };
 
   useEffect(() => {
-    if (!token) navigate("/login");
-    else fetchProfile();
-  }, [token, navigate]);
+    fetchProfile();
+  }, [token, userId]);
 
-  // Input handlers
+  // Form input handler
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name.startsWith("address.")) {
       const key = name.split(".")[1];
       setForm((prev) => ({ ...prev, address: { ...prev.address, [key]: value } }));
-    } else setForm({ ...form, [name]: value });
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   };
 
-  // Credit card formatting
-  const formatCardNumber = (num) => {
-    return num
-      .replace(/\D/g, "") // remove non-digit
-      .replace(/(.{4})/g, "$1 ")
-      .trim();
-  };
-
+  // Card input formatting
+  const formatCardNumber = (num) => num.replace(/\D/g, "").replace(/(.{4})/g, "$1 ").trim();
   const formatExp = (exp) => {
-    let cleaned = exp.replace(/\D/g, "");
-    if (cleaned.length > 2) cleaned = cleaned.slice(0, 2) + "/" + cleaned.slice(2, 4);
-    return cleaned;
+    const cleaned = exp.replace(/\D/g, "");
+    return cleaned.length > 2 ? cleaned.slice(0, 2) + "/" + cleaned.slice(2, 4) : cleaned;
   };
 
   const handleCardChange = (e) => {
     let { name, value } = e.target;
-
     if (name === "number") value = formatCardNumber(value);
     if (name === "exp") value = formatExp(value);
-    if (name === "cvv") value = value.replace(/\D/g, "").slice(0, 4); // max 4 digits
-
+    if (name === "cvv") value = value.replace(/\D/g, "").slice(0, 4);
     setNewCard({ ...newCard, [name]: value });
   };
 
@@ -99,44 +99,85 @@ export default function EditProfile() {
     return true;
   };
 
-  const handleAddCard = () => {
-    if ((profile.paymentCards || []).length >= 3) return;
+  // Add payment card
+  const handleAddCard = async () => {
+    if ((profile.paymentCards || []).length >= 3) {
+      setCardError("Maximum 3 cards allowed");
+      return;
+    }
+
     if (!validateCard()) return;
 
-    const updatedCards = [
-      ...(profile.paymentCards || []),
-      { id: Date.now(), ...newCard, lastFour: newCard.number.slice(-4) },
-    ];
-    setProfile({ ...profile, paymentCards: updatedCards });
-    setNewCard({ cardholderName: "", number: "", exp: "", cvv: "" });
+    try {
+      const res = await fetch(`http://localhost:8080/profile/${userId}/cards`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          cardholderName: newCard.cardholderName,
+          cardNumber: newCard.number.replace(/\s/g, ""),
+          expirationDate: newCard.exp,
+          cvv: newCard.cvv,
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to add card (${res.status})`);
+      }
+
+      const addedCard = await res.json();
+      setProfile({
+        ...profile,
+        paymentCards: [...(profile.paymentCards || []), addedCard],
+      });
+      setNewCard({ cardholderName: "", number: "", exp: "", cvv: "" });
+    } catch (err) {
+      setCardError(err.message);
+    }
   };
 
-  const handleRemoveCard = (id) => {
-    setProfile({ ...profile, paymentCards: profile.paymentCards.filter((c) => c.id !== id) });
+  const handleRemoveCard = async (cardId) => {
+    try {
+      const res = await fetch(`http://localhost:8080/profile/${userId}/cards/${cardId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error(`Failed to remove card (${res.status})`);
+
+      setProfile({
+        ...profile,
+        paymentCards: profile.paymentCards.filter((c) => c.id !== cardId),
+      });
+    } catch (err) {
+      setCardError(err.message);
+    }
   };
 
-  const handleRemoveFavorite = (id) => {
-    setProfile({ ...profile, favoriteMovies: profile.favoriteMovies.filter((m) => m.id !== id) });
+  // Remove favorite movie
+  const handleRemoveFavorite = (movieId) => {
+    setProfile({
+      ...profile,
+      favoriteMovies: (profile.favoriteMovies || []).filter((m) => m.id !== movieId),
+    });
   };
 
+  // Save profile
   const handleSave = async (e) => {
     e.preventDefault();
-    setMessage("");
     setError("");
+    setMessage("");
 
     try {
-      const res = await fetch("http://localhost:8080/api/auth/profile/update", {
+      const res = await fetch(`http://localhost:8080/profile/${userId}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(form),
       });
 
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to update profile");
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to update profile (${res.status})`);
       }
 
       const updated = await res.json();
@@ -159,14 +200,13 @@ export default function EditProfile() {
         <h2>Profile Info</h2>
         {message && <p className="success">{message}</p>}
         {error && <p className="error">{error}</p>}
+
         <form onSubmit={handleSave}>
-          <input type="text" value={profile.username} disabled placeholder="Username" className="centered-input" />
-          <input type="email" value={profile.email} disabled placeholder="Email" className="centered-input" />
+          <input type="text" value={profile.username} disabled className="centered-input" />
+          <input type="email" value={profile.email} disabled className="centered-input" />
           <input type="text" name="firstName" value={form.firstName} onChange={handleChange} placeholder="First Name" className="centered-input" />
           <input type="text" name="lastName" value={form.lastName} onChange={handleChange} placeholder="Last Name" className="centered-input" />
           <input type="text" name="phoneNumber" value={form.phoneNumber} onChange={handleChange} placeholder="Phone Number" className="centered-input" />
-          <input type="password" name="currentPassword" value={form.currentPassword} onChange={handleChange} placeholder="Current Password" className="centered-input" />
-          <input type="password" name="newPassword" value={form.newPassword} onChange={handleChange} placeholder="New Password" className="centered-input" />
 
           <h3>Address</h3>
           <input type="text" name="address.street" value={form.address.street} onChange={handleChange} placeholder="Street" className="centered-input" />
@@ -191,16 +231,12 @@ export default function EditProfile() {
           ))}
         </ul>
 
-        {maxCardsReached ? (
-          <p style={{ color: "#f87171", fontSize: "13px", marginTop: "4px" }}>
-            Maximum 3 cards allowed
-          </p>
-        ) : (
+        {!maxCardsReached && (
           <>
             <input type="text" name="cardholderName" value={newCard.cardholderName} onChange={handleCardChange} placeholder="Cardholder Name" className="centered-input" />
             <input type="text" name="number" value={newCard.number} onChange={handleCardChange} placeholder="Card Number" className="centered-input" maxLength={19} />
             <input type="text" name="exp" value={newCard.exp} onChange={handleCardChange} placeholder="MM/YY" className="centered-input" maxLength={5} />
-            <input type="password" name="cvv" value={newCard.cvv} onChange={handleCardChange} placeholder="CVV" className="centered-input" maxLength={3} />
+            <input type="password" name="cvv" value={newCard.cvv} onChange={handleCardChange} placeholder="CVV" className="centered-input" maxLength={4} />
             {cardError && <p className="error">{cardError}</p>}
             <button className="small-button" onClick={handleAddCard}>Add Card</button>
           </>
@@ -220,7 +256,7 @@ export default function EditProfile() {
         </div>
       </div>
 
-      {/* Go Back to Homepage Button */}
+      {/* Go Back */}
       <button className="save-button" style={{ maxWidth: "350px", marginTop: "20px" }} onClick={() => navigate("/")}>
         Go Back to Homepage
       </button>

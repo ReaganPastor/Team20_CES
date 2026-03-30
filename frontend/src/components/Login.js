@@ -38,23 +38,25 @@ const Login = () => {
         body: JSON.stringify({ username: username.trim(), password: password.trim() }),
       });
 
-      let data = {};
-      try {
-        data = await res.json();
-      } catch {
-        setError("Invalid login response from server");
-        return;
-      }
+      const data = await res.json();
 
       if (!res.ok) {
         setError(data.error || "Login failed");
         return;
       }
 
-      // Store username, role, and token
+      // ⚡ Important: make sure backend sends userId (or id)
+      const userId = data.id || data.userId; // fallback just in case
+      if (!userId) {
+        setError("Login response missing user ID");
+        return;
+      }
+
+      // Store credentials and token
       localStorage.setItem("username", data.username);
       localStorage.setItem("role", data.role);
-      localStorage.setItem("token", data.token); // <-- save the login token
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", userId);
 
       if (rememberMe) {
         localStorage.setItem(
@@ -77,7 +79,6 @@ const Login = () => {
     <div className="login-page">
       <div className="login-card">
         <h1>Login</h1>
-
         {error && <div className="error">{error}</div>}
         {success && <div className="success">{success}</div>}
 

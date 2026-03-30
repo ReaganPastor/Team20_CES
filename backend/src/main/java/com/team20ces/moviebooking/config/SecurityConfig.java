@@ -23,6 +23,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/movies/**").permitAll()
+                .requestMatchers("/profile/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin().disable();

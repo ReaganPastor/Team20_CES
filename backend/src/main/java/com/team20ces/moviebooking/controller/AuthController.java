@@ -144,6 +144,7 @@ public class AuthController {
         user.setLoginToken(loginToken);
 
         return ResponseEntity.ok(Map.of(
+                "id", user.getId(),
                 "role", user.getRole(),
                 "username", user.getUsername(),
                 "token", loginToken
