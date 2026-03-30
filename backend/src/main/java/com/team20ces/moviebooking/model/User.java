@@ -10,8 +10,10 @@ public class User {
     private String passwordHash;
     private String role;
     private String status;
+    private String verificationToken;
+    private String resetToken;
 
-        // Editable profile fields
+    // Editable profile fields
     private String firstName;
     private String lastName;
     private String phoneNumber;
@@ -33,6 +35,8 @@ public class User {
         this.passwordHash = passwordHash;
         this.role = role;
         this.status = status;
+        this.verificationToken = null;
+        this.resetToken = null;
     }
 
     public Long getId() { return id; }
@@ -41,6 +45,9 @@ public class User {
     public String getPasswordHash() { return passwordHash; }
     public String getRole() { return role; }
     public String getStatus() { return status; }
+    public String getVerificationToken() { return verificationToken; }
+    public String getResetToken() { return resetToken; }
+
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 
     public String getFirstName() {
@@ -90,4 +97,7 @@ public class User {
     public void setFavoriteMovies(List<Movie> favoriteMovies) {
         this.favoriteMovies = favoriteMovies;
     }
+    public void setStatus(String status) { this.status = status; }
+    public void setVerificationToken(String verificationToken) { this.verificationToken = verificationToken; }
+    public void setResetToken(String resetToken) { this.resetToken = resetToken; }
 }

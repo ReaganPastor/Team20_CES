@@ -24,7 +24,7 @@ function ViewDetails() {
 
   if (!movie) return <p>Loading movie details...</p>;
 
-  const isNowPlaying = (movie.status || "") === "Currently Running";
+  const isNowPlaying = (movie.status || "") === "CURRENTLY_RUNNING";
   const showtimes = isNowPlaying ? ["12:30 PM", "2:45 PM", "5:10 PM", "7:30 PM", "9:50 PM"] : [];
 
   return (
@@ -43,10 +43,8 @@ function ViewDetails() {
           <div className="movie-info">
             <h1>{movie.title}</h1>
             <p><strong>Genre:</strong> {movie.genre}</p>
-            {/* <p><strong>Year:</strong> {movie.year}</p> */}
             <p><strong>Rating:</strong> {movie.rating}</p>
             <p><strong>Description:</strong> {movie.description}</p>
-            {/* <p><strong>Duration:</strong> {movie.durationMinutes} min</p> */}
 
             {/* Showtime + booking buttons in sub-box */}
             <div className="booking-section">
