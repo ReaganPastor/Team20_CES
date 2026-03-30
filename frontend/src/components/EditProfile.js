@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./EditProfile.css";
-import Navigation from "./Navigation";
 import MovieCard from "../components/MovieCard";
 
 export default function EditProfile() {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-  const userId = Number(localStorage.getItem("userId"));
-
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({
     firstName: "",
@@ -23,7 +19,10 @@ export default function EditProfile() {
   const [error, setError] = useState("");
   const [cardError, setCardError] = useState("");
 
-  // --- FETCH PROFILE ---
+  const token = localStorage.getItem("token");
+  const userId = Number(localStorage.getItem("userId"));
+
+  // Fetch profile from backend
   const fetchProfile = async () => {
     if (!userId) {
       setError("No user ID found. Please login again.");
@@ -34,7 +33,10 @@ export default function EditProfile() {
       const res = await fetch(`http://localhost:8080/profile/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error(`Failed to load profile (${res.status})`);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to load profile (${res.status})`);
+      }
       const data = await res.json();
       setProfile(data);
       setForm({
@@ -55,45 +57,106 @@ export default function EditProfile() {
     else fetchProfile();
   }, [token, userId]);
 
-  // --- FORM HANDLERS ---
+  // Form input handler
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name.startsWith("address.")) {
       const key = name.split(".")[1];
       setForm((prev) => ({ ...prev, address: { ...prev.address, [key]: value } }));
-    } else setForm({ ...form, [name]: value });
-  };
-
-  // --- FAVORITE TOGGLE ---
-  const handleFavoriteToggle = async (movie, shouldAdd) => {
-    try {
-      const url = `http://localhost:8080/profile/${userId}/favorites${shouldAdd ? "" : `/${movie.id}`}`;
-      const res = await fetch(url, {
-        method: shouldAdd ? "POST" : "DELETE",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: shouldAdd ? JSON.stringify({ id: movie.id, ...movie }) : undefined,
-      });
-
-      if (!res.ok) throw new Error("Failed to toggle favorite");
-
-      // Update local state immediately
-      setProfile((prev) => {
-        const currentFavorites = prev.favoriteMovies || [];
-        return {
-          ...prev,
-          favoriteMovies: shouldAdd
-            ? [...currentFavorites, movie]
-            : currentFavorites.filter((m) => m.id !== movie.id),
-        };
-      });
-    } catch (err) {
-      console.error("Failed to toggle favorite:", err);
+    } else {
+      setForm({ ...form, [name]: value });
     }
   };
 
-  const handleRemoveFavorite = (movie) => handleFavoriteToggle(movie, false);
+  // Credit card formatting
+  const formatCardNumber = (num) =>
+    num.replace(/\D/g, "").replace(/(.{4})/g, "$1 ").trim();
 
-  // --- SAVE PROFILE ---
+  const formatExp = (exp) => {
+    let cleaned = exp.replace(/\D/g, "");
+    if (cleaned.length > 2) cleaned = cleaned.slice(0, 2) + "/" + cleaned.slice(2, 4);
+    return cleaned;
+  };
+
+  const handleCardChange = (e) => {
+    let { name, value } = e.target;
+    if (name === "number") value = formatCardNumber(value);
+    if (name === "exp") value = formatExp(value);
+    if (name === "cvv") value = value.replace(/\D/g, "").slice(0, 4);
+    setNewCard({ ...newCard, [name]: value });
+  };
+
+  const validateCard = () => {
+    const { cardholderName, number, exp, cvv } = newCard;
+    const numberValid = /^\d{4} \d{4} \d{4} \d{4}$/.test(number);
+    const expValid = /^(0[1-9]|1[0-2])\/\d{2}$/.test(exp);
+    const cvvValid = /^\d{3}$/.test(cvv);
+    if (!cardholderName || !numberValid || !expValid || !cvvValid) {
+      setCardError("Please enter card info correctly.");
+      return false;
+    }
+    setCardError("");
+    return true;
+  };
+
+  // Add payment card
+  const handleAddCard = async () => {
+    if ((profile.paymentCards || []).length >= 3) {
+      setCardError("Maximum 3 cards allowed");
+      return;
+    }
+    if (!validateCard()) return;
+
+    try {
+      const res = await fetch(`http://localhost:8080/profile/${userId}/cards`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          cardholderName: newCard.cardholderName,
+          cardNumber: newCard.number.replace(/\s/g, ""),
+          expirationDate: newCard.exp,
+          cvv: newCard.cvv,
+        }),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to add card (${res.status})`);
+      }
+      const addedCard = await res.json();
+      setProfile({
+        ...profile,
+        paymentCards: [...(profile.paymentCards || []), addedCard],
+      });
+      setNewCard({ cardholderName: "", number: "", exp: "", cvv: "" });
+      setCardError("");
+    } catch (err) {
+      setCardError(err.message);
+    }
+  };
+
+  // Remove payment card
+  const handleRemoveCard = async (cardId) => {
+    try {
+      const res = await fetch(`http://localhost:8080/profile/${userId}/cards/${cardId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`Failed to remove card (${res.status})`);
+      setProfile({
+        ...profile,
+        paymentCards: profile.paymentCards.filter((c) => c.id !== cardId),
+      });
+    } catch (err) {
+      setCardError(err.message);
+    }
+  };
+
+  // Remove favorite movie
+  const handleRemoveFavorite = (id) => {
+    setProfile({ ...profile, favoriteMovies: profile.favoriteMovies.filter((m) => m.id !== id) });
+  };
+
+  // Save address separately
   const saveAddress = async () => {
     try {
       const res = await fetch(`http://localhost:8080/profile/${userId}/address`, {
@@ -101,7 +164,10 @@ export default function EditProfile() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(form.address),
       });
-      if (!res.ok) throw new Error(`Failed to save address (${res.status})`);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to save address (${res.status})`);
+      }
       const updatedAddress = await res.json();
       setProfile((prev) => ({ ...prev, address: updatedAddress }));
     } catch (err) {
@@ -109,12 +175,14 @@ export default function EditProfile() {
     }
   };
 
+  // Save profile + address
   const handleSave = async (e) => {
     e.preventDefault();
     setMessage("");
     setError("");
 
     try {
+      // Update basic profile fields
       const res = await fetch(`http://localhost:8080/profile/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -126,8 +194,16 @@ export default function EditProfile() {
           newPassword: form.newPassword,
         }),
       });
-      if (!res.ok) throw new Error(`Failed to update profile (${res.status})`);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to update profile (${res.status})`);
+      }
+      const updatedProfile = await res.json();
+
+      // Update address
       await saveAddress();
+
+      setProfile(updatedProfile);
       setMessage("Profile updated successfully!");
       setForm((prev) => ({ ...prev, currentPassword: "", newPassword: "" }));
     } catch (err) {
@@ -136,115 +212,115 @@ export default function EditProfile() {
   };
 
   if (!profile) return <p>Loading profile...</p>;
+
   const maxCardsReached = (profile.paymentCards || []).length >= 3;
 
   return (
-    <div>
-      <Navigation />
-      <div className="profile-page">
-        {/* LEFT SIDE: Edit Profile */}
-        <div className="profile-card" style={{ flex: 1, maxWidth: "400px" }}>
-          <h2>Edit Profile</h2>
-          {message && <p className="success">{message}</p>}
-          {error && <p className="error">{error}</p>}
-          <form onSubmit={handleSave}>
-            <input type="text" value={profile.username} disabled className="centered-input" />
-            <input type="email" value={profile.email} disabled className="centered-input" />
-            <input type="text" name="firstName" value={form.firstName} onChange={handleChange} placeholder="First Name" className="centered-input" />
-            <input type="text" name="lastName" value={form.lastName} onChange={handleChange} placeholder="Last Name" className="centered-input" />
-            <input type="text" name="phoneNumber" value={form.phoneNumber} onChange={handleChange} placeholder="Phone Number" className="centered-input" />
-            <input type="password" name="currentPassword" value={form.currentPassword} onChange={handleChange} placeholder="Current Password" className="centered-input" />
-            <input type="password" name="newPassword" value={form.newPassword} onChange={handleChange} placeholder="New Password" className="centered-input" />
-            <h3>Address</h3>
-            <input type="text" name="address.street" value={form.address.street} onChange={handleChange} placeholder="Street" className="centered-input" />
-            <input type="text" name="address.city" value={form.address.city} onChange={handleChange} placeholder="City" className="centered-input" />
-            <input type="text" name="address.state" value={form.address.state} onChange={handleChange} placeholder="State" className="centered-input" />
-            <input type="text" name="address.zipCode" value={form.address.zipCode} onChange={handleChange} placeholder="Zip Code" className="centered-input" />
-            <button type="submit" className="save-button">Save Changes</button>
-          </form>
-        </div>
+    <div className="profile-page">
+      {/* Profile Info */}
+      <div className="profile-card">
+        <h2>Profile Info</h2>
+        {message && <p className="success">{message}</p>}
+        {error && <p className="error">{error}</p>}
+        <form onSubmit={handleSave}>
+          <input type="text" value={profile.username} disabled className="centered-input" />
+          <input type="email" value={profile.email} disabled className="centered-input" />
+          <input type="text" name="firstName" value={form.firstName} onChange={handleChange} placeholder="First Name" className="centered-input" />
+          <input type="text" name="lastName" value={form.lastName} onChange={handleChange} placeholder="Last Name" className="centered-input" />
+          <input type="text" name="phoneNumber" value={form.phoneNumber} onChange={handleChange} placeholder="Phone Number" className="centered-input" />
+          <input type="password" name="currentPassword" value={form.currentPassword} onChange={handleChange} placeholder="Current Password" className="centered-input" />
+          <input type="password" name="newPassword" value={form.newPassword} onChange={handleChange} placeholder="New Password" className="centered-input" />
 
-        {/* RIGHT SIDE: Payment Cards */}
-        <div className="profile-card" style={{ flex: 1, maxWidth: "400px" }}>
-          <h2>Payment Methods</h2>
-          {cardError && <p className="error">{cardError}</p>}
-          {(profile.paymentCards || []).map((card) => (
-            <div key={card.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span>{card.cardholderName} •••• {card.lastFour} ({card.expirationDate})</span>
-              <button className="inline-button" onClick={async () => {
-                try {
-                  const res = await fetch(`http://localhost:8080/profile/${userId}/cards/${card.id}`, {
-                    method: "DELETE",
-                    headers: { Authorization: `Bearer ${token}` },
-                  });
-                  if (!res.ok) throw new Error("Failed to remove card");
-                  setProfile(prev => ({
-                    ...prev,
-                    paymentCards: prev.paymentCards.filter(c => c.id !== card.id)
-                  }));
-                } catch (err) {
-                  setCardError(err.message);
-                }
-              }}>Remove</button>
-            </div>
-          ))}
-          {!maxCardsReached && (
-            <form style={{ marginTop: "10px" }} onSubmit={async (e) => {
-              e.preventDefault();
-              setCardError("");
-              try {
-                const res = await fetch(`http://localhost:8080/profile/${userId}/cards`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                  body: JSON.stringify({
-                    cardholderName: newCard.cardholderName,
-                    cardNumber: newCard.number,
-                    expirationDate: newCard.exp,
-                    cvv: newCard.cvv
-                  }),
-                });
-                if (!res.ok) throw new Error("Failed to add card");
-                const addedCard = await res.json();
-                setProfile(prev => ({
-                  ...prev,
-                  paymentCards: [...prev.paymentCards, addedCard]
-                }));
-                setNewCard({ cardholderName: "", number: "", exp: "", cvv: "" });
-              } catch (err) {
-                setCardError(err.message);
-              }
-            }}>
-              <input type="text" placeholder="Cardholder Name" value={newCard.cardholderName} onChange={e => setNewCard({...newCard, cardholderName: e.target.value})} className="centered-input"/>
-              <input type="text" placeholder="Card Number" value={newCard.number} onChange={e => setNewCard({...newCard, number: e.target.value})} className="centered-input"/>
-              <input type="text" placeholder="Exp Date" value={newCard.exp} onChange={e => setNewCard({...newCard, exp: e.target.value})} className="centered-input"/>
-              <input type="text" placeholder="CVV" value={newCard.cvv} onChange={e => setNewCard({...newCard, cvv: e.target.value})} className="centered-input"/>
-              <button type="submit" className="save-button">Add Card</button>
-            </form>
-          )}
-        </div>
+          <h3>Address</h3>
+          <input type="text" name="address.street" value={form.address.street} onChange={handleChange} placeholder="Street" className="centered-input" />
+          <input type="text" name="address.city" value={form.address.city} onChange={handleChange} placeholder="City" className="centered-input" />
+          <input type="text" name="address.state" value={form.address.state} onChange={handleChange} placeholder="State" className="centered-input" />
+          <input type="text" name="address.zipCode" value={form.address.zipCode} onChange={handleChange} placeholder="Zip Code" className="centered-input" />
 
-        {/* FAVORITE MOVIES (horizontal scroll) */}
-        <div className="profile-card" style={{ width: "100%", overflowX: "auto" }}>
-          <h2>Favorite Movies</h2>
-          {(profile.favoriteMovies || []).length === 0 && <p>No favorites yet</p>}
-          <div style={{ display: "flex", gap: "12px", overflowX: "auto", paddingBottom: "10px" }}>
-            {(profile.favoriteMovies || []).map(movie => (
-              <MovieCard
-                key={movie.id}
-                movie={movie}
-                isFavorite={true}
-                onFavoriteToggle={handleFavoriteToggle}
-              >
-                <button className="inline-button" onClick={() => handleRemoveFavorite(movie)}>Remove</button>
-              </MovieCard>
-            ))}
-          </div>
-        </div>
-
-        <button className="save-button" style={{ maxWidth: "350px", marginTop: "20px" }} onClick={() => navigate("/")}>
-          Go Back to Homepage
-        </button>
+          <button type="submit" className="save-button">Save Changes</button>
+        </form>
       </div>
+
+      {/* Payment Cards */}
+      <div className="profile-card">
+        <h2>Payment Cards (Max 3)</h2>
+        {(profile.paymentCards || []).length === 0 && <p>No cards added</p>}
+        <ul>
+          {(profile.paymentCards || []).map((card) => (
+            <li key={card.id}>
+              {card.cardholderName} - **** **** **** {card.lastFour} 
+              <button className="inline-button" onClick={() => handleRemoveCard(card.id)}>Remove</button>
+            </li>
+          ))}
+        </ul>
+
+        {!maxCardsReached && (
+          <>
+            <input
+              type="text"
+              name="cardholderName"
+              value={newCard.cardholderName}
+              onChange={handleCardChange}
+              placeholder="Cardholder Name"
+              className="centered-input"
+            />
+            <input
+              type="text"
+              name="number"
+              value={newCard.number}
+              onChange={handleCardChange}
+              placeholder="Card Number"
+              className="centered-input"
+              maxLength={19}
+            />
+            <input
+              type="text"
+              name="exp"
+              value={newCard.exp}
+              onChange={handleCardChange}
+              placeholder="MM/YY"
+              className="centered-input"
+              maxLength={5}
+            />
+            <input
+              type="password"
+              name="cvv"
+              value={newCard.cvv}
+              onChange={handleCardChange}
+              placeholder="CVV"
+              className="centered-input"
+              maxLength={3}
+            />
+            {cardError && <p className="error">{cardError}</p>}
+            <button className="small-button" onClick={handleAddCard}>Add Card</button>
+          </>
+        )}
+
+        {/* Max cards reached message */}
+        {maxCardsReached && (
+          <p style={{ color: "#f87171", fontSize: "13px", marginTop: "4px" }}>
+            Maximum 3 cards allowed
+          </p>
+        )}
+      </div>
+
+      {/* Favorite Movies */}
+      <div className="profile-card">
+        <h2>Favorite Movies</h2>
+        {(profile.favoriteMovies || []).length === 0 && <p>No favorites yet</p>}
+        <div className="movie-grid">
+          {(profile.favoriteMovies || []).map((movie) => (
+            <MovieCard key={movie.id} movie={movie}>
+              <button className="inline-button" onClick={() => handleRemoveFavorite(movie.id)}>Remove</button>
+            </MovieCard>
+          ))}
+        </div>
+      </div>
+
+      {/* Go Back */}
+      <button className="save-button" style={{ maxWidth: "350px", marginTop: "20px" }} onClick={() => navigate("/")}>
+        Go Back to Homepage
+      </button>
     </div>
   );
 }
