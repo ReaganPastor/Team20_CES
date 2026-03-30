@@ -90,7 +90,7 @@ export default function EditProfile() {
     const { cardholderName, number, exp, cvv } = newCard;
     const numberValid = /^\d{4} \d{4} \d{4} \d{4}$/.test(number);
     const expValid = /^(0[1-9]|1[0-2])\/\d{2}$/.test(exp);
-    const cvvValid = /^\d{3,4}$/.test(cvv);
+    const cvvValid = /^\d{3}$/.test(cvv);
     if (!cardholderName || !numberValid || !expValid || !cvvValid) {
       setCardError("Please enter card info correctly.");
       return false;
@@ -256,13 +256,51 @@ export default function EditProfile() {
 
         {!maxCardsReached && (
           <>
-            <input type="text" name="cardholderName" value={newCard.cardholderName} onChange={handleCardChange} placeholder="Cardholder Name" className="centered-input" />
-            <input type="text" name="number" value={newCard.number} onChange={handleCardChange} placeholder="Card Number" className="centered-input" maxLength={19} />
-            <input type="text" name="exp" value={newCard.exp} onChange={handleCardChange} placeholder="MM/YY" className="centered-input" maxLength={5} />
-            <input type="password" name="cvv" value={newCard.cvv} onChange={handleCardChange} placeholder="CVV" className="centered-input" maxLength={4} />
+            <input
+              type="text"
+              name="cardholderName"
+              value={newCard.cardholderName}
+              onChange={handleCardChange}
+              placeholder="Cardholder Name"
+              className="centered-input"
+            />
+            <input
+              type="text"
+              name="number"
+              value={newCard.number}
+              onChange={handleCardChange}
+              placeholder="Card Number"
+              className="centered-input"
+              maxLength={19}
+            />
+            <input
+              type="text"
+              name="exp"
+              value={newCard.exp}
+              onChange={handleCardChange}
+              placeholder="MM/YY"
+              className="centered-input"
+              maxLength={5}
+            />
+            <input
+              type="password"
+              name="cvv"
+              value={newCard.cvv}
+              onChange={handleCardChange}
+              placeholder="CVV"
+              className="centered-input"
+              maxLength={3}
+            />
             {cardError && <p className="error">{cardError}</p>}
             <button className="small-button" onClick={handleAddCard}>Add Card</button>
           </>
+        )}
+
+        {/* Max cards reached message */}
+        {maxCardsReached && (
+          <p style={{ color: "#f87171", fontSize: "13px", marginTop: "4px" }}>
+            Maximum 3 cards allowed
+          </p>
         )}
       </div>
 
