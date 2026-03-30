@@ -95,14 +95,14 @@ public class ProfileController {
 
     // Get favorite movies
     @GetMapping("/{userId}/favorites")
-    public ResponseEntity<?> getFavoriteMovies(@PathVariable Long userId) {
-        Optional<List<MovieResponse>> favorites = userService.getFavoriteMovies(userId);
+    public ResponseEntity<List<MovieResponse>> getFavoriteMovies(@PathVariable Long userId) {
+        List<MovieResponse> favorites = userService.getFavoriteMovies(userId);
 
         if (favorites.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(favorites.get());
+        return ResponseEntity.ok(favorites);
     }
 
     // Add a favorite movie

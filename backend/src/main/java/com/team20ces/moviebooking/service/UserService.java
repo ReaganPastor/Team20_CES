@@ -191,24 +191,51 @@ public class UserService {
         return Optional.of("Card removed successfully");
     }
 
-    // Return favorite movies for a user
-    public Optional<List<MovieResponse>> getFavoriteMovies(Long userId) {
-        Optional<User> userOptional = users.stream()
-                .filter(u -> u.getId().equals(userId))
-                .findFirst();
+    // Returns favorite movies for a given userId
+    public List<MovieResponse> getFavoriteMovies(Long userId) {
+        Optional<User> userOpt = users.stream().filter(u -> u.getId().equals(userId)).findFirst();
+        if (userOpt.isEmpty()) return new ArrayList<>();
 
-        if (userOptional.isEmpty()) {
-            return Optional.empty();
+        User user = userOpt.get();
+        List<MovieResponse> response = new ArrayList<>();
+        for (Movie movie : user.getFavoriteMovies()) {
+            response.add(new MovieResponse(
+                movie.getId(),
+                movie.getTitle(),
+                movie.getPosterPath(), // make sure this is the correct path stored in your Movie object
+                movie.getGenre(),
+                movie.getRating() // now a string like "PG", "R", etc.
+            ));
         }
+        return response;
+    }
 
-        User user = userOptional.get();
+    // Return favorite movies for a user
+    public List<MovieResponse> getFavoriteMoviesForUser(User user) {
         List<MovieResponse> response = new ArrayList<>();
 
         for (Movie movie : user.getFavoriteMovies()) {
-            response.add(new MovieResponse(movie.getId(), movie.getTitle()));
+            // Parse rating to Double safely
+            Double rating = null;
+            try {
+                rating = movie.getRating() != null ? Double.valueOf(movie.getRating()) : null;
+            } catch (NumberFormatException e) {
+                rating = null; // fallback if rating is invalid
+            }
+
+            // Use full 5-arg constructor
+            MovieResponse mr = new MovieResponse(
+                    movie.getId(),
+                    movie.getTitle(),
+                    movie.getPosterPath(),
+                    movie.getGenre(),
+                    movie.getRating()
+            );
+
+            response.add(mr);
         }
 
-        return Optional.of(response);
+        return response;
     }
 
     // Add a movie to favorites using a movie object passed in
@@ -269,10 +296,23 @@ public class UserService {
         }
         response.setPaymentCards(cards);
 
-        // Favorites
+        // Favorites — full 5-arg MovieResponse
         List<MovieResponse> favorites = new ArrayList<>();
         for (Movie movie : user.getFavoriteMovies()) {
-            favorites.add(new MovieResponse(movie.getId(), movie.getTitle()));
+            Double rating = null;
+            try {
+                rating = movie.getRating() != null ? Double.valueOf(movie.getRating()) : null;
+            } catch (NumberFormatException e) {
+                rating = null;
+            }
+
+            favorites.add(new MovieResponse(
+                    movie.getId(),
+                    movie.getTitle(),
+                    movie.getPosterPath(),
+                    movie.getGenre(),
+                    movie.getRating()
+            ));
         }
         response.setFavoriteMovies(favorites);
 

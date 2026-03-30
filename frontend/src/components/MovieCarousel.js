@@ -5,11 +5,53 @@ import "./MovieCarousel.css";
 function MovieCarousel({ movies, moviesPerPage = 6 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const handlePrev = () => setCurrentIndex(prev => Math.max(prev - moviesPerPage, 0));
-  const handleNext = () =>
-    setCurrentIndex(prev => Math.min(prev + moviesPerPage, movies.length - moviesPerPage));
+  const token = localStorage.getItem("token");
+  const userId = Number(localStorage.getItem("userId"));
 
-  const visibleMovies = movies.slice(currentIndex, currentIndex + moviesPerPage);
+  const handlePrev = () => {
+    setCurrentIndex((prev) => Math.max(prev - moviesPerPage, 0));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) =>
+      Math.min(prev + moviesPerPage, movies.length - moviesPerPage)
+    );
+  };
+
+  const visibleMovies = movies.slice(
+    currentIndex,
+    currentIndex + moviesPerPage
+  );
+
+  // ⭐ Favorite handler
+  const handleFavoriteToggle = async (movie) => {
+    if (!token || !userId) {
+      console.error("User not authenticated");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `http://localhost:8080/profile/${userId}/favorites`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(movie),
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error(`Failed to favorite movie (${res.status})`);
+      }
+
+      console.log(`Added to favorites: ${movie.title}`);
+    } catch (err) {
+      console.error("Favorite error:", err.message);
+    }
+  };
 
   return (
     <div className="carousel-container">
@@ -24,8 +66,12 @@ function MovieCarousel({ movies, moviesPerPage = 6 }) {
 
       {/* Movie Cards */}
       <div className="carousel-cards">
-        {visibleMovies.map((movie, index) => (
-          <MovieCard key={index} movie={movie} />
+        {visibleMovies.map((movie) => (
+          <MovieCard
+            key={movie.id}
+            movie={movie}
+            onFavoriteToggle={handleFavoriteToggle}
+          />
         ))}
       </div>
 
