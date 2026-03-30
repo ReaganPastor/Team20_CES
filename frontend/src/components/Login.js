@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 import "./Login.css";
+import Navigation from "./Navigation";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -76,51 +77,54 @@ const Login = () => {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <h1>Login</h1>
-        {error && <div className="error">{error}</div>}
-        {success && <div className="success">{success}</div>}
+    <div>
+      <Navigation />
+      <div className="login-page">
+        <div className="login-card">
+          <h1>Login</h1>
+          {error && <div className="error">{error}</div>}
+          {success && <div className="success">{success}</div>}
 
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="centered-input"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="centered-input"
-        />
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="centered-input"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="centered-input"
+          />
 
-        <div className="options-row">
-          <label>
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={() => setRememberMe(!rememberMe)}
-            />
-            Remember me
-          </label>
-          <span className="forgot-password" onClick={() => setShowModal(true)}>
-            Forgot Password?
-          </span>
+          <div className="options-row">
+            <label>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={() => setRememberMe(!rememberMe)}
+              />
+              Remember me
+            </label>
+            <span className="forgot-password" onClick={() => setShowModal(true)}>
+              Forgot Password?
+            </span>
+          </div>
+
+          <div className="button-row horizontal-buttons">
+            <button onClick={handleLogin}>Login</button>
+            <button onClick={() => navigate("/signup")}>Sign Up</button>
+          </div>
         </div>
 
-        <div className="button-row horizontal-buttons">
-          <button onClick={handleLogin}>Login</button>
-          <button onClick={() => navigate("/signup")}>Sign Up</button>
-        </div>
+        <ForgotPasswordModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+        />
       </div>
-
-      <ForgotPasswordModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-      />
     </div>
   );
 };
