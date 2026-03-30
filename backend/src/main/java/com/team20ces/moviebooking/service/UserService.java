@@ -172,6 +172,25 @@ public class UserService {
         ));
     }
 
+    // Remove a payment card by card ID
+    public Optional<String> removePaymentCard(Long userId, Long cardId) {
+        Optional<User> userOptional = users.stream()
+                .filter(u -> u.getId().equals(userId))
+                .findFirst();
+
+        if (userOptional.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User user = userOptional.get();
+
+        boolean removed = user.getPaymentCards().removeIf(c -> c.getId().equals(cardId));
+        if (!removed) return Optional.empty();
+
+        updateUser(user);
+        return Optional.of("Card removed successfully");
+    }
+
     // Return favorite movies for a user
     public Optional<List<MovieResponse>> getFavoriteMovies(Long userId) {
         Optional<User> userOptional = users.stream()

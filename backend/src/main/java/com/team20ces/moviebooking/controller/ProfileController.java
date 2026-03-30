@@ -78,6 +78,21 @@ public class ProfileController {
         return ResponseEntity.ok(card.get());
     }
 
+    // Delete a payment card
+    @DeleteMapping("/{userId}/cards/{cardId}")
+    public ResponseEntity<?> deletePaymentCard(
+            @PathVariable Long userId,
+            @PathVariable Long cardId) {
+
+        Optional<String> result = userService.removePaymentCard(userId, cardId);
+
+        if (result.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(result.get());
+    }
+
     // Get favorite movies
     @GetMapping("/{userId}/favorites")
     public ResponseEntity<?> getFavoriteMovies(@PathVariable Long userId) {
