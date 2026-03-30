@@ -120,4 +120,12 @@ public class ProfileController {
 
         return ResponseEntity.ok(result.get());
     }
+
+    @DeleteMapping("/{userId}/favorites/{movieId}")
+    public ResponseEntity<?> removeFavoriteMovie(@PathVariable Long userId, @PathVariable Long movieId) {
+        boolean removed = userService.removeFavoriteMovie(userId, movieId);
+
+        if (!removed) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok("Favorite removed");
+    }
 }

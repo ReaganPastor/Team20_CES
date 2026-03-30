@@ -261,6 +261,21 @@ public class UserService {
         return Optional.of("Movie added to favorites");
     }
 
+    // Remove a favorite movie for a user
+    public boolean removeFavoriteMovie(Long userId, Long movieId) {
+        Optional<User> userOptional = users.stream()
+                .filter(u -> u.getId().equals(userId))
+                .findFirst();
+
+        if (userOptional.isEmpty()) return false;
+
+        User user = userOptional.get();
+        boolean removed = user.getFavoriteMovies().removeIf(m -> m.getId().equals(movieId));
+
+        if (removed) updateUser(user); // persist changes
+        return removed;
+    }
+
     // Helper method to turn a User into a ProfileResponse
     private ProfileResponse buildProfileResponse(User user) {
         ProfileResponse response = new ProfileResponse();
