@@ -13,7 +13,6 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  // Load remembered user if any
   useEffect(() => {
     const remembered = JSON.parse(localStorage.getItem("rememberedUser"));
     if (remembered) {
@@ -27,28 +26,23 @@ const Login = () => {
     setError("");
     setSuccess("");
 
-    // ===== CHRIS FRONTEND CHANGE =====
     if (!username.trim() || !password.trim()) {
       setError("Please fill in all fields");
       return;
     }
-    // ===== CHRIS FRONTEND CHANGE END =====
 
     try {
       const res = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // ===== CHRIS FRONTEND CHANGE =====
         body: JSON.stringify({ username: username.trim(), password: password.trim() }),
-        // ===== CHRIS FRONTEND CHANGE END =====
-        credentials: "include",
       });
 
-      let data;
+      let data = {};
       try {
         data = await res.json();
       } catch {
-        setError("Invalid server response");
+        setError("Invalid login response from server");
         return;
       }
 
@@ -57,12 +51,11 @@ const Login = () => {
         return;
       }
 
-      // STORE AUTH DATA HERE
-      if (data.role) {
-        localStorage.setItem("role", data.role);
-      }
+      // Store username, role, and token
+      localStorage.setItem("username", data.username);
+      localStorage.setItem("role", data.role);
+      localStorage.setItem("token", data.token); // <-- save the login token
 
-      // Save credentials if Remember Me is checked
       if (rememberMe) {
         localStorage.setItem(
           "rememberedUser",
@@ -73,11 +66,7 @@ const Login = () => {
       }
 
       setSuccess("Login successful! Redirecting...");
-
-      setTimeout(() => {
-        navigate("/homepage");
-      }, 1000);
-
+      setTimeout(() => navigate("/homepage"), 1000);
     } catch (err) {
       console.error(err);
       setError("Server error. Please try again later.");

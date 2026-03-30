@@ -30,6 +30,10 @@ function Navigation() {
             <nav className="nav-tabs">
                 <a href="#" onClick={() => navigate("/")}>Movies</a>
 
+                {localStorage.getItem("role") && (
+                    <a href="#" onClick={() => navigate("/edit-profile")}>Edit Profile</a>
+                )}
+
                 {localStorage.getItem("role") === "admin" && (
                     <a href="#">Manage Movies</a>
                 )}

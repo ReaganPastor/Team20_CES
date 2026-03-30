@@ -4,6 +4,9 @@ import com.team20ces.moviebooking.dto.SignupRequest;
 import com.team20ces.moviebooking.model.User;
 import com.team20ces.moviebooking.service.EmailService;
 import com.team20ces.moviebooking.service.UserService;
+import com.team20ces.moviebooking.dto.UserProfileResponse;
+import com.team20ces.moviebooking.dto.UserProfileUpdate;
+import com.team20ces.moviebooking.model.Address;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,16 +32,12 @@ public class AuthController {
     // ---------- SIGNUP ----------
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest req) {
-
-        // Validate required fields
         if (req.getUsername() == null || req.getUsername().isEmpty() ||
             req.getEmail() == null || req.getEmail().isEmpty() ||
             req.getPassword() == null || req.getPassword().isEmpty()) {
-
             return ResponseEntity.badRequest().body(Map.of("error", "Fill all fields"));
         }
 
-        // Check if username or email already exists
         if (userService.findByUsername(req.getUsername()).isPresent()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Username already taken"));
         }
@@ -54,44 +53,39 @@ public class AuthController {
 
         // Create new User object
         User newUser = new User(
-                newId,
-                req.getUsername(),
-                req.getEmail(),
-                encoder.encode(req.getPassword()),
-                (req.getRole() == null || req.getRole().isEmpty() ? "user" : req.getRole()),
-                "unverified"
+            newId,
+            req.getUsername(),
+            req.getEmail(),
+            encoder.encode(req.getPassword()),
+            (req.getRole() == null || req.getRole().isEmpty() ? "user" : req.getRole()),
+            "unverified",
+            null
         );
 
-        // Generate unique verification token
-        String token = UUID.randomUUID().toString();
-        newUser.setVerificationToken(token);
+        // Email verification token
+        String verificationToken = UUID.randomUUID().toString();
+        newUser.setVerificationToken(verificationToken);
 
-        // Add user to in-memory list
+        // Login token (temporary)
+        String loginToken = UUID.randomUUID().toString();
+        newUser.setLoginToken(loginToken);
+
+        // Add to in-memory list
         userService.getAllUsers().add(newUser);
 
-        // Send verification email for signup
-        String verificationLink = "http://localhost:3000/email-verified?token=" + token + "&username=" + newUser.getUsername();
+        // Send verification email
+        String verificationLink = "http://localhost:3000/email-verified?token=" + verificationToken + "&username=" + newUser.getUsername();
+        String emailBody = "<p>Hi " + newUser.getUsername() + ",</p>" +
+                "<p>Thank you for signing up! Please verify your account by clicking the link below:</p>" +
+                "<a href='" + verificationLink + "'>Verify Email</a>";
 
-        String emailBody = "<!DOCTYPE html>" +
-                "<html>" +
-                "<body style='font-family:Arial,sans-serif;color:#f1f5f9;background-color:#0a0f22;padding:20px;'>" +
-                "<p>Hi " + newUser.getUsername() + ",</p>" +
-                "<p>Thank you for signing up! Please verify your account by clicking the link below or copy/paste it into your browser:</p>" +
-                //"<p><a href='" + verificationLink + "' style='color:#2563eb;'>Verify Email</a></p>" +
-                verificationLink +
-                "<p>Welcome aboard!</p>" +
-                "</body>" +
-                "</html>";
+        emailService.sendEmail(newUser.getEmail(), "Verify Your Account", emailBody);
 
-        emailService.sendEmail(
-                newUser.getEmail(),
-                "Verify Your Account",
-                emailBody
-        );
-
-        // Return success message
         return ResponseEntity.ok(Map.of(
-                "message", "User registered successfully. Please check your email to verify the account"
+                "message", "User registered successfully. Please check your email to verify the account",
+                "token", loginToken,
+                "username", newUser.getUsername(),
+                "role", newUser.getRole()
         ));
     }
 
@@ -103,7 +97,6 @@ public class AuthController {
                 .findFirst();
 
         if (userOpt.isEmpty()) {
-            // Token invalid or not found
             return ResponseEntity.status(302)
                     .header("Location", "http://localhost:3000/email-verified?status=error")
                     .build();
@@ -111,36 +104,17 @@ public class AuthController {
 
         User user = userOpt.get();
 
-        // Only set verified if not already
         if (!"verified".equals(user.getStatus())) {
             user.setStatus("verified");
             user.setVerificationToken(null);
         }
 
-        // Redirect to React page with username
         return ResponseEntity.status(302)
                 .header("Location", "http://localhost:3000/email-verified?status=success&username=" + user.getUsername())
                 .build();
     }
 
-    // ---------- GET ALL USERS (for Postman testing) ----------
-    @GetMapping("/users")
-    public ResponseEntity<?> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
-    }
-
-    // ---------- GET SINGLE USER BY EMAIL (optional) ----------
-    @GetMapping("/user")
-    public ResponseEntity<?> getUserByEmail(@RequestParam String email) {
-        Optional<User> userOpt = userService.findByEmail(email);
-
-        if (userOpt.isPresent()) {
-            return ResponseEntity.ok(userOpt.get());
-        } else {
-            return ResponseEntity.badRequest().body("User not found");
-        }
-    }
-
+    // ---------- LOGIN ----------
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> req) {
         String username = req.get("username");
@@ -157,21 +131,40 @@ public class AuthController {
 
         User user = userOpt.get();
 
-        // Check password using encoder
         if (!encoder.matches(password, user.getPasswordHash())) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid username or password"));
         }
 
-        // Optional: check if email is verified
         if (!user.getStatus().equals("verified") && !user.getStatus().equals("active")) {
             return ResponseEntity.status(403).body(Map.of("error", "Account not verified"));
         }
 
-        // Return success JSON
+        // Generate a fresh login token for this session
+        String loginToken = UUID.randomUUID().toString();
+        user.setLoginToken(loginToken);
+
         return ResponseEntity.ok(Map.of(
-            "role", user.getRole(),
-            "username", user.getUsername()
+                "role", user.getRole(),
+                "username", user.getUsername(),
+                "token", loginToken
         ));
+    }
+
+    // ---------- LOGOUT ----------
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody Map<String, String> req) {
+        String token = req.get("token");
+        if (token == null || token.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing token"));
+        }
+
+        Optional<User> userOpt = userService.getAllUsers().stream()
+                .filter(u -> token.equals(u.getLoginToken()))
+                .findFirst();
+
+        userOpt.ifPresent(user -> user.setLoginToken(null));
+
+        return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
 
     // ---------- FORGOT PASSWORD ----------
@@ -184,34 +177,19 @@ public class AuthController {
 
         Optional<User> userOpt = userService.findByEmail(email);
         if (userOpt.isEmpty()) {
-            // Don't reveal that email doesn't exist for security
             return ResponseEntity.ok(Map.of("message", "If that email exists, a reset link has been sent"));
         }
 
         User user = userOpt.get();
-
-        // Generate reset token
         String token = UUID.randomUUID().toString();
         user.setResetToken(token);
 
-        // Email link to React page
         String resetLink = "http://localhost:3000/reset-password?token=" + token + "&email=" + user.getEmail();
+        String emailBody = "<p>Hi " + user.getUsername() + ",</p>" +
+                "<p>Click here to reset your password:</p>" +
+                "<a href='" + resetLink + "'>Reset Password</a>";
 
-        String emailBody = "<!DOCTYPE html>" +
-                "<html>" +
-                "<body style='font-family:Arial,sans-serif;color:#f1f5f9;background-color:#0a0f22;padding:20px;'>" +
-                "<p>Hi " + user.getUsername() + ",</p>" +
-                "<p>We received a request to reset your password. Click the link below to set a new password:</p>" +
-                "<p style='color:#2563eb;'><a href='" + resetLink + "'>Reset Password</a></p>" +
-                "<p>If you didn't request this, please ignore this email.</p>" +
-                "</body>" +
-                "</html>";
-
-        emailService.sendEmail(
-                user.getEmail(),
-                "Reset Your Password",
-                emailBody
-        );
+        emailService.sendEmail(user.getEmail(), "Reset Your Password", emailBody);
 
         return ResponseEntity.ok(Map.of("message", "If that email exists, a reset link has been sent"));
     }
@@ -228,7 +206,6 @@ public class AuthController {
         }
 
         Optional<User> userOpt = userService.findByEmail(email);
-
         if (userOpt.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
         }
@@ -239,12 +216,77 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid or expired reset link"));
         }
 
-        // Update password
         user.setPasswordHash(encoder.encode(newPassword));
-
-        // Clear the token to invalidate the link
         user.setResetToken(null);
 
         return ResponseEntity.ok(Map.of("message", "Password reset successfully!"));
+    }
+
+    // ---------- GET USER FROM TOKEN ----------
+    private User getUserFromToken(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
+        String token = authHeader.substring(7);
+
+        return userService.getAllUsers().stream()
+                .filter(u -> token.equals(u.getLoginToken()))
+                .findFirst()
+                .orElse(null);
+    }
+    
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(@RequestHeader("Authorization") String authHeader) {
+        User user = getUserFromToken(authHeader);
+        if (user == null) return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
+        return ResponseEntity.ok(new UserProfileResponse(user));
+    }
+
+        @PutMapping("/profile/update")
+    public ResponseEntity<?> updateProfile(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody UserProfileUpdate req
+    ) {
+        // Get user from token
+        User user = getUserFromToken(authHeader);
+        if (user == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
+        }
+
+        // Update basic profile fields
+        if (req.getFirstName() != null) user.setFirstName(req.getFirstName());
+        if (req.getLastName() != null) user.setLastName(req.getLastName());
+        if (req.getPhoneNumber() != null) user.setPhoneNumber(req.getPhoneNumber());
+
+        // Ensure Address object exists
+        if (user.getAddress() == null) user.setAddress(new Address());
+
+        // Update address safely
+        if (req.getAddress() != null) {
+            Address reqAddr = req.getAddress();
+            Address userAddr = user.getAddress();
+
+            if (reqAddr.getStreet() != null) userAddr.setStreet(reqAddr.getStreet());
+            if (reqAddr.getCity() != null) userAddr.setCity(reqAddr.getCity());
+            if (reqAddr.getState() != null) userAddr.setState(reqAddr.getState());
+            if (reqAddr.getZipCode() != null) userAddr.setZipCode(reqAddr.getZipCode());
+        }
+
+        // Handle password change
+        if (req.getCurrentPassword() != null && !req.getCurrentPassword().isEmpty() &&
+            req.getNewPassword() != null && !req.getNewPassword().isEmpty()) {
+
+            if (!encoder.matches(req.getCurrentPassword(), user.getPasswordHash())) {
+                return ResponseEntity.status(400).body(Map.of("error", "Current password is incorrect"));
+            }
+            user.setPasswordHash(encoder.encode(req.getNewPassword()));
+        }
+
+        // Return updated profile
+        return ResponseEntity.ok(new UserProfileResponse(user));
+    }
+
+    // ---------- GET ALL USERS ----------
+    @GetMapping("/users")
+    public ResponseEntity<?> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 }

@@ -12,6 +12,7 @@ import com.team20ces.moviebooking.model.PaymentCard;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -25,13 +26,13 @@ public class UserService {
 
         // Test users
         users.add(new User(1L, "admin", "admin@email.com",
-                encoder.encode("Admin@123"), "admin", "active"));
+            encoder.encode("Admin@123"), "admin", "active", UUID.randomUUID().toString()));
         users.add(new User(2L, "user", "user@email.com",
-                encoder.encode("User@123"), "user", "active"));
+                encoder.encode("User@123"), "user", "active", UUID.randomUUID().toString()));
         users.add(new User(3L, "suspended", "s@email.com",
-                encoder.encode("Test@123"), "user", "suspended"));
+                encoder.encode("Test@123"), "user", "suspended", UUID.randomUUID().toString()));
         users.add(new User(4L, "unverified", "u@email.com",
-                encoder.encode("Test@123"), "user", "unverified"));
+                encoder.encode("Test@123"), "user", "unverified", UUID.randomUUID().toString()));
                 /*
         users.add(new User(5L, "rpastor", "reaganelizabeth@gmail.com",
                 encoder.encode("MyPassword"), "admin", "active"));*/
