@@ -127,3 +127,11 @@
   font-size: 14px;
   text-align: center;
 }
+
+/* Make favorites scroll horizontally */
+.profile-card .movie-grid {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}

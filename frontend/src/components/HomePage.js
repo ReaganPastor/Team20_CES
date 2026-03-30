@@ -19,7 +19,6 @@ function HomePage() {
     useEffect(() => {
         const token = localStorage.getItem("token");
         const storedRole = localStorage.getItem("role");
-        const userId = parseInt(localStorage.getItem("userId"), 10);
 
         if (token) {
             setIsLoggedIn(true);
