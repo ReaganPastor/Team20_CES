@@ -243,12 +243,12 @@ export default function EditProfile() {
 
       {/* Payment Cards */}
       <div className="profile-card">
-        <h2>Payment Cards (max 3)</h2>
+        <h2>Payment Cards (Max 3)</h2>
         {(profile.paymentCards || []).length === 0 && <p>No cards added</p>}
         <ul>
           {(profile.paymentCards || []).map((card) => (
             <li key={card.id}>
-              {card.cardholderName} - **** **** **** {card.lastFour} (Exp: {card.exp})
+              {card.cardholderName} - **** **** **** {card.lastFour} 
               <button className="inline-button" onClick={() => handleRemoveCard(card.id)}>Remove</button>
             </li>
           ))}
