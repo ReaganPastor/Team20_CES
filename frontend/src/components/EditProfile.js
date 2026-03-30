@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import MovieCard from "../components/MovieCard"; // adjust path
 import "./EditProfile.css";
+import MovieCard from "../components/MovieCard";
 
 export default function EditProfile() {
   const navigate = useNavigate();
@@ -14,34 +14,31 @@ export default function EditProfile() {
     newPassword: "",
     address: { street: "", city: "", state: "", zipCode: "" },
   });
+  const [newCard, setNewCard] = useState({ cardholderName: "", number: "", exp: "", cvv: "" });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [cardError, setCardError] = useState("");
-  const [newCard, setNewCard] = useState({ cardholderName: "", number: "", exp: "", cvv: "" });
 
   const token = localStorage.getItem("token");
   const userId = Number(localStorage.getItem("userId"));
 
-  // Fetch profile
+  // Fetch profile from backend
   const fetchProfile = async () => {
-    if (!token || !userId) {
+    if (!userId) {
+      setError("No user ID found. Please login again.");
       navigate("/login");
       return;
     }
-
     try {
       const res = await fetch(`http://localhost:8080/profile/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       if (!res.ok) {
-        throw new Error(`Failed to load profile (${res.status})`);
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to load profile (${res.status})`);
       }
-
       const data = await res.json();
       setProfile(data);
-
-      // Populate form
       setForm({
         firstName: data.firstName || "",
         lastName: data.lastName || "",
@@ -56,7 +53,8 @@ export default function EditProfile() {
   };
 
   useEffect(() => {
-    fetchProfile();
+    if (!token) navigate("/login");
+    else fetchProfile();
   }, [token, userId]);
 
   // Form input handler
@@ -70,11 +68,14 @@ export default function EditProfile() {
     }
   };
 
-  // Card input formatting
-  const formatCardNumber = (num) => num.replace(/\D/g, "").replace(/(.{4})/g, "$1 ").trim();
+  // Credit card formatting
+  const formatCardNumber = (num) =>
+    num.replace(/\D/g, "").replace(/(.{4})/g, "$1 ").trim();
+
   const formatExp = (exp) => {
-    const cleaned = exp.replace(/\D/g, "");
-    return cleaned.length > 2 ? cleaned.slice(0, 2) + "/" + cleaned.slice(2, 4) : cleaned;
+    let cleaned = exp.replace(/\D/g, "");
+    if (cleaned.length > 2) cleaned = cleaned.slice(0, 2) + "/" + cleaned.slice(2, 4);
+    return cleaned;
   };
 
   const handleCardChange = (e) => {
@@ -90,7 +91,6 @@ export default function EditProfile() {
     const numberValid = /^\d{4} \d{4} \d{4} \d{4}$/.test(number);
     const expValid = /^(0[1-9]|1[0-2])\/\d{2}$/.test(exp);
     const cvvValid = /^\d{3,4}$/.test(cvv);
-
     if (!cardholderName || !numberValid || !expValid || !cvvValid) {
       setCardError("Please enter card info correctly.");
       return false;
@@ -105,7 +105,6 @@ export default function EditProfile() {
       setCardError("Maximum 3 cards allowed");
       return;
     }
-
     if (!validateCard()) return;
 
     try {
@@ -119,32 +118,30 @@ export default function EditProfile() {
           cvv: newCard.cvv,
         }),
       });
-
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
         throw new Error(errData.error || `Failed to add card (${res.status})`);
       }
-
       const addedCard = await res.json();
       setProfile({
         ...profile,
         paymentCards: [...(profile.paymentCards || []), addedCard],
       });
       setNewCard({ cardholderName: "", number: "", exp: "", cvv: "" });
+      setCardError("");
     } catch (err) {
       setCardError(err.message);
     }
   };
 
+  // Remove payment card
   const handleRemoveCard = async (cardId) => {
     try {
       const res = await fetch(`http://localhost:8080/profile/${userId}/cards/${cardId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-
       if (!res.ok) throw new Error(`Failed to remove card (${res.status})`);
-
       setProfile({
         ...profile,
         paymentCards: profile.paymentCards.filter((c) => c.id !== cardId),
@@ -155,33 +152,58 @@ export default function EditProfile() {
   };
 
   // Remove favorite movie
-  const handleRemoveFavorite = (movieId) => {
-    setProfile({
-      ...profile,
-      favoriteMovies: (profile.favoriteMovies || []).filter((m) => m.id !== movieId),
-    });
+  const handleRemoveFavorite = (id) => {
+    setProfile({ ...profile, favoriteMovies: profile.favoriteMovies.filter((m) => m.id !== id) });
   };
 
-  // Save profile
+  // Save address separately
+  const saveAddress = async () => {
+    try {
+      const res = await fetch(`http://localhost:8080/profile/${userId}/address`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(form.address),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to save address (${res.status})`);
+      }
+      const updatedAddress = await res.json();
+      setProfile((prev) => ({ ...prev, address: updatedAddress }));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  // Save profile + address
   const handleSave = async (e) => {
     e.preventDefault();
-    setError("");
     setMessage("");
+    setError("");
 
     try {
+      // Update basic profile fields
       const res = await fetch(`http://localhost:8080/profile/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          firstName: form.firstName,
+          lastName: form.lastName,
+          phoneNumber: form.phoneNumber,
+          currentPassword: form.currentPassword,
+          newPassword: form.newPassword,
+        }),
       });
-
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
         throw new Error(errData.error || `Failed to update profile (${res.status})`);
       }
+      const updatedProfile = await res.json();
 
-      const updated = await res.json();
-      setProfile(updated);
+      // Update address
+      await saveAddress();
+
+      setProfile(updatedProfile);
       setMessage("Profile updated successfully!");
       setForm((prev) => ({ ...prev, currentPassword: "", newPassword: "" }));
     } catch (err) {
@@ -200,13 +222,14 @@ export default function EditProfile() {
         <h2>Profile Info</h2>
         {message && <p className="success">{message}</p>}
         {error && <p className="error">{error}</p>}
-
         <form onSubmit={handleSave}>
           <input type="text" value={profile.username} disabled className="centered-input" />
           <input type="email" value={profile.email} disabled className="centered-input" />
           <input type="text" name="firstName" value={form.firstName} onChange={handleChange} placeholder="First Name" className="centered-input" />
           <input type="text" name="lastName" value={form.lastName} onChange={handleChange} placeholder="Last Name" className="centered-input" />
           <input type="text" name="phoneNumber" value={form.phoneNumber} onChange={handleChange} placeholder="Phone Number" className="centered-input" />
+          <input type="password" name="currentPassword" value={form.currentPassword} onChange={handleChange} placeholder="Current Password" className="centered-input" />
+          <input type="password" name="newPassword" value={form.newPassword} onChange={handleChange} placeholder="New Password" className="centered-input" />
 
           <h3>Address</h3>
           <input type="text" name="address.street" value={form.address.street} onChange={handleChange} placeholder="Street" className="centered-input" />
