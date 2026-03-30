@@ -1,5 +1,8 @@
 package com.team20ces.moviebooking.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class User {
     private Long id;
     private String username;
@@ -7,6 +10,20 @@ public class User {
     private String passwordHash;
     private String role;
     private String status;
+
+        // Editable profile fields
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
+
+    // One saved address per user
+    private Address address;
+
+    // Up to 3 saved payment cards
+    private List<PaymentCard> paymentCards = new ArrayList<>();
+
+    // Favorite movies
+    private List<Movie> favoriteMovies = new ArrayList<>();
 
     // Constructor, getters, setters
     public User(Long id, String username, String email, String passwordHash, String role, String status) {
@@ -25,4 +42,52 @@ public class User {
     public String getRole() { return role; }
     public String getStatus() { return status; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public List<PaymentCard> getPaymentCards() {
+        return paymentCards;
+    }
+
+    public void setPaymentCards(List<PaymentCard> paymentCards) {
+        this.paymentCards = paymentCards;
+    }
+
+    public List<Movie> getFavoriteMovies() {
+        return favoriteMovies;
+    }
+
+    public void setFavoriteMovies(List<Movie> favoriteMovies) {
+        this.favoriteMovies = favoriteMovies;
+    }
 }
