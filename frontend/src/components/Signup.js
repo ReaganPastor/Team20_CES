@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./Signup.css";
+import Navigation from "./Navigation";
 
 export default function Signup() {
   const [form, setForm] = useState({
@@ -111,91 +112,94 @@ export default function Signup() {
   }
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <h2>Create Account</h2>
+    <div>
+      <Navigation />
+      <div className="login-page">
+        <div className="login-card">
+          <h2>Create Account</h2>
 
-        {serverError && <p className="error">{serverError}</p>}
+          {serverError && <p className="error">{serverError}</p>}
 
-        <form onSubmit={handleSubmit}>
-          {errors.username && <p className="error">{errors.username}</p>}
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            value={form.username}
-            onChange={handleChange}
-            className="centered-input"
-          />
-
-          {errors.email && <p className="error">{errors.email}</p>}
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            className="centered-input"
-          />
-
-          {errors.password && <p className="error">{errors.password}</p>}
-          <div>
+          <form onSubmit={handleSubmit}>
+            {errors.username && <p className="error">{errors.username}</p>}
             <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              placeholder="Password"
-              value={form.password}
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={form.username}
               onChange={handleChange}
               className="centered-input"
             />
-            <span
-              className="forgot-password"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? "Hide" : "Show"}
-            </span>
-          </div>
 
-          {form.password && (
-            <p className={`success ${getPasswordStrength().toLowerCase()}`}>
-              Strength: {getPasswordStrength()}
-            </p>
-          )}
-
-          {errors.confirmPassword && (
-            <p className="error">{errors.confirmPassword}</p>
-          )}
-          <div>
+            {errors.email && <p className="error">{errors.email}</p>}
             <input
-              type={showConfirmPassword ? "text" : "password"}
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={form.confirmPassword}
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={form.email}
               onChange={handleChange}
               className="centered-input"
             />
-            <span
-              className="forgot-password"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              {showConfirmPassword ? "Hide" : "Show"}
-            </span>
-          </div>
 
-          <div className="button-row horizontal-buttons">
-            <button type="submit">Sign Up</button>
-            <button
-              type="button"
-              onClick={() => (window.location.href = "/login")}
-            >
-              Login
-            </button>
-          </div>
-        </form>
+            {errors.password && <p className="error">{errors.password}</p>}
+            <div>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                value={form.password}
+                onChange={handleChange}
+                className="centered-input"
+              />
+              <span
+                className="forgot-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </span>
+            </div>
 
-        <p className="success">
-          Email confirmation required to activate account.
-        </p>
+            {form.password && (
+              <p className={`success ${getPasswordStrength().toLowerCase()}`}>
+                Strength: {getPasswordStrength()}
+              </p>
+            )}
+
+            {errors.confirmPassword && (
+              <p className="error">{errors.confirmPassword}</p>
+            )}
+            <div>
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                className="centered-input"
+              />
+              <span
+                className="forgot-password"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? "Hide" : "Show"}
+              </span>
+            </div>
+
+            <div className="button-row horizontal-buttons">
+              <button type="submit">Sign Up</button>
+              <button
+                type="button"
+                onClick={() => (window.location.href = "/login")}
+              >
+                Login
+              </button>
+            </div>
+          </form>
+
+          <p className="success">
+            Email confirmation required to activate account.
+          </p>
+        </div>
       </div>
     </div>
   );
