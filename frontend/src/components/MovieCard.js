@@ -2,16 +2,33 @@ import React, { useState, useEffect } from "react";
 import "./MovieCard.css";
 import { useNavigate } from "react-router-dom";
 
-function MovieCard({ movie, isFavorite, onFavoriteToggle }) {
+// MovieCard displays ONE movie and handles favorite button UI
+function MovieCard({ movie, isFavorite = false, onFavoriteToggle }) {
   const navigate = useNavigate();
-  const [favorited, setFavorited] = useState(isFavorite || false);
 
+  // Local state to track if THIS movie is favorited
+  const [favorited, setFavorited] = useState(isFavorite);
+
+  // Sync local state when parent updates favorites
+  useEffect(() => {
+    setFavorited(isFavorite);
+  }, [isFavorite]);
+
+  // Runs when user clicks favorite button
   const handleFavoriteClick = async () => {
+    if (!onFavoriteToggle) return;
+
     try {
-      await onFavoriteToggle(movie, !favorited); // call parent handler
-      setFavorited(!favorited);
+      // Flip current state (add OR remove)
+      const nextValue = !favorited;
+
+      // Tell MovieCarousel to update backend
+      await onFavoriteToggle(movie, nextValue);
+
+      // Update button UI
+      setFavorited(nextValue);
     } catch (err) {
-      console.error(err);
+      console.error("Favorite toggle failed:", err);
     }
   };
 
@@ -26,29 +43,43 @@ function MovieCard({ movie, isFavorite, onFavoriteToggle }) {
         boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
       }}
     >
-      <img 
-        src={movie.poster_path} 
+      {/* Movie Poster */}
+      <img
+        src={movie.poster_path}
         alt={movie.title}
         onError={(e) => {
-          if (e.target.src !== "../icons/NoPoster.png") e.target.src = "../icons/NoPoster.png";
+          // If image fails, use fallback
+          if (e.target.src !== "../icons/NoPoster.png") {
+            e.target.src = "../icons/NoPoster.png";
+          }
         }}
-        style={{ width: "100%", height: "285px", borderRadius: "8px" }} 
+        style={{ width: "100%", height: "285px", borderRadius: "8px" }}
       />
+
+      {/* Movie Info */}
       <h2 style={{ fontSize: "18px" }}>{movie.title}</h2>
       <p><strong>Rating:</strong> {movie.rating}</p>
       <p><strong>Genre:</strong> {movie.genre}</p>
 
-      <button className="view-details-btn" onClick={() => navigate(`/movies/${movie.id}`)}>View Details</button>
+      {/* View Details Button */}
+      <button
+        className="view-details-btn"
+        onClick={() => navigate(`/movies/${movie.id}`)}
+      >
+        View Details
+      </button>
 
+      {/* Favorite Button (ONLY for users) */}
       {localStorage.getItem("role") === "user" && (
-        <button 
-          onClick={handleFavoriteClick} 
-          style={{ fontSize: "20px", background: "none", border: "none", cursor: "pointer" }}
+        <button
+          className={`favorite-btn ${favorited ? "favorited" : ""}`}
+          onClick={handleFavoriteClick}
         >
-          {favorited ? "❤️" : "🤍"}
+          {favorited ? "❤️ Favorited" : "🤍 Favorite"}
         </button>
       )}
 
+      {/* Admin Edit Button */}
       {localStorage.getItem("role") === "admin" && (
         <button>✏️ Edit</button>
       )}
@@ -57,3 +88,4 @@ function MovieCard({ movie, isFavorite, onFavoriteToggle }) {
 }
 
 export default MovieCard;
+
