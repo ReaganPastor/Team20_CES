@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -74,10 +76,28 @@ public class AuthController {
         userService.getAllUsers().add(newUser);
 
         // Send verification email
-        String verificationLink = "http://localhost:3000/email-verified?token=" + verificationToken + "&username=" + newUser.getUsername();
-        String emailBody = "<p>Hi " + newUser.getUsername() + ",</p>" +
-                "<p>Thank you for signing up! Please verify your account by clicking the link below:</p>" +
-                "<a href='" + verificationLink + "'>Verify Email</a>";
+        String encodedUsername = URLEncoder.encode(newUser.getUsername(), StandardCharsets.UTF_8);
+        String encodedToken = URLEncoder.encode(verificationToken, StandardCharsets.UTF_8);
+
+        String verificationLink = "http://localhost:3000/email-verified?token=" 
+            + encodedToken + "&username=" + encodedUsername;
+
+        String emailBody = "<html>" +
+            "<body style=\"font-family: Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0;\">" +
+            "  <div style=\"max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.1);\">" +
+            "    <h2 style=\"color: #1a73e8;\">Welcome to Movie Booking, " + newUser.getUsername() + "!</h2>" +
+            "    <p>Thank you for signing up. To complete your registration, please verify your account by clicking the button below:</p>" +
+            "    <p style=\"text-align: center; margin: 30px 0;\">" +
+            "      <a href=\"" + verificationLink + "\" " +
+            "         style=\"background-color: #1a73e8; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;\">Verify Email</a>" +
+            "    </p>" +
+            "    <p>If the button doesn’t work, copy and paste this URL into your browser:</p>" +
+            "    <p style=\"word-break: break-all;\"><a href=\"" + verificationLink + "\" style=\"color: #1a73e8;\">" + verificationLink + "</a></p>" +
+            "    <hr style=\"margin: 30px 0; border: none; border-top: 1px solid #ddd;\">" +
+            "    <p style=\"color: #555; font-size: 14px;\">If you did not sign up for Movie Booking, you can safely ignore this email.</p>" +
+            "  </div>" +
+            "</body>" +
+            "</html>";
 
         emailService.sendEmail(newUser.getEmail(), "Verify Your Account", emailBody);
 
@@ -184,11 +204,29 @@ public class AuthController {
         User user = userOpt.get();
         String token = UUID.randomUUID().toString();
         user.setResetToken(token);
+        String encodedEmail = URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8);
+        String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8);
 
-        String resetLink = "http://localhost:3000/reset-password?token=" + token + "&email=" + user.getEmail();
-        String emailBody = "<p>Hi " + user.getUsername() + ",</p>" +
-                "<p>Click here to reset your password:</p>" +
-                "<a href='" + resetLink + "'>Reset Password</a>";
+        String resetLink = "http://localhost:3000/reset-password?token=" 
+        + encodedToken + "&email=" + encodedEmail;
+        
+        String emailBody = "<html>" +
+            "<body style=\"font-family: Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0;\">" +
+            "  <div style=\"max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.1);\">" +
+            "    <h2 style=\"color: #1a73e8;\">Password Reset Request</h2>" +
+            "    <p>Hi " + user.getUsername() + ",</p>" +
+            "    <p>We received a request to reset your password. Click the button below to set a new password:</p>" +
+            "    <p style=\"text-align: center; margin: 30px 0;\">" +
+            "      <a href=\"" + resetLink + "\" " +
+            "         style=\"background-color: #1a73e8; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;\">Reset Password</a>" +
+            "    </p>" +
+            "    <p>If the button doesn’t work, copy and paste this URL into your browser:</p>" +
+            "    <p style=\"word-break: break-all;\"><a href=\"" + resetLink + "\" style=\"color: #1a73e8;\">" + resetLink + "</a></p>" +
+            "    <hr style=\"margin: 30px 0; border: none; border-top: 1px solid #ddd;\">" +
+            "    <p style=\"color: #555; font-size: 14px;\">If you did not request a password reset, you can safely ignore this email.</p>" +
+            "  </div>" +
+            "</body>" +
+            "</html>";
 
         emailService.sendEmail(user.getEmail(), "Reset Your Password", emailBody);
 
