@@ -294,8 +294,9 @@ INSERT INTO payment_cards (
 VALUES
 (1, 'John Doe',    'enc_card_1_abc123', 'enc_cvv_1_xyz', '12/27', '4242', 'VISA',       '123 Peachtree St'),
 (1, 'John Doe',    'enc_card_2_def456', 'enc_cvv_2_xyz', '08/28', '1111', 'MASTERCARD', '123 Peachtree St'),
-(2, 'Jane Smith',  'enc_card_3_ghi789', 'enc_cvv_3_xyz', '11/26', '2222', 'VISA',       '456 Oak Lane'),
-(3, 'Michael Brown','enc_card_4_jkl012','enc_cvv_4_xyz', '09/29', '3333', 'AMEX',       '789 Pine Ave');
+(1, 'John Doe',    'enc_card_3_pqr345', 'enc_cvv_3_xyz', '09/30', '5555', 'AMEX', '123 Peachtree St'),
+(2, 'Jane Smith',  'enc_card_4_ghi789', 'enc_cvv_4_xyz', '11/26', '2222', 'VISA',       '456 Oak Lane'),
+(3, 'Michael Brown','enc_card_5_jkl012','enc_cvv_5_xyz', '09/29', '3333', 'AMEX',       '789 Pine Ave');
 
 -- =========================================
 -- BOOKINGS
