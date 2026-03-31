@@ -150,7 +150,7 @@ public class AuthController {
         }
 
         User user = userOpt.get();
-
+        
         if (!encoder.matches(password, user.getPasswordHash())) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid username or password"));
         }
