@@ -520,13 +520,42 @@ export default function EditProfile() {
 
           <div className="movie-grid">
             {(profile.favoriteMovies || []).map((movie) => (
-              <div key={movie.id} style={{ position: "relative" }}>
-                {/* Reuse MovieCard to keep layout consistent */}
-                <MovieCard movie={movie} isFavorite={true} />
+              <div
+                key={movie.id}
+                style={{
+                  width: "150px",
+                  background: "#0a0f22",
+                  borderRadius: "8px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  padding: "8px",
+                  color: "#f1f5f9",
+                }}
+              >
+                {/* Title */}
+                <span style={{ fontWeight: "bold", textAlign: "center" }}>
+                  {movie.title}
+                </span>
 
-                {/* Separate remove button for profile page */}
+                {/* Rating and Genre */}
+                <span style={{ fontSize: "12px", color: "#94a3b8" }}>
+                  {movie.rating} | {movie.genre}
+                </span>
+
+                {/* View Details button */}
+                <button
+                  className="small-button"
+                  style={{ marginTop: "6px", width: "100%" }}
+                  onClick={() => navigate(`/movies/${movie.id}`)}
+                >
+                  View Details
+                </button>
+
+                {/* Remove Favorite button */}
                 <button
                   className="inline-button"
+                  style={{ marginTop: "4px", fontSize: "12px" }}
                   onClick={() => handleRemoveFavorite(movie.id)}
                 >
                   Remove Favorite
