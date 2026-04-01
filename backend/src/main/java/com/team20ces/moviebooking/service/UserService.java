@@ -39,22 +39,63 @@ public class UserService {
         User unverifiedUser = new User(4L, "unverified", "u@email.com",
                 encoder.encode("Test@123"), "user", "unverified", UUID.randomUUID().toString());
 
-// Create a favorite movie
+        // Example existing movie (already in your database or in-memory list)
         Movie favoriteMovie = new Movie(
-                101L,
-                "Dune: Part Two",
-                "Epic sci-fi film",
-                "PG-13",
-                "Sci-Fi",
-                "/images/dune2.jpg",
-                null,
-                "CURRENTLY_RUNNING"
+            2L,
+            "The Dark Knight",
+            "Batman faces the Joker, a criminal mastermind causing chaos in Gotham City.",
+            "PG-13",
+            "Action",
+            "/posters/The_Dark_Knight.png",
+            "/trailers/Dark_Knight_Trailer.mp4",
+            "CURRENTLY_RUNNING"
         );
 
-// Add favorite movie to verified user
+        // Add the existing movie to the verified user's favorites
         verifiedUser.getFavoriteMovies().add(favoriteMovie);
 
-// Add users to list
+        // Create three payment cards for the verified user (customerId = 2L)
+        PaymentCard card1 = new PaymentCard(
+                1L,               // id
+                2L,               // customerId
+                "John Doe",       // cardholderName
+                "4111111111111111", // encryptedCardNumber (fake 16-digit card number)
+                "123",            // encryptedCvv (fake 3-digit CVV)
+                "12/25",          // expirationDate
+                "1111",           // lastFour
+                "Visa",           // cardBrand
+                "123 Main St"     // billingAddress
+        );
+
+        PaymentCard card2 = new PaymentCard(
+                2L,
+                2L,
+                "John Doe",
+                "5500000000000004", // MasterCard example
+                "456",
+                "11/24",
+                "0004",
+                "MasterCard",
+                "123 Main St"
+        );
+
+        PaymentCard card3 = new PaymentCard(
+                3L,
+                2L,
+                "John Doe",
+                "340000000000009", // Amex example (15 digits, lastFour = 0009)
+                "789",
+                "10/23",
+                "0009",
+                "American Express",
+                "123 Main St"
+        );
+        // Add cards to the verified user
+        verifiedUser.getPaymentCards().add(card1);
+        verifiedUser.getPaymentCards().add(card2);
+        verifiedUser.getPaymentCards().add(card3);
+
+        // Add users to list
         users.add(adminUser);
         users.add(verifiedUser);
         users.add(suspendedUser);
