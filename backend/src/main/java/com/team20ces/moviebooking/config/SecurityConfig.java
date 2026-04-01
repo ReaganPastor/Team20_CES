@@ -6,6 +6,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class SecurityConfig {
@@ -19,25 +21,38 @@ public class SecurityConfig {
     // Security rules
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        /*http
-            .csrf(csrf -> csrf.disable()) // Disable CSRF for REST API
-            .cors()                        // Allow CORS (frontend requests)
-            .and()
-            .authorizeHttpRequests(auth -> auth
+        http
+            // Disable CSRF for REST API (token-based auth)
+            .csrf().disable()
+
+            // Endpoint authorization
+            .authorizeRequests()
                 // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/movies/**").permitAll()
-                // Allow all methods (GET/POST/PUT/DELETE) on profile
                 .requestMatchers("/profile/**").permitAll()
+                // Only authenticated users with ROLE_USER can add cards
+                .requestMatchers("/api/users/*/cards").hasRole("USER")
                 // Everything else requires authentication
                 .anyRequest().authenticated()
-            )
-            .formLogin(form -> form.disable()); // Disable default login form
-        */
-       http
-            .csrf().disable() // for testing only
-            .authorizeRequests()
-            .anyRequest().permitAll();
+            .and()
+            // Disable default login form (we use REST API + frontend login)
+            .formLogin().disable();
+
         return http.build();
+    }
+
+    // CORS configuration for frontend
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins("http://localhost:3000") // frontend URL
+                        .allowedMethods("GET", "POST", "PUT", "DELETE")
+                        .allowCredentials(true);
+            }
+        };
     }
 }
