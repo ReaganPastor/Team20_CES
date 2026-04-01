@@ -26,15 +26,40 @@ public class UserService {
         this.encoder = encoder;
 
         // Test users
-        users.add(new User(1L, "admin", "admin@email.com",
-            encoder.encode("Admin@123"), "admin", "active", UUID.randomUUID().toString()));
-        users.add(new User(2L, "user", "user@email.com",
-                encoder.encode("User@123"), "user", "active", UUID.randomUUID().toString()));
-        users.add(new User(3L, "suspended", "s@email.com",
-                encoder.encode("Test@123"), "user", "suspended", UUID.randomUUID().toString()));
-        users.add(new User(4L, "unverified", "u@email.com",
-                encoder.encode("Test@123"), "user", "unverified", UUID.randomUUID().toString()));
-                /*
+        // Create users first
+        User adminUser = new User(1L, "admin", "admin@email.com",
+                encoder.encode("Admin@123"), "admin", "active", UUID.randomUUID().toString());
+
+        User verifiedUser = new User(2L, "user", "user@email.com",
+                encoder.encode("User@123"), "user", "active", UUID.randomUUID().toString());
+
+        User suspendedUser = new User(3L, "suspended", "s@email.com",
+                encoder.encode("Test@123"), "user", "suspended", UUID.randomUUID().toString());
+
+        User unverifiedUser = new User(4L, "unverified", "u@email.com",
+                encoder.encode("Test@123"), "user", "unverified", UUID.randomUUID().toString());
+
+// Create a favorite movie
+        Movie favoriteMovie = new Movie(
+                101L,
+                "Dune: Part Two",
+                "Epic sci-fi film",
+                "PG-13",
+                "Sci-Fi",
+                "/images/dune2.jpg",
+                null,
+                "CURRENTLY_RUNNING"
+        );
+
+// Add favorite movie to verified user
+        verifiedUser.getFavoriteMovies().add(favoriteMovie);
+
+// Add users to list
+        users.add(adminUser);
+        users.add(verifiedUser);
+        users.add(suspendedUser);
+        users.add(unverifiedUser);
+        /*
         users.add(new User(5L, "rpastor", "reaganelizabeth@gmail.com",
                 encoder.encode("MyPassword"), "admin", "active"));*/
     }
@@ -66,6 +91,7 @@ public class UserService {
     public List<User> getAllUsers() {
         return users;
     }
+
     // Get one user's full profile using their id
     public Optional<ProfileResponse> getProfileById(Long userId) {
         Optional<User> userOptional = users.stream()
@@ -98,7 +124,6 @@ public class UserService {
         user.setPhoneNumber(request.getPhoneNumber());
 
         // Email is intentionally NOT updated
-
         updateUser(user);
 
         return Optional.of(buildProfileResponse(user));
@@ -172,7 +197,7 @@ public class UserService {
                 request.getExpirationDate(),
                 lastFour,
                 null, // cardBrand optional
-                null  // billingAddress optional
+                null // billingAddress optional
         );
 
         user.getPaymentCards().add(card);
@@ -199,7 +224,9 @@ public class UserService {
         User user = userOptional.get();
 
         boolean removed = user.getPaymentCards().removeIf(c -> c.getId().equals(cardId));
-        if (!removed) return Optional.empty();
+        if (!removed) {
+            return Optional.empty();
+        }
 
         updateUser(user);
         return Optional.of("Card removed successfully");
@@ -208,17 +235,19 @@ public class UserService {
     // Returns favorite movies for a given userId
     public List<MovieResponse> getFavoriteMovies(Long userId) {
         Optional<User> userOpt = users.stream().filter(u -> u.getId().equals(userId)).findFirst();
-        if (userOpt.isEmpty()) return new ArrayList<>();
+        if (userOpt.isEmpty()) {
+            return new ArrayList<>();
+        }
 
         User user = userOpt.get();
         List<MovieResponse> response = new ArrayList<>();
         for (Movie movie : user.getFavoriteMovies()) {
             response.add(new MovieResponse(
-                movie.getId(),
-                movie.getTitle(),
-                movie.getPosterPath(), // make sure this is the correct path stored in your Movie object
-                movie.getGenre(),
-                movie.getRating() // now a string like "PG", "R", etc.
+                    movie.getId(),
+                    movie.getTitle(),
+                    movie.getPosterPath(), // make sure this is the correct path stored in your Movie object
+                    movie.getGenre(),
+                    movie.getRating() // now a string like "PG", "R", etc.
             ));
         }
         return response;
@@ -281,13 +310,17 @@ public class UserService {
                 .filter(u -> u.getId().equals(userId))
                 .findFirst();
 
-        if (userOptional.isEmpty()) return false;
+        if (userOptional.isEmpty()) {
+            return false;
+        }
 
         User user = userOptional.get();
         boolean removed = user.getFavoriteMovies().removeIf(m -> m.getId().equals(movieId));
 
-        if (removed) updateUser(user); // persist changes
-        return removed;
+        if (removed) {
+            updateUser(user); // persist changes
+
+                }return removed;
     }
 
     // Helper method to turn a User into a ProfileResponse
