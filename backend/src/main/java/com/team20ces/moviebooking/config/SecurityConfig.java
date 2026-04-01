@@ -9,25 +9,35 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class SecurityConfig {
+
+    // Password encoder for user registration/login
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    // Password encoder bean to use across services/controllers
+
+    // Security rules
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf().disable() // For REST APIs
-            .cors()           // Enable CORS support
+        /*http
+            .csrf(csrf -> csrf.disable()) // Disable CSRF for REST API
+            .cors()                        // Allow CORS (frontend requests)
             .and()
             .authorizeHttpRequests(auth -> auth
+                // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/movies/**").permitAll()
+                // Allow all methods (GET/POST/PUT/DELETE) on profile
                 .requestMatchers("/profile/**").permitAll()
+                // Everything else requires authentication
                 .anyRequest().authenticated()
             )
-            .formLogin().disable();
-
+            .formLogin(form -> form.disable()); // Disable default login form
+        */
+       http
+            .csrf().disable() // for testing only
+            .authorizeRequests()
+            .anyRequest().permitAll();
         return http.build();
     }
 }
