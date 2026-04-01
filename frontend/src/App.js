@@ -8,6 +8,7 @@ import Signup from "./components/Signup";
 import EditProfile from "./components/EditProfile";
 import EmailVerified from "./components/EmailVerified";
 import ResetPassword from "./components/ResetPassword";
+import ChangePassword from "./components/ChangePassword";
 import { useEffect } from "react";
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/edit-profile" element={<EditProfile />} />
         <Route path="/email-verified" element={<EmailVerified />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/change-password" element={<ChangePassword />} />
       </Routes>
     </Router>
   );
