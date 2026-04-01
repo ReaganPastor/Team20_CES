@@ -32,6 +32,7 @@ export default function EditProfile() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [cardError, setCardError] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
 
   // Get auth info from localStorage
   const token = localStorage.getItem("token");
@@ -315,6 +316,40 @@ export default function EditProfile() {
     }
   };
 
+  // Request password reset email
+  const handleResetPassword = async () => {
+    setEmailSent(false);
+    setError("");
+
+    try {
+      if (!profile || !profile.email) {
+        setError("No email found for current user");
+        return;
+      }
+
+      const response = await fetch(`http://localhost:8080/api/auth/request-password-change`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // if your backend requires auth
+        },
+        body: JSON.stringify({ email: profile.email }), // use actual user email
+      });
+
+      if (response.ok) {
+        setEmailSent(true);
+        console.log("Reset email sent successfully");
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        console.error("Failed to send reset email:", errData.error || response.status);
+        setError(errData.error || "Failed to send reset email");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("An unexpected error occurred");
+    }
+  };
+
   // Show loading while profile is being fetched
   if (!profile) return <p>Loading profile...</p>;
 
@@ -374,24 +409,6 @@ export default function EditProfile() {
                 className="centered-input"
               />
 
-              <input
-                type="password"
-                name="currentPassword"
-                value={form.currentPassword}
-                onChange={handleChange}
-                placeholder="Current Password"
-                className="centered-input"
-              />
-
-              <input
-                type="password"
-                name="newPassword"
-                value={form.newPassword}
-                onChange={handleChange}
-                placeholder="New Password"
-                className="centered-input"
-              />
-
               <h3>Address</h3>
 
               <input
@@ -434,6 +451,22 @@ export default function EditProfile() {
                 Save Changes
               </button>
             </form>
+            {/* Reset Password button below Save */}
+            <div>
+              {/* Reset Password button */}
+              <button
+                type="button"
+                className="save-button"
+                onClick={handleResetPassword}
+              >
+                Reset Password
+              </button>
+
+              {/* Confirmation text */}
+              {emailSent && (
+                <p className="text-green-600 mt-2">Email sent to reset password</p>
+              )}
+            </div>
           </div>
 
           {/* Payment Cards */}
