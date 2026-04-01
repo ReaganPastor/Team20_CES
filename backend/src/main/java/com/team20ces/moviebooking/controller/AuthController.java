@@ -63,6 +63,7 @@ public class AuthController {
             "unverified",
             null
         );
+        newUser.setReceivePromotions(req.isReceivePromotions());
 
         // Email verification token
         String verificationToken = UUID.randomUUID().toString();

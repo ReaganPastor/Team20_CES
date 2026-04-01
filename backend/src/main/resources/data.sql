@@ -7,14 +7,14 @@
 -- =========================================
 -- USERS
 -- =========================================
-INSERT INTO users (first_name, last_name, email, password_hash, phone_number, user_type)
+INSERT INTO users (first_name, last_name, email, password_hash, phone_number, user_type, receive_promotions)
 VALUES
-('John', 'Doe', 'john.doe@email.com', '$2a$10$exampleCustomerHash1', '404-555-1001', 'CUSTOMER'),
-('Jane', 'Smith', 'jane.smith@email.com', '$2a$10$exampleCustomerHash2', '404-555-1002', 'CUSTOMER'),
-('Michael', 'Brown', 'michael.brown@email.com', '$2a$10$exampleCustomerHash3', '404-555-1003', 'CUSTOMER'),
-('Emily', 'Davis', 'emily.davis@email.com', '$2a$10$exampleCustomerHash4', '404-555-1004', 'CUSTOMER'),
-('Admin', 'One', 'admin1@ces.com', '$2a$10$exampleAdminHash1', '404-555-2001', 'ADMIN'),
-('Admin', 'Two', 'admin2@ces.com', '$2a$10$exampleAdminHash2', '404-555-2002', 'ADMIN');
+('John', 'Doe', 'john.doe@email.com', '$2a$10$exampleCustomerHash1', '404-555-1001', 'CUSTOMER', TRUE),
+('Jane', 'Smith', 'jane.smith@email.com', '$2a$10$exampleCustomerHash2', '404-555-1002', 'CUSTOMER', FALSE),
+('Michael', 'Brown', 'michael.brown@email.com', '$2a$10$exampleCustomerHash3', '404-555-1003', 'CUSTOMER', TRUE),
+('Emily', 'Davis', 'emily.davis@email.com', '$2a$10$exampleCustomerHash4', '404-555-1004', 'CUSTOMER', FALSE),
+('Admin', 'One', 'admin1@ces.com', '$2a$10$exampleAdminHash1', '404-555-2001', 'ADMIN', FALSE),
+('Admin', 'Two', 'admin2@ces.com', '$2a$10$exampleAdminHash2', '404-555-2002', 'ADMIN', FALSE);
 
 -- =========================================
 -- CUSTOMERS
