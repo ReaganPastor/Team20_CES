@@ -64,6 +64,12 @@ public class UserService {
                 encoder.encode("MyPassword"), "admin", "active"));*/
     }
 
+    public Optional<User> findById(Long id) {
+        return users.stream()
+                    .filter(u -> u.getId().equals(id))
+                    .findFirst();
+    }
+
     public Optional<User> findByUsername(String username) {
         return users.stream()
                 .filter(u -> u.getUsername().equals(username))
