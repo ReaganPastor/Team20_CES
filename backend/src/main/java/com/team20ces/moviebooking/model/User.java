@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class User {
+
     private Long id;
     private String username;
     private String email;
@@ -13,6 +14,7 @@ public class User {
     private String status;
     private String verificationToken;
     private String resetToken;
+    private boolean receivePromotions;
 
     // New login token field
     private String loginToken;
@@ -45,39 +47,120 @@ public class User {
     }
 
     // Existing getters and setters
-    public Long getId() { return id; }
-    public String getUsername() { return username; }
-    public String getEmail() { return email; }
-    public String getPasswordHash() { return passwordHash; }
-    public String getRole() { return role; }
-    public String getStatus() { return status; }
-    public String getVerificationToken() { return verificationToken; }
-    public String getResetToken() { return resetToken; }
-    public String getLoginToken() { return loginToken; }  // new getter
+    public Long getId() {
+        return id;
+    }
 
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
-    public void setStatus(String status) { this.status = status; }
-    public void setVerificationToken(String verificationToken) { this.verificationToken = verificationToken; }
-    public void setResetToken(String resetToken) { this.resetToken = resetToken; }
-    public void setLoginToken(String loginToken) { this.loginToken = loginToken; }  // new setter
+    public String getUsername() {
+        return username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getVerificationToken() {
+        return verificationToken;
+    }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public String getLoginToken() {
+        return loginToken;
+    }  // new getter
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public void setLoginToken(String loginToken) {
+        this.loginToken = loginToken;
+    }  // new setter
 
     // Editable profile fields
-    public String getFirstName() { return firstName; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
-    public String getLastName() { return lastName; }
-    public void setLastName(String lastName) { this.lastName = lastName; }
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
     // Address
-    public Address getAddress() { return address; }
-    public void setAddress(Address address) { this.address = address; }
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 
     // Payment cards
-    public List<PaymentCard> getPaymentCards() { return paymentCards; }
-    public void setPaymentCards(List<PaymentCard> paymentCards) { this.paymentCards = paymentCards; }
+    public List<PaymentCard> getPaymentCards() {
+        return paymentCards;
+    }
+
+    public void setPaymentCards(List<PaymentCard> paymentCards) {
+        this.paymentCards = paymentCards;
+    }
 
     // Favorite movies
-    public List<Movie> getFavoriteMovies() { return favoriteMovies; }
-    public void setFavoriteMovies(List<Movie> favoriteMovies) { this.favoriteMovies = favoriteMovies; }
+    public List<Movie> getFavoriteMovies() {
+        return favoriteMovies;
+    }
+
+    public void setFavoriteMovies(List<Movie> favoriteMovies) {
+        this.favoriteMovies = favoriteMovies;
+    }
+
+    // Promotions
+    public boolean isReceivePromotions() {
+        return receivePromotions;
+    }
+
+    public void setReceivePromotions(boolean receivePromotions) {
+        this.receivePromotions = receivePromotions;
+    }
 }
