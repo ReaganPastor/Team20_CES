@@ -7,6 +7,9 @@ import com.team20ces.moviebooking.service.UserService;
 import com.team20ces.moviebooking.dto.UserProfileResponse;
 import com.team20ces.moviebooking.dto.UserProfileUpdate;
 import com.team20ces.moviebooking.model.Address;
+import com.team20ces.moviebooking.dto.ChangePasswordRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -262,6 +265,116 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Password reset successfully!"));
     }
 
+    // ---------- REQUEST PASSWORD CHANGE (for logged-in users) ----------
+    @PostMapping("/request-password-change")
+    public ResponseEntity<?> requestPasswordChange(@RequestBody ChangePasswordRequest req) {
+        System.out.println("[RequestPasswordChange] Received request for email: " + req.getEmail());
+
+        if (req.getEmail() == null || req.getEmail().isEmpty()) {
+            System.err.println("[RequestPasswordChange] Email is missing in request");
+            return ResponseEntity.badRequest().body(Map.of("error", "Email is required"));
+        }
+
+        // Look up user by email
+        Optional<User> optionalUser = userService.findByEmail(req.getEmail());
+        if (optionalUser.isEmpty()) {
+            System.err.println("[RequestPasswordChange] No user found with email: " + req.getEmail());
+            return ResponseEntity.badRequest().body(Map.of("error", "No user with this email"));
+        }
+
+        User user = optionalUser.get();
+        System.out.println("[RequestPasswordChange] Found user: " + user.getUsername() + ", email: " + user.getEmail());
+
+        // Generate a secure token for password reset
+        String resetToken = UUID.randomUUID().toString();
+        user.setResetToken(resetToken); // store in user object / DB
+        System.out.println("[RequestPasswordChange] Generated reset token: " + resetToken);
+
+        // Encode for URL
+        String encodedEmail = URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8);
+        String encodedToken = URLEncoder.encode(resetToken, StandardCharsets.UTF_8);
+
+        // Build frontend reset password link
+        //String resetLink = "http://localhost:3000/reset-password?token=" + encodedToken + "&email=" + encodedEmail;
+        String resetLink = "http://localhost:3000/change-password?token=" + encodedToken + "&email=" + encodedEmail;
+        System.out.println("[RequestPasswordChange] Reset link: " + resetLink);
+
+        // Build HTML email matching signup style
+        String emailBody = "<html>" +
+            "<body style=\"font-family: Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0;\">" +
+            "  <div style=\"max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.1);\">" +
+            "    <h2 style=\"color: #1a73e8;\">Reset Your Password, " + user.getUsername() + "!</h2>" +
+            "    <p>You requested a password reset. Click the button below to set a new password:</p>" +
+            "    <p style=\"text-align: center; margin: 30px 0;\">" +
+            "      <a href=\"" + resetLink + "\" " +
+            "         style=\"background-color: #1a73e8; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;\">Reset Password</a>" +
+            "    </p>" +
+            "    <p>If the button doesn’t work, copy and paste this URL into your browser:</p>" +
+            "    <p style=\"word-break: break-all;\"><a href=\"" + resetLink + "\" style=\"color: #1a73e8;\">" + resetLink + "</a></p>" +
+            "    <hr style=\"margin: 30px 0; border: none; border-top: 1px solid #ddd;\">" +
+            "    <p style=\"color: #555; font-size: 14px;\">If you did not request a password reset, you can safely ignore this email.</p>" +
+            "  </div>" +
+            "</body>" +
+            "</html>";
+
+        // Send email
+        try {
+            System.out.println("[RequestPasswordChange] Sending password reset email to: " + user.getEmail());
+            emailService.sendEmail(user.getEmail(), "Reset Your Password", emailBody);
+            System.out.println("[RequestPasswordChange] Email send initiated successfully");
+        } catch (Exception e) {
+            System.err.println("[RequestPasswordChange] Failed to send email: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to send password reset email"));
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Password reset email sent successfully"));
+    }
+
+    // ---------- CHANGE PASSWORD (logged-in users) ----------
+    @PostMapping("/{userId}/change-password")
+    public ResponseEntity<?> changePassword(
+            @PathVariable Long userId,
+            @RequestBody Map<String, String> req) {
+
+        System.out.println("[ChangePassword] Received request for userId: " + userId);
+
+        String oldPassword = req.get("oldPassword");
+        String newPassword = req.get("newPassword");
+
+        if (oldPassword == null || newPassword == null || newPassword.isEmpty()) {
+            System.err.println("[ChangePassword] Missing required fields");
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields"));
+        }
+
+        Optional<User> userOpt = userService.findById(userId);
+        if (userOpt.isEmpty()) {
+            System.err.println("[ChangePassword] User not found with ID: " + userId);
+            return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
+        }
+
+        User user = userOpt.get();
+        System.out.println("[ChangePassword] Found user: " + user.getUsername());
+
+        // Verify old password
+        if (!encoder.matches(oldPassword, user.getPasswordHash())) {
+            System.err.println("[ChangePassword] Current password is incorrect for user: " + user.getUsername());
+            return ResponseEntity.badRequest().body(Map.of("error", "Current password is incorrect"));
+        }
+
+        // Optional: enforce password rules server-side
+        if (newPassword.length() < 8) {
+            System.err.println("[ChangePassword] New password too short for user: " + user.getUsername());
+            return ResponseEntity.badRequest().body(Map.of("error", "Password must be at least 8 characters"));
+        }
+
+        // Update password
+        user.setPasswordHash(encoder.encode(newPassword));
+        System.out.println("[ChangePassword] Password updated successfully for user: " + user.getUsername());
+
+        return ResponseEntity.ok(Map.of("message", "Password updated successfully!"));
+    }
+
     // ---------- GET USER FROM TOKEN ----------
     private User getUserFromToken(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
@@ -280,7 +393,7 @@ public class AuthController {
         return ResponseEntity.ok(new UserProfileResponse(user));
     }
 
-        @PutMapping("/profile/update")
+    @PutMapping("/profile/update")
     public ResponseEntity<?> updateProfile(
             @RequestHeader("Authorization") String authHeader,
             @RequestBody UserProfileUpdate req

@@ -1,12 +1,34 @@
 /* ---------- EDIT PROFILE PAGE ---------- */
+
+/* Container for the whole profile page */
 .profile-page {
   display: flex;
-  justify-content: center; 
-  padding: 40px 20px;
-  color: #f1f5f9;
-  align-items: flex-start;
+  flex-direction: column;
   gap: 20px;
-  flex-wrap: wrap; /* allows cards to wrap on smaller screens */
+  padding: 40px 20px;
+  align-items: center; /* center top row */
+  color: #f1f5f9;
+}
+
+/* Top row: EditProfile + Payment side by side */
+.top-row {
+  display: flex;
+  gap: 20px; /* space between top boxes */
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap; /* stack on smaller screens */
+}
+
+/* Top two cards take equal space but not too far apart */
+.top-row .profile-card {
+  flex: 1 1 300px; /* grow/shrink with a minimum width */
+  max-width: 400px; /* limits card width */
+}
+
+/* Favorite Movies card spans full width */
+.profile-card.favorite-movies-card {
+  flex: 1 1 100%;
+  max-width: none; /* override the .profile-card max-width */
 }
 
 /* ---------- PROFILE CARD ---------- */
@@ -19,7 +41,7 @@
   flex-direction: column;
   gap: 16px;
   width: 100%;
-  max-width: 350px;
+  max-width: 350px; /* overridden for favorite-movies-card */
   text-align: center;
 }
 
@@ -134,4 +156,12 @@
   gap: 12px;
   overflow-x: auto;
   padding-bottom: 10px;
+}
+
+/* Responsive: stack top boxes on small screens */
+@media (max-width: 768px) {
+  .top-row {
+    flex-direction: column;
+    align-items: center;
+  }
 }

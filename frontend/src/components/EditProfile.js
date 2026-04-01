@@ -32,6 +32,7 @@ export default function EditProfile() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [cardError, setCardError] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
 
   // Get auth info from localStorage
   const token = localStorage.getItem("token");
@@ -315,6 +316,40 @@ export default function EditProfile() {
     }
   };
 
+  // Request password reset email
+  const handleResetPassword = async () => {
+    setEmailSent(false);
+    setError("");
+
+    try {
+      if (!profile || !profile.email) {
+        setError("No email found for current user");
+        return;
+      }
+
+      const response = await fetch(`http://localhost:8080/api/auth/request-password-change`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // if your backend requires auth
+        },
+        body: JSON.stringify({ email: profile.email }), // use actual user email
+      });
+
+      if (response.ok) {
+        setEmailSent(true);
+        console.log("Reset email sent successfully");
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        console.error("Failed to send reset email:", errData.error || response.status);
+        setError(errData.error || "Failed to send reset email");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("An unexpected error occurred");
+    }
+  };
+
   // Show loading while profile is being fetched
   if (!profile) return <p>Loading profile...</p>;
 
@@ -324,208 +359,236 @@ export default function EditProfile() {
     <div>
       <Navigation />
       <div className="profile-page">
-        {/* Profile info */}
-        <div className="profile-card">
-          <h2>Profile Info</h2>
+        <div className="top-row">
+          {/* Profile info */}
+          <div className="profile-card">
+            <h2>Profile Info</h2>
 
-          {message && <p className="success">{message}</p>}
-          {error && <p className="error">{error}</p>}
+            {message && <p className="success">{message}</p>}
+            {error && <p className="error">{error}</p>}
 
-          <form onSubmit={handleSave}>
-            <input
-              type="text"
-              value={profile.username}
-              disabled
-              className="centered-input"
-            />
-
-            <input
-              type="email"
-              value={profile.email}
-              disabled
-              className="centered-input"
-            />
-
-            <input
-              type="text"
-              name="firstName"
-              value={form.firstName}
-              onChange={handleChange}
-              placeholder="First Name"
-              className="centered-input"
-            />
-
-            <input
-              type="text"
-              name="lastName"
-              value={form.lastName}
-              onChange={handleChange}
-              placeholder="Last Name"
-              className="centered-input"
-            />
-
-            <input
-              type="text"
-              name="phoneNumber"
-              value={form.phoneNumber}
-              onChange={handleChange}
-              placeholder="Phone Number"
-              className="centered-input"
-            />
-
-            <input
-              type="password"
-              name="currentPassword"
-              value={form.currentPassword}
-              onChange={handleChange}
-              placeholder="Current Password"
-              className="centered-input"
-            />
-
-            <input
-              type="password"
-              name="newPassword"
-              value={form.newPassword}
-              onChange={handleChange}
-              placeholder="New Password"
-              className="centered-input"
-            />
-
-            <h3>Address</h3>
-
-            <input
-              type="text"
-              name="address.street"
-              value={form.address.street}
-              onChange={handleChange}
-              placeholder="Street"
-              className="centered-input"
-            />
-
-            <input
-              type="text"
-              name="address.city"
-              value={form.address.city}
-              onChange={handleChange}
-              placeholder="City"
-              className="centered-input"
-            />
-
-            <input
-              type="text"
-              name="address.state"
-              value={form.address.state}
-              onChange={handleChange}
-              placeholder="State"
-              className="centered-input"
-            />
-
-            <input
-              type="text"
-              name="address.zipCode"
-              value={form.address.zipCode}
-              onChange={handleChange}
-              placeholder="Zip Code"
-              className="centered-input"
-            />
-
-            <button type="submit" className="save-button">
-              Save Changes
-            </button>
-          </form>
-        </div>
-
-        {/* Payment Cards */}
-        <div className="profile-card">
-          <h2>Payment Cards (Max 3)</h2>
-
-          {(profile.paymentCards || []).length === 0 && <p>No cards added</p>}
-
-          <ul>
-            {(profile.paymentCards || []).map((card) => (
-              <li key={card.id}>
-                {card.cardholderName} - **** **** **** {card.lastFour}
-                <button
-                  className="inline-button"
-                  onClick={() => handleRemoveCard(card.id)}
-                >
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
-
-          {!maxCardsReached && (
-            <>
+            <form onSubmit={handleSave}>
               <input
                 type="text"
-                name="cardholderName"
-                value={newCard.cardholderName}
-                onChange={handleCardChange}
-                placeholder="Cardholder Name"
+                value={profile.username}
+                disabled
+                className="centered-input"
+              />
+
+              <input
+                type="email"
+                value={profile.email}
+                disabled
                 className="centered-input"
               />
 
               <input
                 type="text"
-                name="number"
-                value={newCard.number}
-                onChange={handleCardChange}
-                placeholder="Card Number"
+                name="firstName"
+                value={form.firstName}
+                onChange={handleChange}
+                placeholder="First Name"
                 className="centered-input"
-                maxLength={19}
               />
 
               <input
                 type="text"
-                name="exp"
-                value={newCard.exp}
-                onChange={handleCardChange}
-                placeholder="MM/YY"
+                name="lastName"
+                value={form.lastName}
+                onChange={handleChange}
+                placeholder="Last Name"
                 className="centered-input"
-                maxLength={5}
               />
 
               <input
-                type="password"
-                name="cvv"
-                value={newCard.cvv}
-                onChange={handleCardChange}
-                placeholder="CVV"
+                type="text"
+                name="phoneNumber"
+                value={form.phoneNumber}
+                onChange={handleChange}
+                placeholder="Phone Number"
                 className="centered-input"
-                maxLength={3}
               />
 
-              {cardError && <p className="error">{cardError}</p>}
+              <h3>Address</h3>
 
-              <button className="small-button" onClick={handleAddCard}>
-                Add Card
+              <input
+                type="text"
+                name="address.street"
+                value={form.address.street}
+                onChange={handleChange}
+                placeholder="Street"
+                className="centered-input"
+              />
+
+              <input
+                type="text"
+                name="address.city"
+                value={form.address.city}
+                onChange={handleChange}
+                placeholder="City"
+                className="centered-input"
+              />
+
+              <input
+                type="text"
+                name="address.state"
+                value={form.address.state}
+                onChange={handleChange}
+                placeholder="State"
+                className="centered-input"
+              />
+
+              <input
+                type="text"
+                name="address.zipCode"
+                value={form.address.zipCode}
+                onChange={handleChange}
+                placeholder="Zip Code"
+                className="centered-input"
+              />
+
+              <button type="submit" className="save-button">
+                Save Changes
               </button>
-            </>
-          )}
+            </form>
+            {/* Reset Password button below Save */}
+            <div>
+              {/* Reset Password button */}
+              <button
+                type="button"
+                className="save-button"
+                onClick={handleResetPassword}
+              >
+                Reset Password
+              </button>
 
-          {maxCardsReached && (
-            <p style={{ color: "#f87171", fontSize: "13px", marginTop: "4px" }}>
-              Maximum 3 cards allowed
-            </p>
-          )}
+              {/* Confirmation text */}
+              {emailSent && (
+                <p className="text-green-600 mt-2">Email sent to reset password</p>
+              )}
+            </div>
+          </div>
+
+          {/* Payment Cards */}
+          <div className="profile-card">
+            <h2>Payment Cards (Max 3)</h2>
+
+            {(profile.paymentCards || []).length === 0 && <p>No cards added</p>}
+
+            <ul>
+              {(profile.paymentCards || []).map((card) => (
+                <li key={card.id}>
+                  {card.cardholderName} - **** **** **** {card.lastFour}
+                  <button
+                    className="inline-button"
+                    onClick={() => handleRemoveCard(card.id)}
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            {!maxCardsReached && (
+              <>
+                <input
+                  type="text"
+                  name="cardholderName"
+                  value={newCard.cardholderName}
+                  onChange={handleCardChange}
+                  placeholder="Cardholder Name"
+                  className="centered-input"
+                />
+
+                <input
+                  type="text"
+                  name="number"
+                  value={newCard.number}
+                  onChange={handleCardChange}
+                  placeholder="Card Number"
+                  className="centered-input"
+                  maxLength={19}
+                />
+
+                <input
+                  type="text"
+                  name="exp"
+                  value={newCard.exp}
+                  onChange={handleCardChange}
+                  placeholder="MM/YY"
+                  className="centered-input"
+                  maxLength={5}
+                />
+
+                <input
+                  type="password"
+                  name="cvv"
+                  value={newCard.cvv}
+                  onChange={handleCardChange}
+                  placeholder="CVV"
+                  className="centered-input"
+                  maxLength={3}
+                />
+
+                {cardError && <p className="error">{cardError}</p>}
+
+                <button className="small-button" onClick={handleAddCard}>
+                  Add Card
+                </button>
+              </>
+            )}
+
+            {maxCardsReached && (
+              <p style={{ color: "#f87171", fontSize: "13px", marginTop: "4px" }}>
+                Maximum 3 cards allowed
+              </p>
+            )}
+          </div>
         </div>
-
         {/* Favorite Movies */}
-        <div className="profile-card">
+        <div className="profile-card favorite-movies-card">
           <h2>Favorite Movies</h2>
 
           {(profile.favoriteMovies || []).length === 0 && <p>No favorites yet</p>}
 
           <div className="movie-grid">
             {(profile.favoriteMovies || []).map((movie) => (
-              <div key={movie.id} style={{ position: "relative" }}>
-                {/* Reuse MovieCard to keep layout consistent */}
-                <MovieCard movie={movie} isFavorite={true} />
+              <div
+                key={movie.id}
+                style={{
+                  width: "150px",
+                  background: "#0a0f22",
+                  borderRadius: "8px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  padding: "8px",
+                  color: "#f1f5f9",
+                }}
+              >
+                {/* Title */}
+                <span style={{ fontWeight: "bold", textAlign: "center" }}>
+                  {movie.title}
+                </span>
 
-                {/* Separate remove button for profile page */}
+                {/* Rating and Genre */}
+                <span style={{ fontSize: "12px", color: "#94a3b8" }}>
+                  {movie.rating} | {movie.genre}
+                </span>
+
+                {/* View Details button */}
+                <button
+                  className="small-button"
+                  style={{ marginTop: "6px", width: "100%" }}
+                  onClick={() => navigate(`/movies/${movie.id}`)}
+                >
+                  View Details
+                </button>
+
+                {/* Remove Favorite button */}
                 <button
                   className="inline-button"
+                  style={{ marginTop: "4px", fontSize: "12px" }}
                   onClick={() => handleRemoveFavorite(movie.id)}
                 >
                   Remove Favorite
@@ -534,15 +597,6 @@ export default function EditProfile() {
             ))}
           </div>
         </div>
-
-        {/* Go back */}
-        <button
-          className="save-button"
-          style={{ maxWidth: "350px", marginTop: "20px" }}
-          onClick={() => navigate("/")}
-        >
-          Go Back to Homepage
-        </button>
       </div>
     </div>
   );
