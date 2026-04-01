@@ -8,8 +8,15 @@ import Signup from "./components/Signup";
 import EditProfile from "./components/EditProfile";
 import EmailVerified from "./components/EmailVerified";
 import ResetPassword from "./components/ResetPassword";
+import { useEffect } from "react";
 
 function App() {
+
+  useEffect(() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  }, []);
+
   return (
     <Router>
       <Routes>

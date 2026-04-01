@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./EditProfile.css";
 import MovieCard from "../components/MovieCard";
+import Navigation from "./Navigation";
 
 export default function EditProfile() {
   const navigate = useNavigate();
@@ -155,7 +156,7 @@ export default function EditProfile() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          //Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           cardholderName: newCard.cardholderName,
@@ -320,226 +321,229 @@ export default function EditProfile() {
   const maxCardsReached = (profile.paymentCards || []).length >= 3;
 
   return (
-    <div className="profile-page">
-      {/* Profile info */}
-      <div className="profile-card">
-        <h2>Profile Info</h2>
+    <div>
+      <Navigation />
+      <div className="profile-page">
+        {/* Profile info */}
+        <div className="profile-card">
+          <h2>Profile Info</h2>
 
-        {message && <p className="success">{message}</p>}
-        {error && <p className="error">{error}</p>}
+          {message && <p className="success">{message}</p>}
+          {error && <p className="error">{error}</p>}
 
-        <form onSubmit={handleSave}>
-          <input
-            type="text"
-            value={profile.username}
-            disabled
-            className="centered-input"
-          />
-
-          <input
-            type="email"
-            value={profile.email}
-            disabled
-            className="centered-input"
-          />
-
-          <input
-            type="text"
-            name="firstName"
-            value={form.firstName}
-            onChange={handleChange}
-            placeholder="First Name"
-            className="centered-input"
-          />
-
-          <input
-            type="text"
-            name="lastName"
-            value={form.lastName}
-            onChange={handleChange}
-            placeholder="Last Name"
-            className="centered-input"
-          />
-
-          <input
-            type="text"
-            name="phoneNumber"
-            value={form.phoneNumber}
-            onChange={handleChange}
-            placeholder="Phone Number"
-            className="centered-input"
-          />
-
-          <input
-            type="password"
-            name="currentPassword"
-            value={form.currentPassword}
-            onChange={handleChange}
-            placeholder="Current Password"
-            className="centered-input"
-          />
-
-          <input
-            type="password"
-            name="newPassword"
-            value={form.newPassword}
-            onChange={handleChange}
-            placeholder="New Password"
-            className="centered-input"
-          />
-
-          <h3>Address</h3>
-
-          <input
-            type="text"
-            name="address.street"
-            value={form.address.street}
-            onChange={handleChange}
-            placeholder="Street"
-            className="centered-input"
-          />
-
-          <input
-            type="text"
-            name="address.city"
-            value={form.address.city}
-            onChange={handleChange}
-            placeholder="City"
-            className="centered-input"
-          />
-
-          <input
-            type="text"
-            name="address.state"
-            value={form.address.state}
-            onChange={handleChange}
-            placeholder="State"
-            className="centered-input"
-          />
-
-          <input
-            type="text"
-            name="address.zipCode"
-            value={form.address.zipCode}
-            onChange={handleChange}
-            placeholder="Zip Code"
-            className="centered-input"
-          />
-
-          <button type="submit" className="save-button">
-            Save Changes
-          </button>
-        </form>
-      </div>
-
-      {/* Payment Cards */}
-      <div className="profile-card">
-        <h2>Payment Cards (Max 3)</h2>
-
-        {(profile.paymentCards || []).length === 0 && <p>No cards added</p>}
-
-        <ul>
-          {(profile.paymentCards || []).map((card) => (
-            <li key={card.id}>
-              {card.cardholderName} - **** **** **** {card.lastFour}
-              <button
-                className="inline-button"
-                onClick={() => handleRemoveCard(card.id)}
-              >
-                Remove
-              </button>
-            </li>
-          ))}
-        </ul>
-
-        {!maxCardsReached && (
-          <>
+          <form onSubmit={handleSave}>
             <input
               type="text"
-              name="cardholderName"
-              value={newCard.cardholderName}
-              onChange={handleCardChange}
-              placeholder="Cardholder Name"
+              value={profile.username}
+              disabled
+              className="centered-input"
+            />
+
+            <input
+              type="email"
+              value={profile.email}
+              disabled
               className="centered-input"
             />
 
             <input
               type="text"
-              name="number"
-              value={newCard.number}
-              onChange={handleCardChange}
-              placeholder="Card Number"
+              name="firstName"
+              value={form.firstName}
+              onChange={handleChange}
+              placeholder="First Name"
               className="centered-input"
-              maxLength={19}
             />
 
             <input
               type="text"
-              name="exp"
-              value={newCard.exp}
-              onChange={handleCardChange}
-              placeholder="MM/YY"
+              name="lastName"
+              value={form.lastName}
+              onChange={handleChange}
+              placeholder="Last Name"
               className="centered-input"
-              maxLength={5}
+            />
+
+            <input
+              type="text"
+              name="phoneNumber"
+              value={form.phoneNumber}
+              onChange={handleChange}
+              placeholder="Phone Number"
+              className="centered-input"
             />
 
             <input
               type="password"
-              name="cvv"
-              value={newCard.cvv}
-              onChange={handleCardChange}
-              placeholder="CVV"
+              name="currentPassword"
+              value={form.currentPassword}
+              onChange={handleChange}
+              placeholder="Current Password"
               className="centered-input"
-              maxLength={3}
             />
 
-            {cardError && <p className="error">{cardError}</p>}
+            <input
+              type="password"
+              name="newPassword"
+              value={form.newPassword}
+              onChange={handleChange}
+              placeholder="New Password"
+              className="centered-input"
+            />
 
-            <button className="small-button" onClick={handleAddCard}>
-              Add Card
+            <h3>Address</h3>
+
+            <input
+              type="text"
+              name="address.street"
+              value={form.address.street}
+              onChange={handleChange}
+              placeholder="Street"
+              className="centered-input"
+            />
+
+            <input
+              type="text"
+              name="address.city"
+              value={form.address.city}
+              onChange={handleChange}
+              placeholder="City"
+              className="centered-input"
+            />
+
+            <input
+              type="text"
+              name="address.state"
+              value={form.address.state}
+              onChange={handleChange}
+              placeholder="State"
+              className="centered-input"
+            />
+
+            <input
+              type="text"
+              name="address.zipCode"
+              value={form.address.zipCode}
+              onChange={handleChange}
+              placeholder="Zip Code"
+              className="centered-input"
+            />
+
+            <button type="submit" className="save-button">
+              Save Changes
             </button>
-          </>
-        )}
-
-        {maxCardsReached && (
-          <p style={{ color: "#f87171", fontSize: "13px", marginTop: "4px" }}>
-            Maximum 3 cards allowed
-          </p>
-        )}
-      </div>
-
-      {/* Favorite Movies */}
-      <div className="profile-card">
-        <h2>Favorite Movies</h2>
-
-        {(profile.favoriteMovies || []).length === 0 && <p>No favorites yet</p>}
-
-        <div className="movie-grid">
-          {(profile.favoriteMovies || []).map((movie) => (
-            <div key={movie.id} style={{ position: "relative" }}>
-              {/* Reuse MovieCard to keep layout consistent */}
-              <MovieCard movie={movie} isFavorite={true} />
-
-              {/* Separate remove button for profile page */}
-              <button
-                className="inline-button"
-                onClick={() => handleRemoveFavorite(movie.id)}
-              >
-                Remove Favorite
-              </button>
-            </div>
-          ))}
+          </form>
         </div>
-      </div>
 
-      {/* Go back */}
-      <button
-        className="save-button"
-        style={{ maxWidth: "350px", marginTop: "20px" }}
-        onClick={() => navigate("/")}
-      >
-        Go Back to Homepage
-      </button>
+        {/* Payment Cards */}
+        <div className="profile-card">
+          <h2>Payment Cards (Max 3)</h2>
+
+          {(profile.paymentCards || []).length === 0 && <p>No cards added</p>}
+
+          <ul>
+            {(profile.paymentCards || []).map((card) => (
+              <li key={card.id}>
+                {card.cardholderName} - **** **** **** {card.lastFour}
+                <button
+                  className="inline-button"
+                  onClick={() => handleRemoveCard(card.id)}
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          {!maxCardsReached && (
+            <>
+              <input
+                type="text"
+                name="cardholderName"
+                value={newCard.cardholderName}
+                onChange={handleCardChange}
+                placeholder="Cardholder Name"
+                className="centered-input"
+              />
+
+              <input
+                type="text"
+                name="number"
+                value={newCard.number}
+                onChange={handleCardChange}
+                placeholder="Card Number"
+                className="centered-input"
+                maxLength={19}
+              />
+
+              <input
+                type="text"
+                name="exp"
+                value={newCard.exp}
+                onChange={handleCardChange}
+                placeholder="MM/YY"
+                className="centered-input"
+                maxLength={5}
+              />
+
+              <input
+                type="password"
+                name="cvv"
+                value={newCard.cvv}
+                onChange={handleCardChange}
+                placeholder="CVV"
+                className="centered-input"
+                maxLength={3}
+              />
+
+              {cardError && <p className="error">{cardError}</p>}
+
+              <button className="small-button" onClick={handleAddCard}>
+                Add Card
+              </button>
+            </>
+          )}
+
+          {maxCardsReached && (
+            <p style={{ color: "#f87171", fontSize: "13px", marginTop: "4px" }}>
+              Maximum 3 cards allowed
+            </p>
+          )}
+        </div>
+
+        {/* Favorite Movies */}
+        <div className="profile-card">
+          <h2>Favorite Movies</h2>
+
+          {(profile.favoriteMovies || []).length === 0 && <p>No favorites yet</p>}
+
+          <div className="movie-grid">
+            {(profile.favoriteMovies || []).map((movie) => (
+              <div key={movie.id} style={{ position: "relative" }}>
+                {/* Reuse MovieCard to keep layout consistent */}
+                <MovieCard movie={movie} isFavorite={true} />
+
+                {/* Separate remove button for profile page */}
+                <button
+                  className="inline-button"
+                  onClick={() => handleRemoveFavorite(movie.id)}
+                >
+                  Remove Favorite
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Go back */}
+        <button
+          className="save-button"
+          style={{ maxWidth: "350px", marginTop: "20px" }}
+          onClick={() => navigate("/")}
+        >
+          Go Back to Homepage
+        </button>
+      </div>
     </div>
   );
 }

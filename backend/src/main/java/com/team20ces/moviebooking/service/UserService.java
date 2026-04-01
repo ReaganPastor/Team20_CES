@@ -8,6 +8,7 @@ import com.team20ces.moviebooking.dto.*;
 import com.team20ces.moviebooking.model.Address;
 import com.team20ces.moviebooking.model.Movie;
 import com.team20ces.moviebooking.model.PaymentCard;
+import com.team20ces.moviebooking.util.EncryptionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,7 +134,7 @@ public class UserService {
         ));
     }
 
-    // Add a payment card, but only allow up to 3 cards
+    // Add a payment card for the user, with encryption for sensitive data
     public Optional<CardResponse> addPaymentCard(Long userId, PaymentCardRequest request) {
         Optional<User> userOptional = users.stream()
                 .filter(u -> u.getId().equals(userId))
@@ -150,19 +151,32 @@ public class UserService {
         }
 
         String cardNumber = request.getCardNumber();
+        String encryptedCard;
+        String encryptedCvv;
+
+        try {
+            encryptedCard = EncryptionUtil.encrypt(cardNumber);
+            encryptedCvv = EncryptionUtil.encrypt(request.getCvv());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to encrypt card data", e);
+        }
+
         String lastFour = cardNumber.substring(cardNumber.length() - 4);
 
         PaymentCard card = new PaymentCard(
-                System.currentTimeMillis(), // simple unique id for now
+                System.currentTimeMillis(),
+                userId,
                 request.getCardholderName(),
-                "ENC(" + request.getCardNumber() + ")", // placeholder encryption
-                "ENC(" + request.getCvv() + ")",
+                encryptedCard,
+                encryptedCvv,
                 request.getExpirationDate(),
-                lastFour
+                lastFour,
+                null, // cardBrand optional
+                null  // billingAddress optional
         );
 
         user.getPaymentCards().add(card);
-        updateUser(user);
+        updateUser(user); // persist to DB
 
         return Optional.of(new CardResponse(
                 card.getId(),

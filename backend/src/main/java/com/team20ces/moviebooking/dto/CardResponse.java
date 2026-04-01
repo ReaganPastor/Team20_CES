@@ -1,6 +1,5 @@
 package com.team20ces.moviebooking.dto;
 
-// Response sent back with safe card info only
 public class CardResponse {
 
     private Long id;
@@ -18,35 +17,16 @@ public class CardResponse {
         this.expirationDate = expirationDate;
     }
 
-    public Long getId() {
-        return id;
-    }
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getCardholderName() {
-        return cardholderName;
-    }
+    public String getCardholderName() { return cardholderName; }
+    public void setCardholderName(String cardholderName) { this.cardholderName = cardholderName; }
 
-    public String getLastFour() {
-        return lastFour;
-    }
+    public String getLastFour() { return lastFour; }
+    public void setLastFour(String lastFour) { this.lastFour = lastFour; }
 
-    public String getExpirationDate() {
-        return expirationDate;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setCardholderName(String cardholderName) {
-        this.cardholderName = cardholderName;
-    }
-
-    public void setLastFour(String lastFour) {
-        this.lastFour = lastFour;
-    }
-
-    public void setExpirationDate(String expirationDate) {
-        this.expirationDate = expirationDate;
-    }
+    public String getExpirationDate() { return expirationDate; }
+    public void setExpirationDate(String expirationDate) { this.expirationDate = expirationDate; }
 }
