@@ -8,6 +8,9 @@ import Signup from "./components/Signup";
 import EditProfile from "./components/EditProfile";
 import EmailVerified from "./components/EmailVerified";
 import ResetPassword from "./components/ResetPassword";
+import AdminHome from "./components/AdminHome";
+import AddMovie from "./components/AddMovie";
+import AddShowtime from "./components/AddShowtime";
 
 function App() {
   return (
@@ -23,6 +26,9 @@ function App() {
         <Route path="/edit-profile" element={<EditProfile />} />
         <Route path="/email-verified" element={<EmailVerified />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/admin" element={<AdminHome />} />
+        <Route path="/admin/add-movie" element={<AddMovie />} />
+        <Route path="/admin/showtimes" element={<AddShowtime />} />
       </Routes>
     </Router>
   );
