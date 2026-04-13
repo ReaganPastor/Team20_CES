@@ -28,6 +28,7 @@ CREATE TABLE users (
     password_hash   VARCHAR(255) NOT NULL,
     phone_number    VARCHAR(20),
     user_type       VARCHAR(20) NOT NULL,
+    receive_promotions BOOLEAN NOT NULL DEFAULT FALSE,
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT chk_users_user_type

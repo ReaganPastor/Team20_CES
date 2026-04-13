@@ -105,3 +105,17 @@
 .button-back:hover {
   background: #2563eb;
 }
+
+.promo-checkbox {
+  margin: 12px 0;
+  text-align: left;
+}
+
+.promo-checkbox label {
+  font-size: 14px;
+  color: white;
+}
+
+.promo-checkbox input {
+  margin-right: 8px;
+}

@@ -1,7 +1,8 @@
 .view-details-btn {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #2563eb; /* primary blue */
+    background-color: #2563eb;
+    /* primary blue */
     color: #ffffff;
     font-size: 14px;
     font-weight: bold;
@@ -11,16 +12,47 @@
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.25s ease;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .view-details-btn:hover {
-    background-color: #1d4ed8; /* darker blue on hover */
+    background-color: #1d4ed8;
+    /* darker blue on hover */
     transform: translateY(-2px);
-    box-shadow: 0 6px 10px rgba(0,0,0,0.4);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
 }
 
 .view-details-btn:active {
     transform: translateY(0);
-    box-shadow: 0 3px 5px rgba(0,0,0,0.3);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Base favorite button */
+.favorite-btn {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Hover effect */
+.favorite-btn:hover {
+    background-color: #e5e7eb;
+}
+
+/* When movie is favorited */
+.favorite-btn.favorited {
+    background-color: #fee2e2;
+    /* soft red */
+    border-color: #ef4444;
+    color: #dc2626;
+}
+
+/* Hover when favorited */
+.favorite-btn.favorited:hover {
+    background-color: #fecaca;
 }
