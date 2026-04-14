@@ -1,0 +1,131 @@
+package com.team20ces.moviebooking.service;
+
+import com.team20ces.moviebooking.dto.ShowtimeCreateRequest;
+import com.team20ces.moviebooking.dto.ShowtimeResponse;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import java.sql.Date;
+import java.sql.Time;
+import java.time.LocalTime;
+
+/**
+ * Service layer for showtime-related database operations.
+ */
+@Service
+public class ShowtimeService {
+
+    private final JdbcTemplate jdbcTemplate;
+
+    public ShowtimeService(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    /**
+     * Checks whether the given movie exists.
+     */
+    public boolean movieExists(Long movieId) {
+        Integer count = jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM movies WHERE id = ?",
+            Integer.class,
+            movieId
+        );
+        return count != null && count > 0;
+    }
+
+    /**
+     * Checks whether the given showroom exists.
+     */
+    public boolean showroomExists(Long showroomId) {
+        Integer count = jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM showrooms WHERE id = ?",
+            Integer.class,
+            showroomId
+        );
+        return count != null && count > 0;
+    }
+
+    /**
+     * Gets the duration of a movie in minutes.
+     * Used to calculate end time for a show.
+     */
+    public int getMovieDuration(Long movieId) {
+        Integer duration = jdbcTemplate.queryForObject(
+            "SELECT duration_mins FROM movies WHERE id = ?",
+            Integer.class,
+            movieId
+        );
+        return duration == null ? 0 : duration;
+    }
+
+    /**
+     * Checks if a new showtime overlaps with an existing one
+     * in the same showroom on the same date.
+     */
+    public boolean hasSchedulingConflict(Long showroomId, Date showDate, Time startTime, Time endTime) {
+        Integer count = jdbcTemplate.queryForObject(
+            """
+            SELECT COUNT(*)
+            FROM shows
+            WHERE showroom_id = ?
+              AND show_date = ?
+              AND (? < end_time AND ? > start_time)
+            """,
+            Integer.class,
+            showroomId, showDate, startTime, endTime
+        );
+        return count != null && count > 0;
+    }
+
+    /**
+     * Inserts a showtime into the database and returns the created object.
+     */
+    public ShowtimeResponse addShowtime(ShowtimeCreateRequest req) {
+        Date showDate = Date.valueOf(req.getShowDate());
+
+        // Accepts either HH:mm or HH:mm:ss
+        LocalTime parsedStart = LocalTime.parse(
+            req.getStartTime().length() == 5 ? req.getStartTime() + ":00" : req.getStartTime()
+        );
+
+        int duration = getMovieDuration(req.getMovieId());
+        LocalTime parsedEnd = parsedStart.plusMinutes(duration);
+
+        Time startTime = Time.valueOf(parsedStart);
+        Time endTime = Time.valueOf(parsedEnd);
+
+        String sql = """
+            INSERT INTO shows (movie_id, showroom_id, show_date, start_time, end_time)
+            VALUES (?, ?, ?, ?, ?)
+            RETURNING id, movie_id, showroom_id, show_date, start_time, end_time
+            """;
+
+        return jdbcTemplate.queryForObject(
+            sql,
+            (rs, rowNum) -> {
+                Long movieId = rs.getLong("movie_id");
+
+                String movieTitle = jdbcTemplate.queryForObject(
+                    "SELECT title FROM movies WHERE id = ?",
+                    String.class,
+                    movieId
+                );
+
+                return new ShowtimeResponse(
+                    rs.getLong("id"),
+                    movieId,
+                    movieTitle,
+                    rs.getLong("showroom_id"),
+                    rs.getDate("show_date").toString(),
+                    rs.getTime("start_time").toString(),
+                    rs.getTime("end_time").toString()
+                );
+            },
+            req.getMovieId(),
+            req.getShowroomId(),
+            showDate,
+            startTime,
+            endTime
+        );
+    }
+}

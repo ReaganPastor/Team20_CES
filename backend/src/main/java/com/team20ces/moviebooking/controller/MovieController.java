@@ -3,6 +3,7 @@ package com.team20ces.moviebooking.controller;
 import com.team20ces.moviebooking.model.Movie;
 import com.team20ces.moviebooking.service.MovieService;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,14 +22,46 @@ public class MovieController {
         this.movieService = movieService;
     }
 
-    // POST /movies
+    /**
+     * POST /movies
+     * Adds a new movie after validating required fields.
+     */
     @PostMapping
-    public ResponseEntity<Movie> addMovie(@RequestBody Movie movie) {
+    public ResponseEntity<?> addMovie(@RequestBody Movie movie) {
+
+        // Check required text fields
+        if (movie.getTitle() == null || movie.getTitle().isBlank() ||
+            movie.getDescription() == null || movie.getDescription().isBlank() ||
+            movie.getRating() == null || movie.getRating().isBlank() ||
+            movie.getGenre() == null || movie.getGenre().isBlank() ||
+            movie.getPosterPath() == null || movie.getPosterPath().isBlank() ||
+            movie.getTrailerPath() == null || movie.getTrailerPath().isBlank() ||
+            movie.getStatus() == null || movie.getStatus().isBlank()) {
+
+            return ResponseEntity.badRequest().body("Missing required fields");
+        }
+
+        // Validate movie duration
+        if (movie.getDurationMinutes() <= 0) {
+            return ResponseEntity.badRequest().body("duration_mins must be greater than 0");
+        }
+
+        // Prevent duplicate movie titles
+        if (movieService.existsByTitle(movie.getTitle().trim())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("A movie with this title already exists");
+        }
+
+        // Save movie
         Movie savedMovie = movieService.addMovie(movie);
-        return ResponseEntity.ok(savedMovie);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedMovie);
     }
 
-    // DELETE /movies/{id}
+    /**
+     * DELETE /movies/{id}
+     * Deletes a movie by ID.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
         boolean deleted = movieService.deleteMovie(id);
@@ -40,19 +73,26 @@ public class MovieController {
         }
     }
 
-    // GET /movies
+    /**
+     * GET /movies
+     * Returns all movies, with optional status and genre filters.
+     */
     @GetMapping
     public List<Movie> getAllMovies(
             @RequestParam Optional<String> status,
-            @RequestParam(name="genre", required=false) List<String> genres) {
+            @RequestParam(name = "genre", required = false) List<String> genres) {
 
-        if (genres == null)
+        if (genres == null) {
             genres = new ArrayList<>();
+        }
 
         return movieService.getAll(status, genres);
     }
 
-    // GET /movies/{id}
+    /**
+     * GET /movies/{id}
+     * Returns one movie by its ID.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
 
@@ -62,7 +102,10 @@ public class MovieController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // GET /movies/search?title=...
+    /**
+     * GET /movies/search?title=...
+     * Searches movies by title, with optional status filter.
+     */
     @GetMapping("/search")
     public ResponseEntity<List<Movie>> searchMovies(
             @RequestParam Optional<String> title,
@@ -72,13 +115,15 @@ public class MovieController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<Movie> results =
-                movieService.searchByTitle(title.get(), status);
+        List<Movie> results = movieService.searchByTitle(title.get(), status);
 
         return ResponseEntity.ok(results);
     }
 
-    // GET /movies/genres
+    /**
+     * GET /movies/genres
+     * Returns all distinct genres.
+     */
     @GetMapping("/genres")
     public ResponseEntity<List<String>> getGenres() {
         List<String> genres = movieService.getAllGenres();

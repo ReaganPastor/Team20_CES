@@ -18,7 +18,10 @@ public class MovieService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // Maps SQL row → Movie object
+    /**
+     * Maps one SQL row from the movies table into a Movie object.
+     * Important: this now includes duration_mins.
+     */
     private final RowMapper<Movie> movieRowMapper = (rs, rowNum) ->
             new Movie(
                     rs.getLong("id"),
@@ -28,14 +31,16 @@ public class MovieService {
                     rs.getString("genre"),
                     rs.getString("poster_path"),
                     rs.getString("trailer_path"),
-                    rs.getString("status")
+                    rs.getString("status"),
+                    rs.getInt("duration_mins")
             );
 
-    // Get all movies, with optional filters for status and genre
+    /**
+     * Get all movies, with optional filters for status and genre.
+     */
     public List<Movie> getAll(Optional<String> status, List<String> genres) {
 
         StringBuilder sql = new StringBuilder("SELECT * FROM movies WHERE 1=1");
-
         List<Object> params = new ArrayList<>();
 
         if (status.isPresent() && !status.get().isBlank()) {
@@ -44,13 +49,13 @@ public class MovieService {
         }
 
         if (genres != null && !genres.isEmpty()) {
-
             sql.append(" AND genre IN (");
 
             for (int i = 0; i < genres.size(); i++) {
                 sql.append("?");
-                if (i < genres.size() - 1)
+                if (i < genres.size() - 1) {
                     sql.append(",");
+                }
                 params.add(genres.get(i));
             }
 
@@ -60,18 +65,20 @@ public class MovieService {
         return jdbcTemplate.query(sql.toString(), movieRowMapper, params.toArray());
     }
 
-    // Get movie by ID
+    /**
+     * Get one movie by ID.
+     */
     public Optional<Movie> getById(Long id) {
-
         String sql = "SELECT * FROM movies WHERE id = ?";
 
-        List<Movie> results =
-                jdbcTemplate.query(sql, movieRowMapper, id);
-
+        List<Movie> results = jdbcTemplate.query(sql, movieRowMapper, id);
         return results.stream().findFirst();
     }
 
-    // Search movies by title (case-insensitive, partial match), with optional status filter
+    /**
+     * Search movies by title using a case-insensitive partial match.
+     * Optional status filter is also supported.
+     */
     public List<Movie> searchByTitle(String title, Optional<String> status) {
 
         StringBuilder sql =
@@ -92,44 +99,56 @@ public class MovieService {
         );
     }
 
-    // Get all genres (distinct values from the genre column)
+    /**
+     * Returns all distinct genres from the movies table.
+     */
     public List<String> getAllGenres() {
         String sql = "SELECT DISTINCT genre FROM movies ORDER BY genre";
         return jdbcTemplate.queryForList(sql, String.class);
     }
 
-    // Add a new movie and return the saved movie with generated ID
+    /**
+     * Checks whether a movie with the same title already exists.
+     * This helps prevent accidental duplicates.
+     */
+    public boolean existsByTitle(String title) {
+        String sql = "SELECT COUNT(*) FROM movies WHERE LOWER(title) = LOWER(?)";
+
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, title);
+        return count != null && count > 0;
+    }
+
+    /**
+     * Add a new movie and return the saved movie with generated ID.
+     * Important: this now inserts duration_mins too.
+     */
     public Movie addMovie(Movie movie) {
-        String sql = "INSERT INTO movies (title, description, rating, genre, poster_path, trailer_path, status) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *";
+        String sql = "INSERT INTO movies " +
+                "(title, description, rating, genre, poster_path, trailer_path, status, duration_mins) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING *";
 
         return jdbcTemplate.queryForObject(
-            sql,
-            (rs, rowNum) -> new Movie(
-                rs.getLong("id"),
-                rs.getString("title"),
-                rs.getString("description"),
-                rs.getString("rating"),
-                rs.getString("genre"),
-                rs.getString("poster_path"),
-                rs.getString("trailer_path"),
-                rs.getString("status")
-            ),
-            movie.getTitle(),
-            movie.getDescription(),
-            movie.getRating(),
-            movie.getGenre(),
-            movie.getPosterPath(),
-            movie.getTrailerPath(),  
-            movie.getStatus()
+                sql,
+                movieRowMapper,
+                movie.getTitle(),
+                movie.getDescription(),
+                movie.getRating(),
+                movie.getGenre(),
+                movie.getPosterPath(),
+                movie.getTrailerPath(),
+                movie.getStatus(),
+                movie.getDurationMinutes()
         );
     }
 
-    // Delete a movie by ID, returns true if deleted, false if not found
+    /**
+     * Delete a movie by ID.
+     * Returns true if deleted, false if no matching movie was found.
+     */
     public boolean deleteMovie(Long id) {
         String sql = "DELETE FROM movies WHERE id = ?";
         int rowsAffected = jdbcTemplate.update(sql, id);
 
-        return rowsAffected > 0; // true if a row was deleted
+        return rowsAffected > 0;
     }
 }

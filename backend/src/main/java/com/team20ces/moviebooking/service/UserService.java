@@ -41,14 +41,15 @@ public class UserService {
 
         // Example existing movie (already in your database or in-memory list)
         Movie favoriteMovie = new Movie(
-            2L,
-            "The Dark Knight",
-            "Batman faces the Joker, a criminal mastermind causing chaos in Gotham City.",
-            "PG-13",
-            "Action",
-            "/posters/The_Dark_Knight.png",
-            "/trailers/Dark_Knight_Trailer.mp4",
-            "CURRENTLY_RUNNING"
+                2L,
+                "The Dark Knight",
+                "Batman faces the Joker, a criminal mastermind causing chaos in Gotham City.",
+                "PG-13",
+                "Action",
+                "/posters/The_Dark_Knight.png",
+                "/trailers/Dark_Knight_Trailer.mp4",
+                "CURRENTLY_RUNNING",
+                152
         );
 
         // Add the existing movie to the verified user's favorites
@@ -56,15 +57,15 @@ public class UserService {
 
         // Create three payment cards for the verified user (customerId = 2L)
         PaymentCard card1 = new PaymentCard(
-                1L,               // id
-                2L,               // customerId
-                "John Doe",       // cardholderName
+                1L, // id
+                2L, // customerId
+                "John Doe", // cardholderName
                 "4111111111111111", // encryptedCardNumber (fake 16-digit card number)
-                "123",            // encryptedCvv (fake 3-digit CVV)
-                "12/25",          // expirationDate
-                "1111",           // lastFour
-                "Visa",           // cardBrand
-                "123 Main St"     // billingAddress
+                "123", // encryptedCvv (fake 3-digit CVV)
+                "12/25", // expirationDate
+                "1111", // lastFour
+                "Visa", // cardBrand
+                "123 Main St" // billingAddress
         );
 
         PaymentCard card2 = new PaymentCard(
@@ -107,8 +108,8 @@ public class UserService {
 
     public Optional<User> findById(Long id) {
         return users.stream()
-                    .filter(u -> u.getId().equals(id))
-                    .findFirst();
+                .filter(u -> u.getId().equals(id))
+                .findFirst();
     }
 
     public Optional<User> findByUsername(String username) {
@@ -367,7 +368,8 @@ public class UserService {
         if (removed) {
             updateUser(user); // persist changes
 
-                }return removed;
+        }
+        return removed;
     }
 
     // Helper method to turn a User into a ProfileResponse
