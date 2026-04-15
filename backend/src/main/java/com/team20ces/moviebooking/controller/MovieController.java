@@ -28,7 +28,15 @@ public class MovieController {
      */
     @PostMapping
     public ResponseEntity<?> addMovie(@RequestBody Movie movie) {
-
+        System.out.println("==== MOVIE RECEIVED ====");
+        System.out.println("Title: " + movie.getTitle());
+        System.out.println("Description: " + movie.getDescription());
+        System.out.println("Rating: " + movie.getRating());
+        System.out.println("Genre: " + movie.getGenre());
+        System.out.println("Poster: " + movie.getPosterPath());
+        System.out.println("Trailer: " + movie.getTrailerPath());
+        System.out.println("Status: " + movie.getStatus());
+        System.out.println("Duration: " + movie.getDurationMinutes());
         // Check required text fields
         if (movie.getTitle() == null || movie.getTitle().isBlank() ||
             movie.getDescription() == null || movie.getDescription().isBlank() ||

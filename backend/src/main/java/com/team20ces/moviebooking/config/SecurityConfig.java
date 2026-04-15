@@ -26,7 +26,7 @@ public class SecurityConfig {
             .csrf().disable()
 
             // Endpoint authorization
-            .authorizeRequests()
+            .authorizeHttpRequests()
                 // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/movies/**").permitAll()
