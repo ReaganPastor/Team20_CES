@@ -141,14 +141,19 @@ function AddMovie() {
             />
 
             {errors.rating && <p className="error">{errors.rating}</p>}
-            <input
-              type="text"
-              name="rating"
-              placeholder="Rating"
-              value={form.rating}
-              onChange={handleChange}
-              className="centered-input"
-            />
+            <select
+                name="rating"
+                value={form.rating}
+                onChange={handleChange}
+                className="centered-input"
+              >
+                <option value="">Select Rating</option>
+                <option value="G">G</option>
+                <option value="PG">PG</option>
+                <option value="PG-13">PG-13</option>
+                <option value="R">R</option>
+                <option value="NC-17">NC-17</option>
+            </select>
 
             {errors.genre && <p className="error">{errors.genre}</p>}
             <input
@@ -179,14 +184,17 @@ function AddMovie() {
             />
 
             {errors.status && <p className="error">{errors.status}</p>}
-            <input
-              type="text"
+
+            <select
               name="status"
-              placeholder="Status"
               value={form.status}
               onChange={handleChange}
               className="centered-input"
-            />
+            >
+              <option value="">Select Status</option>
+              <option value="COMING_SOON">Coming Soon</option>
+              <option value="NOW_SHOWING">Now Showing</option>
+            </select>
 
             <div className="button-row horizontal-buttons">
               <button type="submit">Add Movie</button>
