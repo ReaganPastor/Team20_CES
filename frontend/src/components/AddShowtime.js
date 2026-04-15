@@ -7,15 +7,22 @@ function AddShowtime() {
     movieId: "",
     showroomId: "",
     date: "",
-    time: "",
+    startTime: "",
+    endTime: "",
   });
 
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
+
   const [movies, setMovies] = useState([]);
   const [showrooms, setShowrooms] = useState([]);
-  
-  // Fetch movies on component mount
+
+  const [startTimes, setStartTimes] = useState([]);
+  const [endTimes, setEndTimes] = useState([]);
+
+  // -------------------------
+  // FETCH MOVIES
+  // -------------------------
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -30,7 +37,9 @@ function AddShowtime() {
     fetchMovies();
   }, []);
 
-  // Fetch showrooms on component mount
+  // -------------------------
+  // FETCH SHOWROOMS
+  // -------------------------
   useEffect(() => {
     const fetchShowrooms = async () => {
       try {
@@ -38,42 +47,132 @@ function AddShowtime() {
         const data = await res.json();
         setShowrooms(data);
       } catch (err) {
-        console.error("Failed to fetch showrooms:", err);
+        console.error("Failed to load showrooms:", err);
       }
     };
 
     fetchShowrooms();
   }, []);
 
+  // -------------------------
+  // FETCH TIME OPTIONS
+  // -------------------------
+  useEffect(() => {
+    const fetchTimes = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/showtimes/time-options");
+        const data = await res.json();
+
+        setStartTimes(data.startTimes || []);
+        setEndTimes(data.endTimes || []);
+      } catch (err) {
+        console.error("Failed to load time options:", err);
+      }
+    };
+
+    fetchTimes();
+  }, []);
+
+  // -------------------------
+  // FETCH END TIMES BASED ON START TIME
+  // -------------------------
+  useEffect(() => {
+    const fetchEndTimes = async () => {
+      if (!form.startTime) {
+        setEndTimes([]);
+        setForm((prev) => ({ ...prev, endTime: "" }));
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `http://localhost:8080/showtimes/end-times?startTime=${form.startTime}`
+        );
+
+        const data = await res.json();
+        setEndTimes(data || []);
+
+        // reset invalid selection
+        setForm((prev) => ({ ...prev, endTime: "" }));
+      } catch (err) {
+        console.error("Failed to load end times:", err);
+      }
+    };
+
+    fetchEndTimes();
+  }, [form.startTime]);
+
+  // -------------------------
+  // HANDLE INPUT CHANGE
+  // -------------------------
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" });
     setMessage("");
   };
 
+  // -------------------------
+  // VALIDATION
+  // -------------------------
   const validate = () => {
     const newErrors = {};
 
     if (!form.movieId) newErrors.movieId = "Please select a movie";
-    if (!form.date) newErrors.date = "Please pick a date";
-    if (!form.time) newErrors.time = "Please pick a time";
     if (!form.showroomId) newErrors.showroomId = "Please select a showroom";
+    if (!form.date) newErrors.date = "Please pick a date";
+    if (!form.startTime) newErrors.startTime = "Please pick a start time";
+    if (!form.endTime) newErrors.endTime = "Please pick an end time";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  // -------------------------
+  // SUBMIT
+  // -------------------------
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validate()) return;
 
-    setMessage("Showtime scheduled successfully");
+    try {
+      const res = await fetch("http://localhost:8080/showtimes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to create showtime");
+      }
+
+      setMessage("Showtime scheduled successfully!");
+
+      setForm({
+        movieId: "",
+        showroomId: "",
+        date: "",
+        startTime: "",
+        endTime: "",
+      });
+
+      setErrors({});
+    } catch (err) {
+      setMessage(`Error: ${err.message}`);
+    }
   };
 
+  // -------------------------
+  // UI
+  // -------------------------
   return (
     <div>
       <Navigation />
+
       <div className="login-page">
         <div className="login-card">
           <h2>Schedule Showtime</h2>
@@ -81,7 +180,8 @@ function AddShowtime() {
           {message && <p className="success">{message}</p>}
 
           <form onSubmit={handleSubmit}>
-            {errors.movie && <p className="error">{errors.movie}</p>}
+            {/* MOVIE */}
+            {errors.movieId && <p className="error">{errors.movieId}</p>}
             <select
               name="movieId"
               value={form.movieId}
@@ -89,7 +189,6 @@ function AddShowtime() {
               className="centered-input"
             >
               <option value="">Select Movie</option>
-
               {movies.map((movie) => (
                 <option key={movie.id} value={movie.id}>
                   {movie.title}
@@ -97,6 +196,23 @@ function AddShowtime() {
               ))}
             </select>
 
+            {/* SHOWROOM */}
+            {errors.showroomId && <p className="error">{errors.showroomId}</p>}
+            <select
+              name="showroomId"
+              value={form.showroomId}
+              onChange={handleChange}
+              className="centered-input"
+            >
+              <option value="">Select Showroom</option>
+              {showrooms.map((room) => (
+                <option key={room.id} value={room.id}>
+                  Room {room.showroomNumber} ({room.screenType})
+                </option>
+              ))}
+            </select>
+
+            {/* DATE */}
             {errors.date && <p className="error">{errors.date}</p>}
             <input
               type="date"
@@ -106,31 +222,40 @@ function AddShowtime() {
               className="centered-input"
             />
 
-            {errors.time && <p className="error">{errors.time}</p>}
-            <input
-              type="time"
-              name="time"
-              value={form.time}
-              onChange={handleChange}
-              className="centered-input"
-            />
-
-            {errors.showroom && <p className="error">{errors.showroom}</p>}
+            {/* START TIME */}
+            {errors.startTime && <p className="error">{errors.startTime}</p>}
             <select
-              name="showroomId"
-              value={form.showroomId}
+              name="startTime"
+              value={form.startTime}
               onChange={handleChange}
               className="centered-input"
             >
-              <option value="">Select Showroom</option>
-
-              {showrooms.map((room) => (
-                <option key={room.id} value={room.id}>
-                  Room {room.showroomNumber} ({room.screenType})
+              <option value="">Select Start Time</option>
+              {startTimes.map((t) => (
+                <option key={t} value={t}>
+                  {t}
                 </option>
               ))}
             </select>
 
+            {/* END TIME */}
+            {errors.endTime && <p className="error">{errors.endTime}</p>}
+            <select
+              name="endTime"
+              value={form.endTime}
+              onChange={handleChange}
+              className="centered-input"
+              disabled={!form.startTime}
+            >
+              <option value="">Select End Time</option>
+              {endTimes.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+
+            {/* BUTTON */}
             <div className="button-row horizontal-buttons">
               <button type="submit">Add Showtime</button>
             </div>
