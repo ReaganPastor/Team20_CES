@@ -73,7 +73,7 @@ public class Movie {
      * This lets JSON return "duration_mins" to the frontend
      * even though the Java field is named durationMinutes.
      */
-    @JsonProperty("duration_mins")
+    //@JsonProperty("duration_mins")
     public int getDurationMinutes() {
         return durationMinutes;
     }
@@ -113,7 +113,7 @@ public class Movie {
         this.description = description;
     }
 
-    @JsonProperty("duration_mins")
+    //@JsonProperty("duration_mins")
     public void setDurationMinutes(int durationMinutes) {
         this.durationMinutes = durationMinutes;
     }
@@ -126,10 +126,12 @@ public class Movie {
         this.genre = genre;
     }
 
+    @JsonProperty("poster_path")
     public void setPosterPath(String posterPath) {
         this.poster_path = posterPath;
     }
 
+    @JsonProperty("trailer_path")
     public void setTrailerPath(String trailerPath) {
         this.trailer_path = trailerPath;
     }

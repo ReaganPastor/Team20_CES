@@ -35,38 +35,54 @@ const Login = () => {
     setError("");
     setSuccess("");
 
+    // Make sure both fields are filled in
     if (!username.trim() || !password.trim()) {
       setError("Please fill in all fields");
       return;
     }
 
     try {
+      // Send login request to backend
       const res = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: username.trim(), password: password.trim() }),
-        credentials: "include",
+        body: JSON.stringify({
+          username: username.trim(),
+          password: password.trim(),
+        }),
       });
 
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        setError("Invalid server response");
-        return;
-      }
+      // Convert response into JSON
+      const data = await res.json();
 
+      // Helpful debug line so you can see what backend returned
+      console.log("Login response:", data);
+
+      // If backend says login failed, show backend error
       if (!res.ok) {
         setError(data.error || "Login failed");
         return;
       }
 
-      // STORE AUTH DATA HERE
-      if (data.role) {
-        localStorage.setItem("role", data.role);
+      // Try both possible names for the user ID
+      // Backend currently uses "id", but this also supports "userId"
+      const userId = data.id ?? data.userId ?? "";
+
+      // Store login/session info in localStorage
+      localStorage.setItem("username", data.username || username.trim());
+      localStorage.setItem("role", data.role || "");
+      localStorage.setItem("token", data.token || "");
+
+      // Only store userId if it exists
+      // This prevents login from crashing if it comes back missing
+      if (userId !== "") {
+        localStorage.setItem("userId", String(userId));
+      } else {
+        console.warn("Login response did not include user ID");
+        localStorage.removeItem("userId");
       }
 
-      // Save credentials if Remember Me is checked
+      // Remember login info if box is checked
       if (rememberMe) {
         localStorage.setItem(
           "rememberedUser",
@@ -76,11 +92,9 @@ const Login = () => {
         localStorage.removeItem("rememberedUser");
       }
 
+      // Show success message and redirect
       setSuccess("Login successful! Redirecting...");
-
-      setTimeout(() => {
-        navigate("/homepage");
-      }, 1000);
+      setTimeout(() => navigate("/homepage"), 1000);
     } catch (err) {
       console.error(err);
       setError("Server error. Please try again later.");
@@ -94,9 +108,11 @@ const Login = () => {
         <div className="login-card">
           <h1>Login</h1>
 
+          {/* Show messages if there is an error or success */}
           {error && <div className="error">{error}</div>}
           {success && <div className="success">{success}</div>}
 
+          {/* Username input */}
           <input
             type="text"
             placeholder="Username"
@@ -105,6 +121,7 @@ const Login = () => {
             className="centered-input"
           />
 
+          {/* Password input */}
           <input
             type="password"
             placeholder="Password"
@@ -113,6 +130,7 @@ const Login = () => {
             className="centered-input"
           />
 
+          {/* Remember me + forgot password row */}
           <div className="options-row">
             <label>
               <input
@@ -131,12 +149,14 @@ const Login = () => {
             </span>
           </div>
 
+          {/* Login / Sign Up buttons */}
           <div className="button-row horizontal-buttons">
             <button onClick={handleLogin}>Login</button>
             <button onClick={() => navigate("/signup")}>Sign Up</button>
           </div>
         </div>
 
+        {/* Forgot password popup */}
         <ForgotPasswordModal
           isOpen={showModal}
           onClose={() => setShowModal(false)}

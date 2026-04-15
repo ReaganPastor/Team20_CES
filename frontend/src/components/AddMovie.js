@@ -8,9 +8,10 @@ function AddMovie() {
     description: "",
     rating: "",
     genre: "",
-    posterPath: "",
-    trailerPath: "",
+    poster_path: "",
+    trailer_path: "",
     status: "",
+    durationMinutes: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -35,13 +36,70 @@ function AddMovie() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const newErrors = {};
+
+    // run your existing validation first
     if (!validate()) return;
 
-    setMessage("Movie added successfully");
+    // convert to number
+    const duration = Number(form.durationMinutes);
+
+    // validate duration
+    if (!form.durationMinutes || isNaN(duration) || duration <= 0) {
+      newErrors.durationMinutes = "Duration must be a number greater than 0";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors({ ...errors, ...newErrors });
+      return;
+    }
+
+    const movieToSend = {
+      ...form,
+      durationMinutes: duration, // now a real int
+    };
+
+    try {
+      const response = await fetch("http://localhost:8080/movies", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(movieToSend),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
+
+      const data = await response.json();
+
+      setMessage("Movie added successfully!");
+      console.log("Saved movie:", data);
+
+      // reset form
+      setForm({
+        title: "",
+        description: "",
+        rating: "",
+        genre: "",
+        poster_path: "",
+        trailer_path: "",
+        status: "",
+        durationMinutes: "",
+      });
+
+      setErrors({});
+    } catch (err) {
+      setMessage(`Error: ${err.message}`);
+    }
   };
+
+  
 
   return (
     <div>
@@ -73,15 +131,29 @@ function AddMovie() {
               className="centered-input"
             />
 
-            {errors.rating && <p className="error">{errors.rating}</p>}
             <input
-              type="text"
-              name="rating"
-              placeholder="Rating"
-              value={form.rating}
+              type="number"
+              name="durationMinutes"
+              placeholder="Duration (minutes)"
+              value={form.durationMinutes}
               onChange={handleChange}
               className="centered-input"
             />
+
+            {errors.rating && <p className="error">{errors.rating}</p>}
+            <select
+                name="rating"
+                value={form.rating}
+                onChange={handleChange}
+                className="centered-input"
+              >
+                <option value="">Select Rating</option>
+                <option value="G">G</option>
+                <option value="PG">PG</option>
+                <option value="PG-13">PG-13</option>
+                <option value="R">R</option>
+                <option value="NC-17">NC-17</option>
+            </select>
 
             {errors.genre && <p className="error">{errors.genre}</p>}
             <input
@@ -95,31 +167,34 @@ function AddMovie() {
 
             <input
               type="text"
-              name="posterPath"
+              name="poster_path"
               placeholder="Poster Path"
-              value={form.posterPath}
+              value={form.poster_path}
               onChange={handleChange}
               className="centered-input"
             />
 
             <input
               type="text"
-              name="trailerPath"
+              name="trailer_path"
               placeholder="Trailer Path"
-              value={form.trailerPath}
+              value={form.trailer_path}
               onChange={handleChange}
               className="centered-input"
             />
 
             {errors.status && <p className="error">{errors.status}</p>}
-            <input
-              type="text"
+
+            <select
               name="status"
-              placeholder="Status"
               value={form.status}
               onChange={handleChange}
               className="centered-input"
-            />
+            >
+              <option value="">Select Status</option>
+              <option value="COMING_SOON">Coming Soon</option>
+              <option value="NOW_SHOWING">Now Showing</option>
+            </select>
 
             <div className="button-row horizontal-buttons">
               <button type="submit">Add Movie</button>
