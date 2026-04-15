@@ -8,6 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 /**
  * Controller for showtime endpoints.
@@ -88,5 +89,11 @@ public class ShowtimeController {
                 new ApiResponse<>(false, "Database conflict while creating showtime", null)
             );
         }
+    }
+
+    @GetMapping("/showroom/{showroomId}")
+    public ResponseEntity<List<ShowtimeResponse>> getShowtimesByShowroom(
+            @PathVariable Long showroomId) {
+        return ResponseEntity.ok(showtimeService.getShowtimesByShowroom(showroomId));
     }
 }

@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .requestMatchers("/movies/**").permitAll()
                 .requestMatchers("/profile/**").permitAll()
                 .requestMatchers("/showrooms/**").permitAll()
+                .requestMatchers("/showtimes/**").permitAll()
                 // Only authenticated users with ROLE_USER can add cards
                 .requestMatchers("/api/users/*/cards").hasRole("USER")
                 // Everything else requires authentication

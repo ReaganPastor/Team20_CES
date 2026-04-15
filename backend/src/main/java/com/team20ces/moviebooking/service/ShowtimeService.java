@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalTime;
+import java.util.List;
 
 /**
  * Service layer for showtime-related database operations.
@@ -127,5 +128,36 @@ public class ShowtimeService {
             startTime,
             endTime
         );
+    }
+
+    public List<ShowtimeResponse> getShowtimesByShowroom(Long showroomId) {
+
+        String sql = """
+            SELECT id, movie_id, showroom_id, show_date, start_time, end_time
+            FROM shows
+            WHERE showroom_id = ?
+            ORDER BY show_date, start_time
+        """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+
+            Long movieId = rs.getLong("movie_id");
+
+            String movieTitle = jdbcTemplate.queryForObject(
+                "SELECT title FROM movies WHERE id = ?",
+                String.class,
+                movieId
+            );
+
+            return new ShowtimeResponse(
+                rs.getLong("id"),
+                movieId,
+                movieTitle,
+                rs.getLong("showroom_id"),
+                rs.getDate("show_date").toString(),
+                rs.getTime("start_time").toString(),
+                rs.getTime("end_time").toString()
+            );
+        }, showroomId);
     }
 }
