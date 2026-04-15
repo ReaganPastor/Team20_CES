@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navigation from "./Navigation";
 import "./Login.css";
 
@@ -12,6 +12,21 @@ function AddShowtime() {
 
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/movies");
+        const data = await res.json();
+        setMovies(data);
+      } catch (err) {
+        console.error("Failed to load movies:", err);
+      }
+    };
+
+    fetchMovies();
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -50,14 +65,21 @@ function AddShowtime() {
 
           <form onSubmit={handleSubmit}>
             {errors.movie && <p className="error">{errors.movie}</p>}
-            <input
-              type="text"
+
+            <select
               name="movie"
-              placeholder="Select Movie"
               value={form.movie}
               onChange={handleChange}
               className="centered-input"
-            />
+            >
+              <option value="">Select a Movie</option>
+
+              {movies.map((movie) => (
+                <option key={movie.id} value={movie.id}>
+                  {movie.title}
+                </option>
+              ))}
+            </select>
 
             {errors.date && <p className="error">{errors.date}</p>}
             <input
