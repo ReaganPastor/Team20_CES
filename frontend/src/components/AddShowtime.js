@@ -54,10 +54,10 @@ function AddShowtime() {
   const validate = () => {
     const newErrors = {};
 
-    if (!form.movie.trim()) newErrors.movie = "Please select a movie";
-    if (!form.date.trim()) newErrors.date = "Please pick a date";
-    if (!form.time.trim()) newErrors.time = "Please pick a time";
-    if (!form.showroom.trim()) newErrors.showroom = "Please select a showroom";
+    if (!form.movieId) newErrors.movieId = "Please select a movie";
+    if (!form.date) newErrors.date = "Please pick a date";
+    if (!form.time) newErrors.time = "Please pick a time";
+    if (!form.showroomId) newErrors.showroomId = "Please select a showroom";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
