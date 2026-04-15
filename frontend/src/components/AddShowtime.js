@@ -4,16 +4,18 @@ import "./Login.css";
 
 function AddShowtime() {
   const [form, setForm] = useState({
-    movie: "",
+    movieId: "",
+    showroomId: "",
     date: "",
     time: "",
-    showroom: "",
   });
 
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
   const [movies, setMovies] = useState([]);
-
+  const [showrooms, setShowrooms] = useState([]);
+  
+  // Fetch movies on component mount
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -26,6 +28,21 @@ function AddShowtime() {
     };
 
     fetchMovies();
+  }, []);
+
+  // Fetch showrooms on component mount
+  useEffect(() => {
+    const fetchShowrooms = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/showrooms");
+        const data = await res.json();
+        setShowrooms(data);
+      } catch (err) {
+        console.error("Failed to fetch showrooms:", err);
+      }
+    };
+
+    fetchShowrooms();
   }, []);
 
   const handleChange = (e) => {
@@ -65,14 +82,13 @@ function AddShowtime() {
 
           <form onSubmit={handleSubmit}>
             {errors.movie && <p className="error">{errors.movie}</p>}
-
             <select
-              name="movie"
-              value={form.movie}
+              name="movieId"
+              value={form.movieId}
               onChange={handleChange}
               className="centered-input"
             >
-              <option value="">Select a Movie</option>
+              <option value="">Select Movie</option>
 
               {movies.map((movie) => (
                 <option key={movie.id} value={movie.id}>
@@ -100,14 +116,20 @@ function AddShowtime() {
             />
 
             {errors.showroom && <p className="error">{errors.showroom}</p>}
-            <input
-              type="text"
-              name="showroom"
-              placeholder="Select Showroom"
-              value={form.showroom}
+            <select
+              name="showroomId"
+              value={form.showroomId}
               onChange={handleChange}
               className="centered-input"
-            />
+            >
+              <option value="">Select Showroom</option>
+
+              {showrooms.map((room) => (
+                <option key={room.id} value={room.id}>
+                  Room {room.showroomNumber} ({room.screenType})
+                </option>
+              ))}
+            </select>
 
             <div className="button-row horizontal-buttons">
               <button type="submit">Add Showtime</button>
