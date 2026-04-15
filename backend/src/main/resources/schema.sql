@@ -1,4 +1,11 @@
+-- =========================================
+-- SCHEMA.SQL FOR CINEMA E-BOOKING SYSTEM
+-- Deliverable 6 / Sprint 3
+-- =========================================
+
 -- Drop tables in dependency order
+DROP TABLE IF EXISTS password_reset_tokens CASCADE;
+DROP TABLE IF EXISTS email_verification_tokens CASCADE;
 DROP TABLE IF EXISTS recommendations CASCADE;
 DROP TABLE IF EXISTS preferences CASCADE;
 DROP TABLE IF EXISTS tickets CASCADE;
@@ -17,7 +24,7 @@ DROP TABLE IF EXISTS movies CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
 -- =========================================
--- USERS / CUSTOMER / ADMIN
+-- USERS / CUSTOMERS / ADMINS
 -- =========================================
 
 CREATE TABLE users (
@@ -102,12 +109,12 @@ CREATE TABLE showrooms (
 );
 
 CREATE TABLE seats (
-    id             BIGSERIAL PRIMARY KEY,
-    showroom_id     BIGINT NOT NULL,
-    seat_row        VARCHAR(5) NOT NULL,
-    seat_number     INT NOT NULL,
-    seat_type       VARCHAR(20) NOT NULL,
-    is_accessible   BOOLEAN NOT NULL DEFAULT FALSE,
+    id              BIGSERIAL PRIMARY KEY,
+    showroom_id      BIGINT NOT NULL,
+    seat_row         VARCHAR(5) NOT NULL,
+    seat_number      INT NOT NULL,
+    seat_type        VARCHAR(20) NOT NULL,
+    is_accessible    BOOLEAN NOT NULL DEFAULT FALSE,
 
     CONSTRAINT fk_seats_showroom
         FOREIGN KEY (showroom_id) REFERENCES showrooms(id)
@@ -174,7 +181,7 @@ CREATE TABLE show_seats (
 -- =========================================
 
 CREATE TABLE ticket_prices (
-    id            BIGSERIAL PRIMARY KEY,
+    id             BIGSERIAL PRIMARY KEY,
     ticket_type    VARCHAR(20) NOT NULL,
     price          DECIMAL(6,2) NOT NULL,
     description    VARCHAR(100),
@@ -210,7 +217,7 @@ CREATE TABLE promotions (
 -- =========================================
 
 CREATE TABLE addresses (
-    id            BIGSERIAL PRIMARY KEY,
+    id             BIGSERIAL PRIMARY KEY,
     customer_id    BIGINT NOT NULL UNIQUE,
     street         VARCHAR(255) NOT NULL,
     city           VARCHAR(100) NOT NULL,
@@ -249,6 +256,7 @@ CREATE TABLE bookings (
     id              BIGSERIAL PRIMARY KEY,
     customer_id      BIGINT NOT NULL,
     movie_id         BIGINT NOT NULL,
+    show_id          BIGINT NOT NULL,
     promotion_id     BIGINT,
     booking_date     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     total_amount     DECIMAL(8,2) NOT NULL,
@@ -260,6 +268,10 @@ CREATE TABLE bookings (
 
     CONSTRAINT fk_bookings_movie
         FOREIGN KEY (movie_id) REFERENCES movies(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_bookings_show
+        FOREIGN KEY (show_id) REFERENCES shows(id)
         ON DELETE CASCADE,
 
     CONSTRAINT fk_bookings_promotion
@@ -305,7 +317,7 @@ CREATE TABLE tickets (
 -- =========================================
 
 CREATE TABLE preferences (
-    id            BIGSERIAL PRIMARY KEY,
+    id             BIGSERIAL PRIMARY KEY,
     customer_id    BIGINT NOT NULL,
     movie_id       BIGINT NOT NULL,
 
@@ -323,9 +335,9 @@ CREATE TABLE preferences (
 
 CREATE TABLE recommendations (
     id               BIGSERIAL PRIMARY KEY,
-    customer_id       BIGINT NOT NULL,
-    movie_id          BIGINT NOT NULL,
-    recommended_on    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    customer_id      BIGINT NOT NULL,
+    movie_id         BIGINT NOT NULL,
+    recommended_on   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_recommendations_customer
         FOREIGN KEY (customer_id) REFERENCES customers(id)
@@ -339,29 +351,27 @@ CREATE TABLE recommendations (
 -- =========================================
 -- EMAIL VERIFICATION TOKENS
 -- =========================================
+
 CREATE TABLE email_verification_tokens (
     id            BIGSERIAL PRIMARY KEY,
-    user_id        BIGINT NOT NULL,
-    token          VARCHAR(255) NOT NULL UNIQUE,
-    expires_at     TIMESTAMP NOT NULL,
-    used           BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    user_id       BIGINT NOT NULL,
+    token         VARCHAR(255) NOT NULL UNIQUE,
+    expires_at    TIMESTAMP NOT NULL,
+    used          BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_email_verification_tokens_user
         FOREIGN KEY (user_id) REFERENCES users(id)
         ON DELETE CASCADE
 );
 
--- =========================================
--- PASSWORD RESET TOKENS
--- =========================================
 CREATE TABLE password_reset_tokens (
     id            BIGSERIAL PRIMARY KEY,
-    user_id        BIGINT NOT NULL,
-    token          VARCHAR(255) NOT NULL UNIQUE,
-    expires_at     TIMESTAMP NOT NULL,
-    used           BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    user_id       BIGINT NOT NULL,
+    token         VARCHAR(255) NOT NULL UNIQUE,
+    expires_at    TIMESTAMP NOT NULL,
+    used          BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_password_reset_tokens_user
         FOREIGN KEY (user_id) REFERENCES users(id)
@@ -369,19 +379,11 @@ CREATE TABLE password_reset_tokens (
 );
 
 -- =========================================
--- INDEXES FOR TOKEN TABLES
--- =========================================
-CREATE INDEX idx_email_verification_tokens_user_id
-    ON email_verification_tokens(user_id);
-
-CREATE INDEX idx_password_reset_tokens_user_id
-    ON password_reset_tokens(user_id);
-
--- =========================================
 -- INDEXES
 -- =========================================
 
 CREATE INDEX idx_users_email ON users(email);
+
 CREATE INDEX idx_movies_status ON movies(status);
 CREATE INDEX idx_movies_genre ON movies(genre);
 CREATE INDEX idx_movies_title_lower ON movies ((LOWER(title)));
@@ -396,6 +398,8 @@ CREATE INDEX idx_show_seats_show_id ON show_seats(show_id);
 
 CREATE INDEX idx_bookings_customer_id ON bookings(customer_id);
 CREATE INDEX idx_bookings_movie_id ON bookings(movie_id);
+CREATE INDEX idx_bookings_show_id ON bookings(show_id);
+
 CREATE INDEX idx_tickets_booking_id ON tickets(booking_id);
 
 CREATE INDEX idx_preferences_customer_id ON preferences(customer_id);
@@ -403,3 +407,9 @@ CREATE INDEX idx_preferences_movie_id ON preferences(movie_id);
 
 CREATE INDEX idx_recommendations_customer_id ON recommendations(customer_id);
 CREATE INDEX idx_recommendations_movie_id ON recommendations(movie_id);
+
+CREATE INDEX idx_email_verification_tokens_user_id
+    ON email_verification_tokens(user_id);
+
+CREATE INDEX idx_password_reset_tokens_user_id
+    ON password_reset_tokens(user_id);

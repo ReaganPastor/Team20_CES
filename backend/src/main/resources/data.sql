@@ -1,7 +1,8 @@
 -- =========================================
 -- DATA.SQL FOR CINEMA E-BOOKING SYSTEM
--- Sample data for users, movies, showtimes, bookings, and more
--- This file is intended to populate the database with realistic demo data
+-- Deliverable 6 / Sprint 3
+-- Clean demo data for admin movie management,
+-- showtime scheduling, and user booking flow
 -- =========================================
 
 -- =========================================
@@ -36,7 +37,6 @@ VALUES
 
 -- =========================================
 -- MOVIES
--- Updated from your original movie seed data
 -- =========================================
 INSERT INTO movies (
     title, description, rating, genre, duration_mins,
@@ -105,6 +105,7 @@ VALUES
 
 -- =========================================
 -- SHOWROOMS
+-- At least 3 showrooms required
 -- =========================================
 INSERT INTO showrooms (showroom_number, capacity, screen_type)
 VALUES
@@ -186,54 +187,55 @@ VALUES
 
 -- =========================================
 -- SHOWS
--- 2 shows per movie for demo
--- showrooms rotate between 1, 2, and 3
+-- Meaningful demo data for showtime scheduling
+-- Conflict prevention is enforced by:
+-- UNIQUE (showroom_id, show_date, start_time)
 -- =========================================
 INSERT INTO shows (movie_id, showroom_id, show_date, start_time, end_time)
 VALUES
 -- Interstellar
-(1, 1, '2026-03-27', '14:00', '16:49'),
-(1, 2, '2026-03-28', '18:00', '20:49'),
+(1, 1, '2026-04-20', '14:00', '16:49'),
+(1, 2, '2026-04-21', '18:00', '20:49'),
 
 -- The Dark Knight
-(2, 2, '2026-03-27', '15:00', '17:32'),
-(2, 3, '2026-03-28', '19:00', '21:32'),
+(2, 2, '2026-04-20', '15:00', '17:32'),
+(2, 3, '2026-04-21', '19:00', '21:32'),
 
 -- Jaws
-(3, 3, '2026-03-27', '13:00', '15:04'),
-(3, 1, '2026-03-28', '17:00', '19:04'),
+(3, 3, '2026-04-20', '13:00', '15:04'),
+(3, 1, '2026-04-21', '17:00', '19:04'),
 
 -- Titanic
-(4, 1, '2026-03-27', '16:00', '19:15'),
-(4, 2, '2026-03-28', '20:00', '23:15'),
+(4, 1, '2026-04-20', '16:00', '19:15'),
+(4, 2, '2026-04-21', '20:00', '23:15'),
 
 -- The Matrix
-(5, 2, '2026-03-27', '14:30', '16:46'),
-(5, 3, '2026-03-28', '18:30', '20:46'),
+(5, 2, '2026-04-20', '14:30', '16:46'),
+(5, 3, '2026-04-21', '18:30', '20:46'),
 
 -- Avengers: Endgame
-(6, 3, '2026-03-29', '15:00', '18:01'),
-(6, 1, '2026-03-30', '19:00', '22:01'),
+(6, 3, '2026-04-22', '15:00', '18:01'),
+(6, 1, '2026-04-23', '19:00', '22:01'),
 
 -- Dirty Dancing
-(7, 1, '2026-03-29', '13:00', '14:40'),
-(7, 2, '2026-03-30', '17:00', '18:40'),
+(7, 1, '2026-04-22', '13:00', '14:40'),
+(7, 2, '2026-04-23', '17:00', '18:40'),
 
 -- The Lion King
-(8, 2, '2026-03-29', '12:00', '13:28'),
-(8, 3, '2026-03-30', '16:00', '17:28'),
+(8, 2, '2026-04-22', '12:00', '13:28'),
+(8, 3, '2026-04-23', '16:00', '17:28'),
 
 -- Cinderella
-(9, 3, '2026-03-29', '11:00', '12:15'),
-(9, 1, '2026-03-30', '15:00', '16:15'),
+(9, 3, '2026-04-22', '11:00', '12:15'),
+(9, 1, '2026-04-23', '15:00', '16:15'),
 
 -- Cars
-(10, 1, '2026-03-29', '14:00', '15:57'),
-(10, 2, '2026-03-30', '18:00', '19:57');
+(10, 1, '2026-04-22', '14:00', '15:57'),
+(10, 2, '2026-04-23', '18:00', '19:57');
 
 -- =========================================
 -- SHOW_SEATS
--- Create a show_seat for every seat in the correct showroom for every show
+-- One record per seat per show
 -- =========================================
 INSERT INTO show_seats (show_id, seat_id, is_reserved, reservation_status)
 SELECT
@@ -245,7 +247,7 @@ FROM shows sh
 JOIN seats se
     ON sh.showroom_id = se.showroom_id;
 
--- Mark a few seats as reserved/held for demo purposes
+-- Seed some unavailable seats for seat-map demo
 UPDATE show_seats SET is_reserved = TRUE, reservation_status = 'RESERVED' WHERE show_id = 1 AND seat_id IN (1, 2, 3);
 UPDATE show_seats SET is_reserved = TRUE, reservation_status = 'RESERVED' WHERE show_id = 2 AND seat_id IN (21, 22);
 UPDATE show_seats SET is_reserved = TRUE, reservation_status = 'RESERVED' WHERE show_id = 3 AND seat_id IN (41, 42, 43);
@@ -269,13 +271,12 @@ VALUES
 -- =========================================
 INSERT INTO promotions (promo_code, promotion_type, discount_value, start_date, end_date, is_active)
 VALUES
-('SAVE10', 'PERCENT', 10.00, '2026-03-01', '2026-03-31', TRUE),
-('WELCOME5', 'FIXED', 5.00, '2026-03-01', '2026-04-15', TRUE),
-('SPRING15', 'PERCENT', 15.00, '2026-03-20', '2026-04-05', TRUE);
+('SAVE10', 'PERCENT', 10.00, '2026-04-01', '2026-04-30', TRUE),
+('WELCOME5', 'FIXED', 5.00, '2026-04-01', '2026-05-15', TRUE),
+('SPRING15', 'PERCENT', 15.00, '2026-04-15', '2026-05-05', TRUE);
 
 -- =========================================
 -- ADDRESSES
--- One address max per customer
 -- =========================================
 INSERT INTO addresses (customer_id, street, city, state, zip_code)
 VALUES
@@ -285,55 +286,52 @@ VALUES
 
 -- =========================================
 -- PAYMENT CARDS
--- Encrypted values are placeholders for demo
 -- =========================================
 INSERT INTO payment_cards (
     customer_id, cardholder_name, encrypted_card_number, encrypted_cvv,
     expiration_date, last_four, card_brand, billing_address
 )
 VALUES
-(1, 'John Doe',    'enc_card_1_abc123', 'enc_cvv_1_xyz', '12/27', '4242', 'VISA',       '123 Peachtree St'),
-(1, 'John Doe',    'enc_card_2_def456', 'enc_cvv_2_xyz', '08/28', '1111', 'MASTERCARD', '123 Peachtree St'),
-(1, 'John Doe',    'enc_card_3_pqr345', 'enc_cvv_3_xyz', '09/30', '5555', 'AMEX', '123 Peachtree St'),
-(2, 'Jane Smith',  'enc_card_4_ghi789', 'enc_cvv_4_xyz', '11/26', '2222', 'VISA',       '456 Oak Lane'),
-(3, 'Michael Brown','enc_card_5_jkl012','enc_cvv_5_xyz', '09/29', '3333', 'AMEX',       '789 Pine Ave');
+(1, 'John Doe',     'enc_card_1_abc123', 'enc_cvv_1_xyz', '12/27', '4242', 'VISA',       '123 Peachtree St'),
+(1, 'John Doe',     'enc_card_2_def456', 'enc_cvv_2_xyz', '08/28', '1111', 'MASTERCARD', '123 Peachtree St'),
+(1, 'John Doe',     'enc_card_3_pqr345', 'enc_cvv_3_xyz', '09/30', '5555', 'AMEX',       '123 Peachtree St'),
+(2, 'Jane Smith',   'enc_card_4_ghi789', 'enc_cvv_4_xyz', '11/26', '2222', 'VISA',       '456 Oak Lane'),
+(3, 'Michael Brown','enc_card_5_jkl012', 'enc_cvv_5_xyz', '09/29', '3333', 'AMEX',       '789 Pine Ave');
 
 -- =========================================
 -- BOOKINGS
+-- IMPORTANT: bookings now link to a specific show
 -- =========================================
-INSERT INTO bookings (customer_id, movie_id, promotion_id, booking_date, total_amount, booking_status)
+INSERT INTO bookings (customer_id, movie_id, show_id, promotion_id, booking_date, total_amount, booking_status)
 VALUES
-(1, 1, 1, '2026-03-25 10:15:00', 25.98, 'CONFIRMED'),
-(2, 2, 2, '2026-03-25 11:00:00', 20.98, 'CONFIRMED'),
-(3, 4, NULL, '2026-03-25 12:30:00', 38.97, 'PENDING'),
-(1, 5, 3, '2026-03-26 09:45:00', 12.99, 'CONFIRMED');
+(1, 1, 1, 1, '2026-04-18 10:15:00', 25.98, 'CONFIRMED'),
+(2, 2, 3, 2, '2026-04-18 11:00:00', 22.98, 'CONFIRMED'),
+(3, 4, 7, NULL, '2026-04-18 12:30:00', 34.97, 'PENDING'),
+(1, 5, 9, 3, '2026-04-19 09:45:00', 12.99, 'CONFIRMED');
 
 -- =========================================
 -- TICKETS
 -- Each ticket reserves one show_seat
--- show_seat ids below are chosen from rows that already exist
 -- =========================================
 INSERT INTO tickets (booking_id, show_seat_id, ticket_price_id, ticket_type, price_paid)
 VALUES
--- Booking 1: Interstellar, show 1, seats 1 and 2
+-- Booking 1: Interstellar, show 1
 (1, 1, 1, 'ADULT', 12.99),
 (1, 2, 1, 'ADULT', 12.99),
 
--- Booking 2: The Dark Knight, show 3, seats 41 and 42
+-- Booking 2: The Dark Knight, show 3
 (2, 41, 1, 'ADULT', 12.99),
 (2, 42, 3, 'SENIOR', 9.99),
 
--- Booking 3: Titanic, show 7, seats 121, 122, 123
+-- Booking 3: Titanic, show 7
 (3, 121, 1, 'ADULT', 12.99),
 (3, 122, 1, 'ADULT', 12.99),
 (3, 123, 2, 'CHILD', 8.99),
 
--- Booking 4: The Matrix, show 9, seat 161
+-- Booking 4: The Matrix, show 9
 (4, 161, 1, 'ADULT', 12.99);
 
--- =========================================
--- Sync ticketed seats to RESERVED
--- =========================================
+-- Keep ticketed seats synchronized as RESERVED
 UPDATE show_seats
 SET is_reserved = TRUE,
     reservation_status = 'RESERVED'
@@ -341,7 +339,6 @@ WHERE id IN (1, 2, 41, 42, 121, 122, 123, 161);
 
 -- =========================================
 -- PREFERENCES
--- Fixes missing Preference relationship from professor feedback
 -- =========================================
 INSERT INTO preferences (customer_id, movie_id)
 VALUES
@@ -359,27 +356,27 @@ VALUES
 -- =========================================
 INSERT INTO recommendations (customer_id, movie_id, recommended_on)
 VALUES
-(1, 6, '2026-03-25 08:00:00'),
-(1, 8, '2026-03-25 08:05:00'),
-(2, 1, '2026-03-25 08:10:00'),
-(2, 5, '2026-03-25 08:15:00'),
-(3, 7, '2026-03-25 08:20:00'),
-(4, 9, '2026-03-25 08:25:00');
+(1, 6, '2026-04-18 08:00:00'),
+(1, 8, '2026-04-18 08:05:00'),
+(2, 1, '2026-04-18 08:10:00'),
+(2, 5, '2026-04-18 08:15:00'),
+(3, 7, '2026-04-18 08:20:00'),
+(4, 9, '2026-04-18 08:25:00');
 
 -- =========================================
 -- EMAIL VERIFICATION TOKENS
 -- =========================================
 INSERT INTO email_verification_tokens (user_id, token, expires_at, used, created_at)
 VALUES
-(1, 'verify-token-john-123', '2026-03-27 23:59:59', TRUE,  '2026-03-25 09:00:00'),
-(2, 'verify-token-jane-456', '2026-03-27 23:59:59', TRUE,  '2026-03-25 09:05:00'),
-(3, 'verify-token-michael-789', '2026-03-27 23:59:59', FALSE, '2026-03-25 09:10:00'),
-(4, 'verify-token-emily-321', '2026-03-27 23:59:59', FALSE, '2026-03-25 09:15:00');
+(1, 'verify-token-john-123', '2026-04-25 23:59:59', TRUE,  '2026-04-18 09:00:00'),
+(2, 'verify-token-jane-456', '2026-04-25 23:59:59', TRUE,  '2026-04-18 09:05:00'),
+(3, 'verify-token-michael-789', '2026-04-25 23:59:59', FALSE, '2026-04-18 09:10:00'),
+(4, 'verify-token-emily-321', '2026-04-25 23:59:59', FALSE, '2026-04-18 09:15:00');
 
 -- =========================================
 -- PASSWORD RESET TOKENS
 -- =========================================
 INSERT INTO password_reset_tokens (user_id, token, expires_at, used, created_at)
 VALUES
-(1, 'reset-token-john-111', '2026-03-26 23:59:59', TRUE,  '2026-03-25 14:00:00'),
-(2, 'reset-token-jane-222', '2026-03-26 23:59:59', FALSE, '2026-03-25 14:10:00');
+(1, 'reset-token-john-111', '2026-04-19 23:59:59', TRUE,  '2026-04-18 14:00:00'),
+(2, 'reset-token-jane-222', '2026-04-19 23:59:59', FALSE, '2026-04-18 14:10:00');
