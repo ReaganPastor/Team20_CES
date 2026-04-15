@@ -1,4 +1,5 @@
 package com.team20ces.moviebooking.model;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Movie {
@@ -12,19 +13,15 @@ public class Movie {
     private String trailer_path;
     private String status;
 
-    
-    // added because get/setDurationMinutes was using a field that did not exist
-    private int durationMinutes;
-   
 
-    // Implement later
-    // private String country;
-    // private String production;
-    // private String cast;
+    private int durationMinutes;
 
     public Movie() {}
 
-    
+    /**
+     * Older constructor style already used in your project.
+     * Kept for compatibility in case other files still call it.
+     */
     public Movie(Long id, String title, String status,
                  String genre, String mpaaRating, String posterUrl,
                  int year, double rating, String description, int durationMinutes) {
@@ -39,11 +36,14 @@ public class Movie {
         this.status = status;
         this.durationMinutes = durationMinutes;
     }
-    
-    // added overloaded constructor to match MovieService.java
+
+    /**
+     * Main constructor for database queries.
+     * Includes durationMinutes so MovieService can map it.
+     */
     public Movie(Long id, String title, String description,
                  String rating, String genre, String poster_path,
-                 String trailer_path, String status) {
+                 String trailer_path, String status, int durationMinutes) {
 
         this.id = id;
         this.title = title;
@@ -53,56 +53,88 @@ public class Movie {
         this.poster_path = poster_path;
         this.trailer_path = trailer_path;
         this.status = status;
+        this.durationMinutes = durationMinutes;
     }
-    
-
-    // implement later
-    /* 
-    public Movie(Long id, String title, String status,
-                 String genre, String mpaaRating, String posterUrl,
-                 int year, double rating, String description, int durationMinutes,
-                 String country, String production, String cast) {
-
-        this(id, title, status, genre, mpaaRating, posterUrl, year, rating, description, durationMinutes);
-        this.country = country;
-        this.production = production;
-        this.cast = cast;
-    }
-   */
 
     // Getters
+    public Long getId() {
+        return id;
+    }
 
-    public Long getId() { return id; }
-    public String getTitle() { return title; }
-    public String getDescription() { return description; }
-    public int getDurationMinutes() { return durationMinutes; }
+    public String getTitle() {
+        return title;
+    }
 
-   // implement later 
-   // public String getCountry() { return country; }
-   // public String getProduction() { return production; }
-   // public String getCast() { return cast; }
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * This lets JSON return "duration_mins" to the frontend
+     * even though the Java field is named durationMinutes.
+     */
+    @JsonProperty("duration_mins")
+    public int getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public String getRating() {
+        return rating;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    @JsonProperty("poster_path")
+    public String getPosterPath() {
+        return poster_path;
+    }
+
+    @JsonProperty("trailer_path")
+    public String getTrailerPath() {
+        return trailer_path;
+    }
+
+    public String getStatus() {
+        return status;
+    }
 
     // Setters
-    public String getRating() { return rating; }
-    public String getGenre() { return genre; }
-    @JsonProperty("poster_path")
-    public String getPosterPath() { return poster_path; }
-    @JsonProperty("trailer_path")
-    public String getTrailerPath() { return trailer_path; }
-    public String getStatus() { return status; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public void setId(Long id) { this.id = id; }
-    public void setTitle(String title) { this.title = title; }
-    public void setDescription(String description) { this.description = description; }
-    public void setDurationMinutes(int durationMinutes) { this.durationMinutes = durationMinutes; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-    // implement later
-    // public void setCountry(String country) { this.country = country; }
-    // public void setProduction(String production) { this.production = production; }
-    // public void setCast(String cast) { this.cast = cast; }
-    public void setRating(String rating) { this.rating = rating; }
-    public void setGenre(String genre) { this.genre = genre; }
-    public void setPosterPath(String posterPath) { this.poster_path = posterPath; }
-    public void setTrailerPath(String trailerPath) { this.trailer_path = trailerPath; }
-    public void setStatus(String status) { this.status = status; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @JsonProperty("duration_mins")
+    public void setDurationMinutes(int durationMinutes) {
+        this.durationMinutes = durationMinutes;
+    }
+
+    public void setRating(String rating) {
+        this.rating = rating;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public void setPosterPath(String posterPath) {
+        this.poster_path = posterPath;
+    }
+
+    public void setTrailerPath(String trailerPath) {
+        this.trailer_path = trailerPath;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }
