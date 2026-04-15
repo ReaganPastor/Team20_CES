@@ -191,6 +191,18 @@ export default function Signup() {
               </span>
             </div>
 
+            <div className="promo-checkbox">
+              <label>
+                <input
+                  type="checkbox"
+                  name="receivePromotions"
+                  checked={form.receivePromotions}
+                  onChange={handleChange}
+                />
+                Receive promotions
+              </label>
+            </div>
+
             <div className="button-row horizontal-buttons">
               <button type="submit">Sign Up</button>
               <button
