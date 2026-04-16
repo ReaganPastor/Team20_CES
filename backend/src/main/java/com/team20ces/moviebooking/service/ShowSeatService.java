@@ -3,6 +3,8 @@ package com.team20ces.moviebooking.service;
 import com.team20ces.moviebooking.dto.ShowSeatResponse;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -41,4 +43,27 @@ public class ShowSeatService {
                 showId
         );
     }
+
+    public boolean reserveSeat(Long showSeatId) {
+        int updated = jdbcTemplate.update("""
+            UPDATE show_seats
+            SET is_reserved = TRUE
+            WHERE id = ?
+            AND is_reserved = FALSE
+        """, showSeatId);
+
+        return updated > 0;
+    }
+
+    public boolean releaseSeat(Long showSeatId) {
+        int updated = jdbcTemplate.update("""
+            UPDATE show_seats
+            SET is_reserved = FALSE
+            WHERE id = ?
+        """, showSeatId);
+
+        return updated > 0;
+    }
+
+
 }

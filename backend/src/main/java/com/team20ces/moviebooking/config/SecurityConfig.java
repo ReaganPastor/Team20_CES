@@ -49,6 +49,8 @@ public class SecurityConfig {
                 .requestMatchers("/showtimes/**").permitAll()
                 .requestMatchers("/show-seats/**").permitAll()
                 .requestMatchers("/bookings/**").permitAll()
+                .requestMatchers("/release/**").permitAll()
+                .requestMatchers("/reserve/**").permitAll()
                 .requestMatchers("/api/users/*/cards").hasRole("USER")
                 .anyRequest().authenticated()
             .and()
