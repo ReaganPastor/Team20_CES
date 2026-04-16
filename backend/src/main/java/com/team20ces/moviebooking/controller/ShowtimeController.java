@@ -8,6 +8,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Controller for showtime endpoints.
@@ -88,5 +91,38 @@ public class ShowtimeController {
                 new ApiResponse<>(false, "Database conflict while creating showtime", null)
             );
         }
+    }
+
+    @GetMapping("/showroom/{showroomId}")
+    public ResponseEntity<List<ShowtimeResponse>> getShowtimesByShowroom(
+            @PathVariable Long showroomId) {
+        return ResponseEntity.ok(showtimeService.getShowtimesByShowroom(showroomId));
+    }
+
+    @GetMapping("/time-options")
+    public ResponseEntity<Map<String, List<String>>> getTimeOptions() {
+
+        Map<String, List<String>> response = new HashMap<>();
+
+        response.put("startTimes", showtimeService.getTimeSlots());
+        response.put("endTimes", showtimeService.getTimeSlots());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/end-times")
+    public ResponseEntity<List<String>> getEndTimes(@RequestParam String startTime) {
+        return ResponseEntity.ok(showtimeService.getEndTimesAfter(startTime));
+    }
+
+    @GetMapping("/available-start-times")
+    public ResponseEntity<List<String>> getAvailableStartTimes(
+            @RequestParam Long showroomId,
+            @RequestParam String showDate,
+            @RequestParam Long movieId
+    ) {
+        return ResponseEntity.ok(
+            showtimeService.getAvailableStartTimes(showroomId, showDate, movieId)
+        );
     }
 }
