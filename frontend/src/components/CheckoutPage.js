@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
 import "./CheckoutPage.css";
@@ -9,84 +9,122 @@ export default function CheckoutPage() {
 
   const {
     movieTitle = "Movie Title",
-    showtime = "7:00 PM",
+    showtime = "Showtime not selected",
     selectedSeats = [],
+    tickets = { adult: 0, child: 0, senior: 0 },
+    totalPrice = 0,
   } = location.state || {};
 
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const serviceFee = selectedSeats.length * 1.5;
+  const tax = (totalPrice + serviceFee) * 0.07;
+  const orderTotal = totalPrice + serviceFee + tax;
 
-  const ticketPrice = 12;
-  const subtotal = selectedSeats.length * ticketPrice;
-  const tax = subtotal * 0.07;
-  const total = subtotal + tax;
-
-  const handleCheckout = () => {
-    setError("");
-    setSuccess("");
-
-    if (!email.trim()) {
-      setError("Please enter your email");
-      return;
-    }
-
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      setError("Please enter a valid email");
-      return;
-    }
-
-    setSuccess("Payment successful! Redirecting...");
-
-    setTimeout(() => {
-      navigate("/");
-    }, 1500);
-  };
+  const totalTickets =
+    (tickets.adult || 0) + (tickets.child || 0) + (tickets.senior || 0);
 
   return (
-    <div>
+    <div className="checkout-page">
       <Navigation />
 
-      <div className="checkout-page">
-        <div className="checkout-card">
-          <h1>Checkout</h1>
+      <div className="checkout-container">
+        <div className="checkout-left">
+          <p className="checkout-step">Checkout • Payment Mockup</p>
+          <h1>Payment Information</h1>
+          <p className="checkout-subtext">
+            This is a mock payment page for the current deliverable. Final
+            payment processing and order confirmation will be added later.
+          </p>
 
-          {error && <div className="error">{error}</div>}
-          {success && <div className="success">{success}</div>}
+          <div className="mock-card">
+            <h2>Card Details</h2>
 
-          <div className="checkout-section">
-            <h2>Order Summary</h2>
-            <p><strong>Movie:</strong> {movieTitle}</p>
-            <p><strong>Showtime:</strong> {showtime}</p>
-            <p><strong>Seats:</strong> {selectedSeats.join(", ") || "None Selected"}</p>
-            <p><strong>Subtotal:</strong> ${subtotal.toFixed(2)}</p>
-            <p><strong>Tax:</strong> ${tax.toFixed(2)}</p>
-            <p><strong>Total:</strong> ${total.toFixed(2)}</p>
-          </div>
+            <label>Cardholder Name</label>
+            <input type="text" placeholder="Sara Ghadrdan" disabled />
 
-          <div className="checkout-section">
-            <h2>Email</h2>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="checkout-input"
-            />
-          </div>
+            <label>Card Number</label>
+            <input type="text" placeholder="4242 4242 4242 4242" disabled />
 
-          <div className="checkout-section">
-            <h2>Payment</h2>
-            <div className="mock-payment-box">
-              <p>Card ending in 4242</p>
-              <p>Visa</p>
-              <p>Mock Payment Only</p>
+            <div className="mock-row">
+              <div>
+                <label>Expiration Date</label>
+                <input type="text" placeholder="08/28" disabled />
+              </div>
+
+              <div>
+                <label>CVV</label>
+                <input type="text" placeholder="123" disabled />
+              </div>
+            </div>
+
+            <label>Billing ZIP Code</label>
+            <input type="text" placeholder="30602" disabled />
+
+            <div className="mock-badges">
+              <span>Visa</span>
+              <span>Mastercard</span>
+              <span>Mock Only</span>
             </div>
           </div>
 
-          <div className="button-row horizontal-buttons">
-            <button onClick={() => navigate(-1)}>Back</button>
-            <button onClick={handleCheckout}>Pay Now</button>
+          <div className="checkout-actions">
+            <button
+              className="secondary-btn"
+              onClick={() => navigate(-1)}
+            >
+              Back to Seats
+            </button>
+
+            <button
+              className="primary-btn"
+              onClick={() => alert("Payment processing is not part of this deliverable yet.")}
+            >
+              Continue to Payment
+            </button>
+          </div>
+        </div>
+
+        <div className="checkout-right">
+          <div className="order-summary">
+            <h2>Order Summary</h2>
+
+            <div className="summary-block">
+              <p><strong>Movie:</strong> {movieTitle}</p>
+              <p><strong>Showtime:</strong> {showtime}</p>
+              <p>
+                <strong>Seats:</strong>{" "}
+                {selectedSeats.length ? selectedSeats.join(", ") : "None selected"}
+              </p>
+              <p><strong>Total Tickets:</strong> {totalTickets}</p>
+            </div>
+
+            <div className="summary-block">
+              <p><strong>Adult:</strong> {tickets.adult || 0}</p>
+              <p><strong>Child:</strong> {tickets.child || 0}</p>
+              <p><strong>Senior:</strong> {tickets.senior || 0}</p>
+            </div>
+
+            <div className="price-breakdown">
+              <div>
+                <span>Tickets</span>
+                <span>${Number(totalPrice).toFixed(2)}</span>
+              </div>
+              <div>
+                <span>Service Fee</span>
+                <span>${serviceFee.toFixed(2)}</span>
+              </div>
+              <div>
+                <span>Tax</span>
+                <span>${tax.toFixed(2)}</span>
+              </div>
+              <div className="total-line">
+                <span>Total</span>
+                <span>${orderTotal.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <p className="mock-note">
+              No real payment is processed on this screen.
+            </p>
           </div>
         </div>
       </div>

@@ -64,16 +64,18 @@ function BookingPage() {
   };
 
   const confirm = () => {
-    if (selectedSeats.length === 0) return;
+  if (selectedSeats.length === 0) return;
 
-    navigate("/checkout", {
-      state: {
-        movieTitle: movie.title,
-        showtime: passedShowtime || movie.showtime,
-        selectedSeats: selectedSeats.sort(),
-      },
-    });
-  };
+  navigate("/checkout", {
+    state: {
+      movieTitle: movie.title,
+      showtime: passedShowtime || movie.showtime,
+      selectedSeats: [...selectedSeats].sort(),
+      tickets,
+      totalPrice,
+    },
+  });
+};
 
   return (
     <div className="booking-page">
