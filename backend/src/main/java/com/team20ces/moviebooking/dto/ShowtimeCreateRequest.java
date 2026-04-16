@@ -9,7 +9,6 @@ public class ShowtimeCreateRequest {
     private Long showroomId;
     private String showDate;
     private String startTime;
-    private String endTime;
 
     public ShowtimeCreateRequest() {}
 
@@ -43,13 +42,5 @@ public class ShowtimeCreateRequest {
 
     public void setStartTime(String startTime) {
         this.startTime = startTime;
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
     }
 }

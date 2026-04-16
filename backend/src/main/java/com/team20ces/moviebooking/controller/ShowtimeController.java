@@ -118,10 +118,11 @@ public class ShowtimeController {
     @GetMapping("/available-start-times")
     public ResponseEntity<List<String>> getAvailableStartTimes(
             @RequestParam Long showroomId,
-            @RequestParam String showDate
+            @RequestParam String showDate,
+            @RequestParam Long movieId
     ) {
         return ResponseEntity.ok(
-            showtimeService.getAvailableStartTimes(showroomId, showDate)
+            showtimeService.getAvailableStartTimes(showroomId, showDate, movieId)
         );
     }
 }

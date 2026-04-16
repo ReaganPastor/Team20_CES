@@ -3,12 +3,11 @@ import Navigation from "./Navigation";
 import "./Login.css";
 
 function AddShowtime() {
-const [form, setForm] = useState({
+  const [form, setForm] = useState({
     movieId: "",
     showroomId: "",
     showDate: "",
     startTime: "",
-    endTime: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -18,90 +17,59 @@ const [form, setForm] = useState({
   const [showrooms, setShowrooms] = useState([]);
 
   const [startTimes, setStartTimes] = useState([]);
-  const [endTimes, setEndTimes] = useState([]);
 
-
+  // -------------------------
+  // LOAD MOVIES
+  // -------------------------
   useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const res = await fetch("http://localhost:8080/movies");
-        const data = await res.json();
-        setMovies(data);
-      } catch (err) {
-        console.error("Failed to load movies:", err);
-      }
-    };
-
-    fetchMovies();
+    fetch("http://localhost:8080/movies")
+      .then((res) => res.json())
+      .then(setMovies)
+      .catch((err) => console.error("Movies error:", err));
   }, []);
 
-
+  // -------------------------
+  // LOAD SHOWROOMS
+  // -------------------------
   useEffect(() => {
-    const fetchShowrooms = async () => {
-      try {
-        const res = await fetch("http://localhost:8080/showrooms");
-        const data = await res.json();
-        setShowrooms(data);
-      } catch (err) {
-        console.error("Failed to load showrooms:", err);
-      }
-    };
-
-    fetchShowrooms();
+    fetch("http://localhost:8080/showrooms")
+      .then((res) => res.json())
+      .then(setShowrooms)
+      .catch((err) => console.error("Showrooms error:", err));
   }, []);
 
-
+  // -------------------------
+  // GET AVAILABLE START TIMES
+  // (depends on movie + showroom + date)
+  // -------------------------
   useEffect(() => {
-    const fetchAvailableTimes = async () => {
-      if (!form.showroomId || !form.showDate) return;
-
-      try {
-        const res = await fetch(
-          `http://localhost:8080/showtimes/available-start-times?showroomId=${form.showroomId}&showDate=${form.showDate}`
-        );
-
-        const data = await res.json();
-        setStartTimes(data || []);
-
-        // reset selection if it becomes invalid
-        setForm(prev => ({ ...prev, startTime: "" }));
-
-      } catch (err) {
-        console.error("Failed to fetch available times:", err);
-      }
-    };
-
-    fetchAvailableTimes();
-  }, [form.showroomId, form.showDate]);
-
-  useEffect(() => {
-    const fetchEndTimes = async () => {
-      if (!form.startTime) {
-        setEndTimes([]);
-        setForm((prev) => ({ ...prev, endTime: "" }));
+    const fetchTimes = async () => {
+      if (!form.movieId || !form.showroomId || !form.showDate) {
+        setStartTimes([]);
+        setForm((p) => ({ ...p, startTime: ""}));
         return;
       }
 
       try {
         const res = await fetch(
-          `http://localhost:8080/showtimes/end-times?startTime=${form.startTime}`
+          `http://localhost:8080/showtimes/available-start-times?showroomId=${form.showroomId}&showDate=${form.showDate}&movieId=${form.movieId}`
         );
 
         const data = await res.json();
-        setEndTimes(data || []);
 
-        // reset invalid selection
-        setForm((prev) => ({ ...prev, endTime: "" }));
+        setStartTimes(data || []);
+        setForm((p) => ({ ...p, startTime: ""}));
       } catch (err) {
-        console.error("Failed to load end times:", err);
+        console.error("Start times error:", err);
       }
     };
 
-    fetchEndTimes();
-  }, [form.startTime]);
+    fetchTimes();
+  }, [form.movieId, form.showroomId, form.showDate]);
+
 
   // -------------------------
-  // HANDLE INPUT CHANGE
+  // HANDLE INPUT
   // -------------------------
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -115,11 +83,10 @@ const [form, setForm] = useState({
   const validate = () => {
     const newErrors = {};
 
-    if (!form.movieId) newErrors.movieId = "Please select a movie";
-    if (!form.showroomId) newErrors.showroomId = "Please select a showroom";
-    if (!form.showDate) newErrors.showDate = "Please pick a date";
-    if (!form.startTime) newErrors.startTime = "Please pick a start time";
-    if (!form.endTime) newErrors.endTime = "Please pick an end time";
+    if (!form.movieId) newErrors.movieId = "Select a movie";
+    if (!form.showroomId) newErrors.showroomId = "Select a showroom";
+    if (!form.showDate) newErrors.showDate = "Pick a date";
+    if (!form.startTime) newErrors.startTime = "Pick a start time";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -130,15 +97,12 @@ const [form, setForm] = useState({
   // -------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validate()) return;
 
     try {
       const res = await fetch("http://localhost:8080/showtimes", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
 
@@ -155,9 +119,9 @@ const [form, setForm] = useState({
         showroomId: "",
         showDate: "",
         startTime: "",
-        endTime: "",
       });
 
+      setStartTimes([]);
       setErrors({});
     } catch (err) {
       setMessage(`Error: ${err.message}`);
@@ -187,9 +151,9 @@ const [form, setForm] = useState({
               className="centered-input"
             >
               <option value="">Select Movie</option>
-              {movies.map((movie) => (
-                <option key={movie.id} value={movie.id}>
-                  {movie.title}
+              {movies.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.title}
                 </option>
               ))}
             </select>
@@ -203,9 +167,9 @@ const [form, setForm] = useState({
               className="centered-input"
             >
               <option value="">Select Showroom</option>
-              {showrooms.map((room) => (
-                <option key={room.id} value={room.id}>
-                  Room {room.showroomNumber} ({room.screenType})
+              {showrooms.map((r) => (
+                <option key={r.id} value={r.id}>
+                  Room {r.showroomNumber} ({r.screenType})
                 </option>
               ))}
             </select>
@@ -227,26 +191,10 @@ const [form, setForm] = useState({
               value={form.startTime}
               onChange={handleChange}
               className="centered-input"
+              disabled={!startTimes.length}
             >
               <option value="">Select Start Time</option>
               {startTimes.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-
-            {/* END TIME */}
-            {errors.endTime && <p className="error">{errors.endTime}</p>}
-            <select
-              name="endTime"
-              value={form.endTime}
-              onChange={handleChange}
-              className="centered-input"
-              disabled={!form.startTime}
-            >
-              <option value="">Select End Time</option>
-              {endTimes.map((t) => (
                 <option key={t} value={t}>
                   {t}
                 </option>

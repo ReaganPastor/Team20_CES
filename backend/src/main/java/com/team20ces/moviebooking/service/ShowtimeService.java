@@ -188,11 +188,11 @@ public class ShowtimeService {
             .toList();
     }
     
-    public List<String> getAvailableStartTimes(Long showroomId, String showDate) {
+    public List<String> getAvailableStartTimes(Long showroomId, String showDate, Long movieId) {
 
         Date date = Date.valueOf(showDate);
+        int duration = getMovieDuration(movieId);
 
-        // get all existing shows for that room + date
         String sql = """
             SELECT start_time, end_time
             FROM shows
@@ -214,15 +214,13 @@ public class ShowtimeService {
             .map(LocalTime::parse)
             .filter(slot -> {
 
-                // check if slot overlaps ANY existing show
+                LocalTime proposedEnd = slot.plusMinutes(duration);
+
                 for (TimeRange show : existingShows) {
-                    if (!slot.isBefore(show.end()) && slot.isBefore(show.start())) {
-                        return false;
-                    }
 
                     boolean overlaps =
-                        slot.equals(show.start()) ||
-                        (slot.isAfter(show.start()) && slot.isBefore(show.end()));
+                        slot.isBefore(show.end()) &&
+                        proposedEnd.isAfter(show.start());
 
                     if (overlaps) return false;
                 }
