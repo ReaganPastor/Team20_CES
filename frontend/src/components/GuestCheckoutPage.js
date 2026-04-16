@@ -1,160 +1,184 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import ForgotPasswordModal from "./ForgotPasswordModal";
-import "./Login.css";
+import React, { useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
+import "./CheckoutPage.css";
 
-const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  const [rememberMe, setRememberMe] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-
-  const navigate = useNavigate();
+export default function GuestCheckoutPage() {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const remembered = JSON.parse(localStorage.getItem("rememberedUser"));
-    if (remembered) {
-      setUsername(remembered.username);
-      setPassword(remembered.password);
-      setRememberMe(true);
+  const checkoutState = useMemo(() => {
+    if (location.state && Object.keys(location.state).length > 0) {
+      return location.state;
     }
-  }, []);
 
-  const handleLogin = async () => {
+    const saved = sessionStorage.getItem("pendingCheckout");
+    return saved ? JSON.parse(saved) : null;
+  }, [location.state]);
+
+  const [email, setEmail] = useState(
+    localStorage.getItem("guestEmail") || ""
+  );
+  const [error, setError] = useState("");
+
+  if (!checkoutState) {
+    return (
+      <div className="checkout-page">
+        <Navigation />
+        <div className="checkout-container">
+          <div className="checkout-left">
+            <h1>Guest Checkout</h1>
+            <p>No booking information found.</p>
+            <button className="secondary-btn" onClick={() => navigate("/")}>
+              Back Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const {
+    movieTitle = "Movie Title",
+    showtime = "Showtime not selected",
+    seats = [],
+    tickets = { adult: 0, child: 0, senior: 0 },
+    totalPrice = 0,
+  } = checkoutState;
+
+  const selectedSeatLabels = seats.map(
+    (seat) => `${seat.seatRow}${seat.seatNumber}`
+  );
+
+  const totalTickets =
+    (tickets.adult || 0) + (tickets.child || 0) + (tickets.senior || 0);
+
+  const handleGuestContinue = () => {
     setError("");
-    setSuccess("");
 
-    if (!username.trim() || !password.trim()) {
-      setError("Please fill in all fields");
+    if (!email.trim()) {
+      setError("Please enter your email.");
       return;
     }
 
-    try {
-      const res = await fetch("http://localhost:8080/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: username.trim(),
-          password: password.trim(),
-        }),
-      });
-
-      const data = await res.json();
-      console.log("Login response:", data);
-
-      if (!res.ok) {
-        setError(data.error || "Login failed");
-        return;
-      }
-
-      const userId = data.id ?? data.userId ?? "";
-
-      localStorage.setItem("username", data.username || username.trim());
-      localStorage.setItem("role", data.role || "");
-      localStorage.setItem("token", data.token || "");
-
-      if (data.email) {
-        localStorage.setItem("email", data.email);
-      }
-
-      if (userId !== "") {
-        localStorage.setItem("userId", String(userId));
-      } else {
-        console.warn("Login response did not include user ID");
-        localStorage.removeItem("userId");
-      }
-
-      if (rememberMe) {
-        localStorage.setItem(
-          "rememberedUser",
-          JSON.stringify({ username, password })
-        );
-      } else {
-        localStorage.removeItem("rememberedUser");
-      }
-
-      setSuccess("Login successful! Redirecting...");
-
-      const redirectTo = location.state?.from || "/homepage";
-      const checkoutState =
-        location.state?.checkoutState ||
-        JSON.parse(sessionStorage.getItem("pendingCheckout") || "null");
-
-      setTimeout(() => {
-        navigate(redirectTo, {
-          replace: true,
-          state: checkoutState || undefined,
-        });
-      }, 1000);
-    } catch (err) {
-      console.error(err);
-      setError("Server error. Please try again later.");
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (!emailRegex.test(email.trim())) {
+      setError("Please enter a valid email.");
+      return;
     }
+
+    const updatedCheckoutState = {
+      ...checkoutState,
+      email: email.trim(),
+    };
+
+    sessionStorage.setItem(
+      "pendingCheckout",
+      JSON.stringify(updatedCheckoutState)
+    );
+    localStorage.setItem("guestEmail", email.trim());
+
+    navigate("/checkout", {
+      state: updatedCheckoutState,
+    });
+  };
+
+  const handleLogin = () => {
+    sessionStorage.setItem("pendingCheckout", JSON.stringify(checkoutState));
+
+    navigate("/login", {
+      state: {
+        from: "/checkout",
+        checkoutState,
+      },
+    });
+  };
+
+  const handleSignup = () => {
+    sessionStorage.setItem("pendingCheckout", JSON.stringify(checkoutState));
+
+    navigate("/signup", {
+      state: {
+        from: "/checkout",
+        checkoutState,
+      },
+    });
   };
 
   return (
-    <div>
+    <div className="checkout-page">
       <Navigation />
-      <div className="login-page">
-        <div className="login-card">
-          <h1>Login</h1>
+
+      <div className="checkout-container">
+        <div className="checkout-left">
+          <p className="checkout-step">Checkout • Guest Information</p>
+          <h1>Continue to Checkout</h1>
+          <p className="checkout-subtext">
+            Enter your email to continue as a guest, or log in / create an
+            account to continue with your saved information.
+          </p>
 
           {error && <div className="error">{error}</div>}
-          {success && <div className="success">{success}</div>}
 
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="centered-input"
-          />
+          <div className="mock-card">
+            <h2>Guest Email</h2>
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="centered-input"
-          />
-
-          <div className="options-row">
-            <label>
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={() => setRememberMe(!rememberMe)}
-              />
-              Remember me
-            </label>
-
-            <span
-              className="forgot-password"
-              onClick={() => setShowModal(true)}
-            >
-              Forgot Password?
-            </span>
+            <label>Email Address</label>
+            <input
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
 
-          <div className="button-row horizontal-buttons">
-            <button onClick={handleLogin}>Login</button>
-            <button onClick={() => navigate("/signup")}>Sign Up</button>
+          <div className="checkout-actions">
+            <button className="secondary-btn" onClick={() => navigate(-1)}>
+              Back to Seats
+            </button>
+
+            <button className="secondary-btn" onClick={handleLogin}>
+              Login
+            </button>
+
+            <button className="secondary-btn" onClick={handleSignup}>
+              Sign Up
+            </button>
+
           </div>
         </div>
 
-        <ForgotPasswordModal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-        />
+        <div className="checkout-right">
+          <div className="order-summary">
+            <h2>Order Summary</h2>
+
+            <div className="summary-block">
+              <p><strong>Movie:</strong> {movieTitle}</p>
+              <p><strong>Showtime:</strong> {showtime}</p>
+              <p>
+                <strong>Seats:</strong>{" "}
+                {selectedSeatLabels.length
+                  ? selectedSeatLabels.join(", ")
+                  : "None selected"}
+              </p>
+              <p><strong>Total Tickets:</strong> {totalTickets}</p>
+            </div>
+
+            <div className="summary-block">
+              <p><strong>Adult:</strong> {tickets.adult || 0}</p>
+              <p><strong>Child:</strong> {tickets.child || 0}</p>
+              <p><strong>Senior:</strong> {tickets.senior || 0}</p>
+            </div>
+
+            <div className="price-breakdown">
+              <div>
+                <span>Tickets</span>
+                <span>${Number(totalPrice).toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
-};
-
-export default Login;
+}
