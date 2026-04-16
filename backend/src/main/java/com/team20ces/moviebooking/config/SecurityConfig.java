@@ -18,27 +18,40 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    /*
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> {})
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()
+            )
+            .httpBasic(httpBasic -> httpBasic.disable())
+            .formLogin(form -> form.disable());
+
+        return http.build();
+    }*/
+
     // Security rules
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Disable CSRF for REST API (token-based auth)
+        
             .csrf().disable()
 
-            // Endpoint authorization
             .authorizeHttpRequests()
-                // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/movies/**").permitAll()
                 .requestMatchers("/profile/**").permitAll()
                 .requestMatchers("/showrooms/**").permitAll()
                 .requestMatchers("/showtimes/**").permitAll()
-                // Only authenticated users with ROLE_USER can add cards
+                .requestMatchers("/show-seats/**").permitAll()
+                .requestMatchers("/bookings/**").permitAll()
                 .requestMatchers("/api/users/*/cards").hasRole("USER")
-                // Everything else requires authentication
                 .anyRequest().authenticated()
             .and()
-            // Disable default login form (we use REST API + frontend login)
             .formLogin().disable();
 
         return http.build();

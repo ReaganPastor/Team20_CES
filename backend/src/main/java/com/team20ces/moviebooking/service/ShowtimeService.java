@@ -231,5 +231,34 @@ public class ShowtimeService {
             .toList();
     }
 
+    public List<ShowtimeResponse> getShowtimesByMovie(Long movieId) {
+
+        String sql = """
+            SELECT id, movie_id, showroom_id, show_date, start_time, end_time
+            FROM shows
+            WHERE movie_id = ?
+            ORDER BY show_date, start_time
+        """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+
+            String movieTitle = jdbcTemplate.queryForObject(
+                "SELECT title FROM movies WHERE id = ?",
+                String.class,
+                movieId
+            );
+
+            return new ShowtimeResponse(
+                rs.getLong("id"),
+                movieId,
+                movieTitle,
+                rs.getLong("showroom_id"),
+                rs.getDate("show_date").toString(),
+                rs.getTime("start_time").toString(),
+                rs.getTime("end_time").toString()
+            );
+        }, movieId);
+    }
+
     private static record TimeRange(LocalTime start, LocalTime end) {}
 }
