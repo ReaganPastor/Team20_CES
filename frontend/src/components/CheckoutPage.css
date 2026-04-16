@@ -1,47 +1,180 @@
 .checkout-page {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #08142b;
-    padding: 40px 20px;
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #0f172a, #111827);
+  color: #f8fafc;
+}
+
+.checkout-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  display: grid;
+  grid-template-columns: 1.4fr 0.9fr;
+  gap: 28px;
+}
+
+.checkout-left,
+.checkout-right {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid #334155;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.checkout-step {
+  color: #93c5fd;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.checkout-left h1 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+}
+
+.checkout-subtext {
+  color: #cbd5e1;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.mock-card,
+.order-summary {
+  background: #111827;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 22px;
+}
+
+.mock-card h2,
+.order-summary h2 {
+  margin-top: 0;
+  margin-bottom: 18px;
+}
+
+.mock-card label {
+  display: block;
+  margin-bottom: 8px;
+  margin-top: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.mock-card input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #475569;
+  background: #1e293b;
+  color: #94a3b8;
+  font-size: 0.98rem;
+}
+
+.mock-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.mock-badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.mock-badges span {
+  background: #1d4ed8;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.checkout-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.primary-btn,
+.secondary-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-btn {
+  background: #2563eb;
+  color: white;
+}
+
+.primary-btn:hover {
+  background: #1d4ed8;
+}
+
+.secondary-btn {
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1px solid #475569;
+}
+
+.secondary-btn:hover {
+  background: #334155;
+}
+
+.summary-block {
+  border-bottom: 1px solid #334155;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+}
+
+.summary-block p {
+  margin: 8px 0;
+}
+
+.price-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.price-breakdown div {
+  display: flex;
+  justify-content: space-between;
+  color: #e2e8f0;
+}
+
+.total-line {
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #475569;
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+
+.mock-note {
+  margin-top: 18px;
+  color: #93c5fd;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 900px) {
+  .checkout-container {
+    grid-template-columns: 1fr;
   }
-  
-  .checkout-card {
-    width: 100%;
-    max-width: 700px;
-    background-color: #020b1f;
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 0 25px rgba(0, 123, 255, 0.4);
-    color: white;
+
+  .mock-row {
+    grid-template-columns: 1fr;
   }
-  
-  .checkout-card h1 {
-    text-align: center;
-    margin-bottom: 30px;
+
+  .checkout-actions {
+    flex-direction: column;
   }
-  
-  .checkout-section {
-    margin-bottom: 30px;
-  }
-  
-  .checkout-section h2 {
-    margin-bottom: 15px;
-  }
-  
-  .checkout-input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #3b82f6;
-    background-color: #08142b;
-    color: white;
-  }
-  
-  .mock-payment-box {
-    background-color: #08142b;
-    border: 1px solid #3b82f6;
-    border-radius: 10px;
-    padding: 15px;
-  }
+}
