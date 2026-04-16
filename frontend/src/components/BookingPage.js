@@ -36,23 +36,20 @@ function BookingPage() {
     return `${hour}:${minute} ${ampm}`;
   };
 
-
-  // Fetch movie info
   useEffect(() => {
     fetch(`http://localhost:8080/movies/${id}`)
       .then(res => res.json())
-      .then(data => setMovie(data))
-      .catch(err => console.error(err));
+      .then(setMovie)
+      .catch(console.error);
   }, [id]);
 
-  // Fetch seats from backend
   useEffect(() => {
     if (!showId) return;
 
     fetch(`http://localhost:8080/show-seats/${showId}`)
       .then(res => res.json())
-      .then(data => setSeats(data))
-      .catch(err => console.error(err));
+      .then(setSeats)
+      .catch(console.error);
   }, [showId]);
 
   if (!movie || !showId) {
@@ -67,17 +64,15 @@ function BookingPage() {
     );
   }
 
-  // Group seats by row dynamically
+  // Group seats by row
   const groupedSeats = {};
   seats.forEach(seat => {
-    if (!groupedSeats[seat.seatRow]) {
-      groupedSeats[seat.seatRow] = [];
-    }
+    if (!groupedSeats[seat.seatRow]) groupedSeats[seat.seatRow] = [];
     groupedSeats[seat.seatRow].push(seat);
   });
 
-  // Sort rows and seat numbers
   const rows = Object.keys(groupedSeats).sort();
+
   rows.forEach(row => {
     groupedSeats[row].sort((a, b) => a.seatNumber - b.seatNumber);
   });
@@ -89,52 +84,49 @@ function BookingPage() {
     0
   );
 
-  // Seat click logic
+  // Seat toggle (real-time reserve/release)
   const toggleSeat = async (seat) => {
     if (seat.isReserved) return;
 
-    const isSelected = selectedSeats.find(
+    const isSelected = selectedSeats.some(
       s => s.showSeatId === seat.showSeatId
     );
 
     if (isSelected) {
-      // RELEASE
       const res = await fetch(
         `http://localhost:8080/show-seats/release/${seat.showSeatId}`,
         { method: "POST" }
       );
 
       if (res.ok) {
-        setSelectedSeats(
-          selectedSeats.filter(s => s.showSeatId !== seat.showSeatId)
+        setSelectedSeats(prev =>
+          prev.filter(s => s.showSeatId !== seat.showSeatId)
         );
       }
-
     } else {
       if (selectedSeats.length >= totalTickets) {
         alert(`You can only select ${totalTickets} seats.`);
         return;
       }
 
-      // RESERVE
       const res = await fetch(
         `http://localhost:8080/show-seats/reserve/${seat.showSeatId}`,
         { method: "POST" }
       );
 
       if (res.ok) {
-        setSelectedSeats([...selectedSeats, seat]);
+        setSelectedSeats(prev => [...prev, seat]);
       } else {
         alert("Seat already taken");
       }
     }
   };
 
-  // Ticket input logic
   const handleTicketChange = (type, value) => {
-    let val = Math.max(0, parseInt(value) || 0);
+    const val = Math.max(0, parseInt(value) || 0);
 
     const newTickets = { ...tickets, [type]: val };
+
     const newTotal = Object.values(newTickets).reduce((a, b) => a + b, 0);
 
     if (selectedSeats.length > newTotal) {
@@ -144,14 +136,13 @@ function BookingPage() {
     setTickets(newTickets);
   };
 
-  // Proceed to checkout
   const confirm = () => {
     if (selectedSeats.length === 0) return;
 
     navigate("/checkout", {
       state: {
         movieId: id,
-        showId: showId,
+        showId,
         movieTitle: movie.title,
         showtime: passedShowtime,
         seats: selectedSeats,
@@ -167,9 +158,8 @@ function BookingPage() {
 
       <div className="booking-container">
 
-        {/* LEFT SIDE */}
+        {/* LEFT */}
         <div className="booking-info-box">
-
           <div className="movie-info">
             <img
               src={movie.poster_path}
@@ -181,16 +171,19 @@ function BookingPage() {
             />
             <div>
               <h3>{movie.title}</h3>
-              <p><strong>Time:</strong> {formatTime(passedShowtime || movie.showtime)}</p>
+              <p>
+                <strong>Time:</strong>{" "}
+                {formatTime(passedShowtime || movie.showtime)}
+              </p>
             </div>
           </div>
 
-          {/* Ticket selection */}
           <div className="ticket-section">
             {["adult", "child", "senior"].map(type => (
               <div key={type} className="ticket-row">
                 <span>
-                  {type.charAt(0).toUpperCase() + type.slice(1)} (${prices[type]})
+                  {type.charAt(0).toUpperCase() + type.slice(1)} ($
+                  {prices[type]})
                 </span>
                 <input
                   type="number"
@@ -203,11 +196,11 @@ function BookingPage() {
             ))}
 
             <div className="total-section">
-              Total Tickets: {totalTickets} | Total Price: ${totalPrice.toFixed(2)}
+              Total Tickets: {totalTickets} | Total Price: $
+              {totalPrice.toFixed(2)}
             </div>
           </div>
 
-          {/* Selected seats */}
           <div className="selected-seats">
             <p><strong>Selected Seats:</strong></p>
             <div className="selected-seats-box">
@@ -232,12 +225,11 @@ function BookingPage() {
               Confirm
             </button>
           </div>
-
         </div>
 
+        {/* RIGHT SEATS */}
         <div className="seat-panel">
           <h2 className="seating-header">Pick Seats</h2>
-
           <div className="screen-label">SCREEN</div>
 
           <div
@@ -246,27 +238,38 @@ function BookingPage() {
               gridTemplateColumns: `40px repeat(${groupedSeats[rows[0]]?.length || 0}, 44px)`
             }}
           >
-            {/* TOP ROW NUMBERS */}
             <div />
+
             {groupedSeats[rows[0]]?.map(seat => (
-              <div key={`col-${seat.seatNumber}`} className="seat-grid-header">
+              <div key={seat.seatNumber} className="seat-grid-header">
                 {seat.seatNumber}
               </div>
             ))}
 
-            {/* ROWS */}
             {rows.map(row => (
               <div key={row} style={{ display: "contents" }}>
-                {/* ROW LETTER */}
                 <div className="seat-grid-header">{row}</div>
 
                 {groupedSeats[row].map(seat => {
                   let classes = "seat-btn";
 
-                  if (seat.seatType === "ACCESSIBLE") classes += " wheelchair"; // match your old style
-                  if (seat.isReserved) classes += " reserved";
-                  if (selectedSeats.find(s => s.showSeatId === seat.showSeatId)) {
+                  // RESERVED FIRST (highest priority)
+                  if (seat.isReserved) {
+                    classes += " reserved";
+                  }
+
+                  // SELECTED overrides reserved visually only if not reserved
+                  const isSelected = selectedSeats.some(
+                    s => s.showSeatId === seat.showSeatId
+                  );
+
+                  if (!seat.isReserved && isSelected) {
                     classes += " selected";
+                  }
+
+                  // ACCESSIBLE only if NOT reserved
+                  if (!seat.isReserved && seat.seatType === "ACCESSIBLE") {
+                    classes += " wheelchair";
                   }
 
                   return (
@@ -284,26 +287,30 @@ function BookingPage() {
             ))}
           </div>
 
-          {/* Legend */}
+          {/* LEGEND */}
           <div className="seat-legend">
             <div className="seat-legend-item">
-              <div className="seat-legend-color available"></div>
+              <div className="seat-legend-color available" />
               <span className="seat-legend-label">Available</span>
             </div>
 
             <div className="seat-legend-item">
-              <div className="seat-legend-color selected"></div>
+              <div className="seat-legend-color wheelchair" />
+              <span className="seat-legend-label">Accessible</span>
+            </div>
+
+            <div className="seat-legend-item">
+              <div className="seat-legend-color selected" />
               <span className="seat-legend-label">Selected</span>
             </div>
 
             <div className="seat-legend-item">
-              <div className="seat-legend-color reserved"></div>
+              <div className="seat-legend-color reserved" />
               <span className="seat-legend-label">Reserved</span>
             </div>
           </div>
 
         </div>
-
       </div>
     </div>
   );

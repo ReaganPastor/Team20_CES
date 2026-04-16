@@ -169,29 +169,6 @@
   padding-top: 10px;
 }
 
-/* Seat buttons */
-.seat-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  background: #1f2937;
-  border: 1px solid #475569;
-  color: #f1f5f9;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.seat-btn:hover {
-  filter: brightness(1.2);
-}
-.seat-btn.wheelchair {
-  background: #0f766e;
-  border: 1px solid #0d9488;
-}
-.seat-btn.selected {
-  background: #2563eb;
-  border: 1px solid #60a5fa;
-}
 
 /* Seat legend */
 .seat-legend {
@@ -226,4 +203,43 @@
 
 .seat-legend-color.reserved {
   background: #6b7280;
+}
+
+/* BASE SEAT */
+.seat-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #1f2937;
+  border: 1px solid #475569;
+  color: #f1f5f9;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* AVAILABLE hover */
+.seat-btn:hover {
+  filter: brightness(1.2);
+}
+
+/* SELECTED (user choice) */
+.seat-btn.selected {
+  background: #2563eb;
+  border: 1px solid #60a5fa;
+}
+
+/* RESERVED (MUST OVERRIDE EVERYTHING) */
+.seat-btn.reserved {
+  background: #6b7280 !important;
+  border: 1px solid #9ca3af !important;
+  color: #e5e7eb !important;
+  cursor: not-allowed;
+  opacity: 0.9;
+}
+
+/* ACCESSIBLE */
+.seat-btn.wheelchair {
+  background: #0f766e;
+  border: 1px solid #0d9488;
 }
