@@ -11,6 +11,7 @@ import ResetPassword from "./components/ResetPassword";
 import AdminHome from "./components/AdminHome";
 import AddMovie from "./components/AddMovie";
 import AddShowtime from "./components/AddShowtime";
+import CheckoutPage from "./components/CheckoutPage";
 
 function App() {
 
@@ -35,6 +36,7 @@ function App() {
         <Route path="/admin" element={<AdminHome />} />
         <Route path="/admin/add-movie" element={<AddMovie />} />
         <Route path="/admin/showtimes" element={<AddShowtime />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
       </Routes>
     </Router>
   );
