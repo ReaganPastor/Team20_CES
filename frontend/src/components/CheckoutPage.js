@@ -152,7 +152,12 @@ export default function CheckoutPage() {
           <div className="checkout-actions">
             <button
               className="secondary-btn"
-              onClick={() => navigate("/booking")}
+              onClick={() => navigate(`/movies/${checkoutState.movieId}/book`, {
+                state: {
+                  selectedShowtime: checkoutState.showtime,
+                  showId: checkoutState.showId
+                }
+              })}
             >
               Back
             </button>
