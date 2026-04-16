@@ -203,25 +203,41 @@ function BookingPage() {
 
           <div className="screen-label">SCREEN</div>
 
-          <div className="seat-grid">
+          <div
+            className="seat-grid"
+            style={{
+              gridTemplateColumns: `40px repeat(${groupedSeats[rows[0]]?.length || 0}, 44px)`
+            }}
+          >
+            {/* TOP ROW NUMBERS */}
+            <div />
+            {groupedSeats[rows[0]]?.map(seat => (
+              <div key={`col-${seat.seatNumber}`} className="seat-grid-header">
+                {seat.seatNumber}
+              </div>
+            ))}
+
+            {/* ROWS */}
             {rows.map(row => (
-              <div key={row} className="seat-row">
-                <div className="row-label">{row}</div>
+              <div key={row} style={{ display: "contents" }}>
+                {/* ROW LETTER */}
+                <div className="seat-grid-header">{row}</div>
 
                 {groupedSeats[row].map(seat => {
                   let classes = "seat-btn";
 
+                  if (seat.seatType === "ACCESSIBLE") classes += " wheelchair"; // match your old style
                   if (seat.isReserved) classes += " reserved";
-                  else if (selectedSeats.find(s => s.showSeatId === seat.showSeatId)) {
+                  if (selectedSeats.find(s => s.showSeatId === seat.showSeatId)) {
                     classes += " selected";
                   }
 
                   return (
                     <button
                       key={seat.showSeatId}
-                      className={classes}
                       onClick={() => toggleSeat(seat)}
                       disabled={seat.isReserved}
+                      className={classes}
                     >
                       {seat.seatNumber}
                     </button>
