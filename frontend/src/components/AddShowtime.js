@@ -3,10 +3,10 @@ import Navigation from "./Navigation";
 import "./Login.css";
 
 function AddShowtime() {
-  const [form, setForm] = useState({
+const [form, setForm] = useState({
     movieId: "",
     showroomId: "",
-    date: "",
+    showDate: "",
     startTime: "",
     endTime: "",
   });
@@ -119,7 +119,7 @@ function AddShowtime() {
 
     if (!form.movieId) newErrors.movieId = "Please select a movie";
     if (!form.showroomId) newErrors.showroomId = "Please select a showroom";
-    if (!form.date) newErrors.date = "Please pick a date";
+    if (!form.showDate) newErrors.showDate = "Please pick a date";
     if (!form.startTime) newErrors.startTime = "Please pick a start time";
     if (!form.endTime) newErrors.endTime = "Please pick an end time";
 
@@ -155,7 +155,7 @@ function AddShowtime() {
       setForm({
         movieId: "",
         showroomId: "",
-        date: "",
+        showDate: "",
         startTime: "",
         endTime: "",
       });
@@ -213,11 +213,11 @@ function AddShowtime() {
             </select>
 
             {/* DATE */}
-            {errors.date && <p className="error">{errors.date}</p>}
+            {errors.showDate && <p className="error">{errors.showDate}</p>}
             <input
               type="date"
-              name="date"
-              value={form.date}
+              name="showDate"
+              value={form.showDate}
               onChange={handleChange}
               className="centered-input"
             />
