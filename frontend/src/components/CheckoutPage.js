@@ -13,6 +13,8 @@ export default function CheckoutPage() {
   // AUTH EMAIL STATE
   // -------------------------
   const [userEmail, setUserEmail] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
+  const [loadingEmailAction, setLoadingEmailAction] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -49,10 +51,7 @@ export default function CheckoutPage() {
             <h1>Checkout</h1>
             <p>No checkout information found.</p>
 
-            <button
-              className="secondary-btn"
-              onClick={() => navigate("/")}
-            >
+            <button className="secondary-btn" onClick={() => navigate("/")}>
               Back Home
             </button>
           </div>
@@ -83,6 +82,33 @@ export default function CheckoutPage() {
     (tickets.child || 0) +
     (tickets.senior || 0);
 
+  // -------------------------
+  // CONFIRM EMAIL ACTION
+  // -------------------------
+  const handleConfirmEmail = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      setLoadingEmailAction(true);
+
+      const res = await fetch("http://localhost:8080/api/auth/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed request");
+
+      setEmailSent(true);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to send verification email.");
+    } finally {
+      setLoadingEmailAction(false);
+    }
+  };
+
   return (
     <div className="checkout-page">
       <Navigation />
@@ -93,11 +119,6 @@ export default function CheckoutPage() {
           <p className="checkout-step">Checkout • Payment Mockup</p>
           <h1>Payment Information</h1>
 
-          <p className="checkout-subtext">
-            This is a mock payment page. No real transactions occur.
-          </p>
-
-          {/* PAYMENT MOCK CARD */}
           <div className="mock-card">
             <h2>Card Details</h2>
 
@@ -129,7 +150,6 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* ACTIONS */}
           <div className="checkout-actions">
             <button
               className="secondary-btn"
@@ -167,10 +187,37 @@ export default function CheckoutPage() {
 
               <p><strong>Total Tickets:</strong> {totalTickets}</p>
 
+              {/* EMAIL + ACTIONS */}
               <p>
                 <strong>Email:</strong>{" "}
                 {userEmail || email || "Loading..."}
               </p>
+
+              {!emailSent ? (
+                <div style={{ marginTop: "10px" }}>
+                  <button
+                    className="primary-btn"
+                    disabled={loadingEmailAction}
+                    onClick={handleConfirmEmail}
+                  >
+                    {loadingEmailAction ? "Sending..." : "Confirm"}
+                  </button>
+
+                  <button
+                    className="secondary-btn"
+                    style={{ marginLeft: "10px" }}
+                    onClick={() =>
+                      alert("Edit functionality will be added next.")
+                    }
+                  >
+                    Edit
+                  </button>
+                </div>
+              ) : (
+                <p style={{ color: "green", marginTop: "10px" }}>
+                  Verification Email has been sent
+                </p>
+              )}
             </div>
 
             <div className="summary-block">
