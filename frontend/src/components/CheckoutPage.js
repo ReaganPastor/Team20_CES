@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
 import "./CheckoutPage.css";
@@ -9,6 +9,28 @@ export default function CheckoutPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const [userEmail, setUserEmail] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
+  const [loadingEmailAction, setLoadingEmailAction] = useState(false);
+
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [editedEmail, setEditedEmail] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    fetch("http://localhost:8080/api/auth/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setUserEmail(data.email))
+      .catch((err) => console.error("Email fetch failed:", err));
+  }, []);
+
+  // Checkout State
   const checkoutState = useMemo(() => {
     if (location.state && Object.keys(location.state).length > 0) {
       return location.state;
@@ -26,6 +48,7 @@ export default function CheckoutPage() {
           <div className="checkout-left">
             <h1>Checkout</h1>
             <p>No checkout information found.</p>
+
             <button className="secondary-btn" onClick={() => navigate("/")}>
               Back Home
             </button>
@@ -44,27 +67,56 @@ export default function CheckoutPage() {
     email = "",
   } = checkoutState;
 
-  const selectedSeats = seats.map((seat) => `${seat.seatRow}${seat.seatNumber}`);
+  const selectedSeats = seats.map(
+    (seat) => `${seat.seatRow}${seat.seatNumber}`
+  );
 
   const serviceFee = selectedSeats.length * 1.5;
   const tax = (totalPrice + serviceFee) * 0.07;
   const orderTotal = totalPrice + serviceFee + tax;
 
   const totalTickets =
-    (tickets.adult || 0) + (tickets.child || 0) + (tickets.senior || 0);
+    (tickets.adult || 0) +
+    (tickets.child || 0) +
+    (tickets.senior || 0);
+
+  // Confirm Email Handler
+  const handleConfirmEmail = async () => {
+    try {
+      setLoadingEmailAction(true);
+
+      // if editing, update email first
+      if (isEditingEmail) {
+        setUserEmail(editedEmail);
+        setIsEditingEmail(false);
+      }
+
+      // mock backend call
+      const token = localStorage.getItem("token");
+      await fetch("http://localhost:8080/api/auth/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setEmailSent(true);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to send verification email.");
+    } finally {
+      setLoadingEmailAction(false);
+    }
+  };
 
   return (
     <div className="checkout-page">
       <Navigation />
 
       <div className="checkout-container">
+        {/* LEFT SIDE */}
         <div className="checkout-left">
           <p className="checkout-step">Checkout • Payment Mockup</p>
           <h1>Payment Information</h1>
-          <p className="checkout-subtext">
-            This is a mock payment page for the current deliverable. Final
-            payment processing and order confirmation will be added later.
-          </p>
 
           <div className="mock-card">
             <h2>Card Details</h2>
@@ -100,11 +152,7 @@ export default function CheckoutPage() {
           <div className="checkout-actions">
             <button
               className="secondary-btn"
-              onClick={() =>
-                navigate("/checkout/contact", {
-                  state: checkoutState,
-                })
-              }
+              onClick={() => navigate("/booking")}
             >
               Back
             </button>
@@ -120,6 +168,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
+        {/* RIGHT SIDE */}
         <div className="checkout-right">
           <div className="order-summary">
             <h2>Order Summary</h2>
@@ -127,12 +176,71 @@ export default function CheckoutPage() {
             <div className="summary-block">
               <p><strong>Movie:</strong> {movieTitle}</p>
               <p><strong>Showtime:</strong> {showtime}</p>
+
               <p>
                 <strong>Seats:</strong>{" "}
-                {selectedSeats.length ? selectedSeats.join(", ") : "None selected"}
+                {selectedSeats.length
+                  ? selectedSeats.join(", ")
+                  : "None selected"}
               </p>
+
               <p><strong>Total Tickets:</strong> {totalTickets}</p>
-              <p><strong>Email:</strong> {email || "No email entered"}</p>
+
+              {/* EMAIL SECTION */}
+              <div style={{ marginTop: "10px" }}>
+                <strong>Email:</strong>{" "}
+
+                {isEditingEmail ? (
+                  <input
+                    type="email"
+                    value={editedEmail}
+                    placeholder={userEmail || email}
+                    onChange={(e) => setEditedEmail(e.target.value)}
+                    className="email-edit-input"
+                  />
+                ) : (
+                  userEmail || email || "Loading..."
+                )}
+              </div>
+
+              {/* BUTTON LOGIC */}
+              {!emailSent ? (
+                <div style={{ marginTop: "10px" }}>
+                  {isEditingEmail ? (
+                    <button
+                      className="primary-btn"
+                      disabled={loadingEmailAction}
+                      onClick={handleConfirmEmail}
+                    >
+                      {loadingEmailAction ? "Sending..." : "Confirm"}
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        className="primary-btn"
+                        onClick={handleConfirmEmail}
+                      >
+                        Confirm
+                      </button>
+
+                      <button
+                        className="secondary-btn"
+                        style={{ marginLeft: "10px" }}
+                        onClick={() => {
+                          setIsEditingEmail(true);
+                          setEditedEmail(userEmail || email);
+                        }}
+                      >
+                        Edit
+                      </button>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <p style={{ color: "green", marginTop: "10px" }}>
+                  Verification Email has been sent
+                </p>
+              )}
             </div>
 
             <div className="summary-block">
@@ -146,14 +254,17 @@ export default function CheckoutPage() {
                 <span>Tickets</span>
                 <span>${Number(totalPrice).toFixed(2)}</span>
               </div>
+
               <div>
                 <span>Service Fee</span>
                 <span>${serviceFee.toFixed(2)}</span>
               </div>
+
               <div>
                 <span>Tax</span>
                 <span>${tax.toFixed(2)}</span>
               </div>
+
               <div className="total-line">
                 <span>Total</span>
                 <span>${orderTotal.toFixed(2)}</span>
