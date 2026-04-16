@@ -2,11 +2,14 @@ package com.team20ces.moviebooking.service;
 
 import com.team20ces.moviebooking.dto.BookingRequest;
 import com.team20ces.moviebooking.dto.BookingResponse;
+import com.team20ces.moviebooking.dto.BookingSummaryResponse;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class BookingService {
@@ -89,5 +92,80 @@ public class BookingService {
         }
 
         return new BookingResponse(bookingId, total);
+    }
+
+
+    public BookingSummaryResponse getBookingSummary(Long bookingId) {
+
+        String sql = """
+            SELECT
+                b.id AS booking_id,
+                m.title AS movie_title,
+                sh.show_date,
+                sh.start_time,
+                s.seat_row,
+                s.seat_number,
+                t.price_paid
+            FROM bookings b
+            JOIN movies m ON b.movie_id = m.id
+            JOIN tickets t ON t.booking_id = b.id
+            JOIN show_seats ss ON t.show_seat_id = ss.id
+            JOIN seats s ON ss.seat_id = s.id
+            JOIN shows sh ON ss.show_id = sh.id
+            WHERE b.id = ?
+        """;
+
+        return jdbcTemplate.query(sql, rs -> {
+
+            String movieTitle = null;
+            String showDate = null;
+            String startTime = null;
+            double total = 0;
+            double pricePerTicket = 12.99;
+
+            List<String> seats = new java.util.ArrayList<>();
+
+            while (rs.next()) {
+                movieTitle = rs.getString("movie_title");
+                showDate = rs.getString("show_date");
+                startTime = rs.getString("start_time");
+
+                String seat = rs.getString("seat_row")
+                        + rs.getInt("seat_number");
+
+                seats.add(seat);
+
+                total += rs.getDouble("price_paid");
+            }
+
+            return new BookingSummaryResponse(
+                    bookingId,
+                    movieTitle,
+                    showDate,
+                    startTime,
+                    seats,
+                    seats.size(),
+                    pricePerTicket,
+                    total
+            );
+        }, bookingId);
+    }
+
+    public Map<String, Object> checkout(Long bookingId) {
+
+        String sql = """
+            SELECT id, total_amount
+            FROM bookings
+            WHERE id = ?
+        """;
+
+        Map<String, Object> booking = jdbcTemplate.queryForMap(sql, bookingId);
+
+        return Map.of(
+                "bookingId", booking.get("id"),
+                "status", "READY_FOR_PAYMENT",
+                "total", booking.get("total_amount"),
+                "message", "Proceed to mock payment page"
+        );
     }
 }

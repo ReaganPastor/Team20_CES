@@ -18,6 +18,22 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    /*
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> {})
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()
+            )
+            .httpBasic(httpBasic -> httpBasic.disable())
+            .formLogin(form -> form.disable());
+
+        return http.build();
+    }*/
+
     // Security rules
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -32,7 +48,7 @@ public class SecurityConfig {
                 .requestMatchers("/showrooms/**").permitAll()
                 .requestMatchers("/showtimes/**").permitAll()
                 .requestMatchers("/show-seats/**").permitAll()
-                .requestMatchers("/bookings").permitAll()
+                .requestMatchers("/bookings/**").permitAll()
                 .requestMatchers("/api/users/*/cards").hasRole("USER")
                 .anyRequest().authenticated()
             .and()
