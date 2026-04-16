@@ -116,16 +116,18 @@ function AddShowtime() {
   };
 
   // Format 24h time to 12h with AM/PM
-  const formatTime = (time24) => {
-    const [hourStr, minute] = time24.split(":");
-    let hour = parseInt(hourStr, 10);
+  const formatTime = (time) => {
+  if (!time) return "";
 
-    const ampm = hour >= 12 ? "PM" : "AM";
-    hour = hour % 12;
-    if (hour === 0) hour = 12;
+  const [hourStr, minute] = time.split(":");
+  let hour = parseInt(hourStr, 10);
 
-    return `${hour}:${minute} ${ampm}`;
-  };
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12;
+  if (hour === 0) hour = 12;
+
+  return `${hour}:${minute} ${ampm}`;
+};
 
   // Format screen type for display
   const formatScreenType = (type) => {

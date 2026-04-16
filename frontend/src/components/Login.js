@@ -144,7 +144,9 @@ const Login = () => {
 
           <div className="button-row horizontal-buttons">
             <button onClick={handleLogin}>Login</button>
-            <button onClick={() => navigate("/signup")}>Sign Up</button>
+            <button onClick={() => navigate("/signup", { state: location.state })}>
+              Sign Up
+            </button>
           </div>
         </div>
 

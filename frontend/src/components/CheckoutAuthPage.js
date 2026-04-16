@@ -156,7 +156,7 @@ export default function CheckoutAuthPage() {
 
             <div className="summary-block">
               <p><strong>Movie:</strong> {movieTitle}</p>
-              <p><strong>Showtime:</strong> {showtime}</p>
+              <p><strong>Showtime:</strong> {formatTime(showtime)}</p>
               <p>
                 <strong>Seats:</strong>{" "}
                 {selectedSeats.length ? selectedSeats.join(", ") : "None selected"}
