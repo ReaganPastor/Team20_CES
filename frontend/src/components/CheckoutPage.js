@@ -16,6 +16,10 @@ export default function CheckoutPage() {
   const [emailSent, setEmailSent] = useState(false);
   const [loadingEmailAction, setLoadingEmailAction] = useState(false);
 
+  // NEW: edit mode + temp email
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [editedEmail, setEditedEmail] = useState("");
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -86,19 +90,22 @@ export default function CheckoutPage() {
   // CONFIRM EMAIL ACTION
   // -------------------------
   const handleConfirmEmail = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
     try {
       setLoadingEmailAction(true);
 
-      const res = await fetch("http://localhost:8080/api/auth/profile", {
+      // if editing, update email first
+      if (isEditingEmail) {
+        setUserEmail(editedEmail);
+        setIsEditingEmail(false);
+      }
+
+      // mock backend call (same as before)
+      const token = localStorage.getItem("token");
+      await fetch("http://localhost:8080/api/auth/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      if (!res.ok) throw new Error("Failed request");
 
       setEmailSent(true);
     } catch (err) {
@@ -187,31 +194,55 @@ export default function CheckoutPage() {
 
               <p><strong>Total Tickets:</strong> {totalTickets}</p>
 
-              {/* EMAIL + ACTIONS */}
-              <p>
+              {/* EMAIL SECTION */}
+              <div style={{ marginTop: "10px" }}>
                 <strong>Email:</strong>{" "}
-                {userEmail || email || "Loading..."}
-              </p>
 
+                {isEditingEmail ? (
+                  <input
+                    type="email"
+                    value={editedEmail}
+                    placeholder={userEmail || email}
+                    onChange={(e) => setEditedEmail(e.target.value)}
+                    style={{ marginLeft: "5px" }}
+                  />
+                ) : (
+                  userEmail || email || "Loading..."
+                )}
+              </div>
+
+              {/* BUTTON LOGIC */}
               {!emailSent ? (
                 <div style={{ marginTop: "10px" }}>
-                  <button
-                    className="primary-btn"
-                    disabled={loadingEmailAction}
-                    onClick={handleConfirmEmail}
-                  >
-                    {loadingEmailAction ? "Sending..." : "Confirm"}
-                  </button>
+                  {isEditingEmail ? (
+                    <button
+                      className="primary-btn"
+                      disabled={loadingEmailAction}
+                      onClick={handleConfirmEmail}
+                    >
+                      {loadingEmailAction ? "Sending..." : "Confirm"}
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        className="primary-btn"
+                        onClick={handleConfirmEmail}
+                      >
+                        Confirm
+                      </button>
 
-                  <button
-                    className="secondary-btn"
-                    style={{ marginLeft: "10px" }}
-                    onClick={() =>
-                      alert("Edit functionality will be added next.")
-                    }
-                  >
-                    Edit
-                  </button>
+                      <button
+                        className="secondary-btn"
+                        style={{ marginLeft: "10px" }}
+                        onClick={() => {
+                          setIsEditingEmail(true);
+                          setEditedEmail(userEmail || email);
+                        }}
+                      >
+                        Edit
+                      </button>
+                    </>
+                  )}
                 </div>
               ) : (
                 <p style={{ color: "green", marginTop: "10px" }}>
