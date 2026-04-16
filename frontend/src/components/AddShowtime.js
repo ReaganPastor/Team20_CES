@@ -18,9 +18,7 @@ function AddShowtime() {
 
   const [startTimes, setStartTimes] = useState([]);
 
-  // -------------------------
-  // LOAD MOVIES
-  // -------------------------
+  // Load movies for dropdown
   useEffect(() => {
     fetch("http://localhost:8080/movies")
       .then((res) => res.json())
@@ -28,9 +26,7 @@ function AddShowtime() {
       .catch((err) => console.error("Movies error:", err));
   }, []);
 
-  // -------------------------
-  // LOAD SHOWROOMS
-  // -------------------------
+  // Load showrooms for dropdown
   useEffect(() => {
     fetch("http://localhost:8080/showrooms")
       .then((res) => res.json())
@@ -38,10 +34,7 @@ function AddShowtime() {
       .catch((err) => console.error("Showrooms error:", err));
   }, []);
 
-  // -------------------------
-  // GET AVAILABLE START TIMES
-  // (depends on movie + showroom + date)
-  // -------------------------
+  // Start times depend on movie, showroom, and date - reload when any of those change
   useEffect(() => {
     const fetchTimes = async () => {
       if (!form.movieId || !form.showroomId || !form.showDate) {
@@ -68,18 +61,14 @@ function AddShowtime() {
   }, [form.movieId, form.showroomId, form.showDate]);
 
 
-  // -------------------------
-  // HANDLE INPUT
-  // -------------------------
+  // Handle form input changes
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" });
     setMessage("");
   };
 
-  // -------------------------
-  // VALIDATION
-  // -------------------------
+  // Validate form before submit
   const validate = () => {
     const newErrors = {};
 
@@ -92,9 +81,7 @@ function AddShowtime() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // -------------------------
-  // SUBMIT
-  // -------------------------
+  // Submit form to backend
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -128,9 +115,25 @@ function AddShowtime() {
     }
   };
 
-  // -------------------------
-  // UI
-  // -------------------------
+  // Format 24h time to 12h with AM/PM
+  const formatTime = (time24) => {
+    const [hourStr, minute] = time24.split(":");
+    let hour = parseInt(hourStr, 10);
+
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+
+    return `${hour}:${minute} ${ampm}`;
+  };
+
+  // Format screen type for display
+  const formatScreenType = (type) => {
+    if (type === "THREE_D") return "3D";
+    return type;
+  };
+
+
   return (
     <div>
       <Navigation />
@@ -169,7 +172,7 @@ function AddShowtime() {
               <option value="">Select Showroom</option>
               {showrooms.map((r) => (
                 <option key={r.id} value={r.id}>
-                  Room {r.showroomNumber} ({r.screenType})
+                  Room {r.showroomNumber} ({formatScreenType(r.screenType)})
                 </option>
               ))}
             </select>
@@ -196,7 +199,7 @@ function AddShowtime() {
               <option value="">Select Start Time</option>
               {startTimes.map((t) => (
                 <option key={t} value={t}>
-                  {t}
+                  {formatTime(t)}
                 </option>
               ))}
             </select>
