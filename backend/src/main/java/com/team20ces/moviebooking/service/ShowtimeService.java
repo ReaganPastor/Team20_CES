@@ -188,4 +188,50 @@ public class ShowtimeService {
             .toList();
     }
     
+    public List<String> getAvailableStartTimes(Long showroomId, String showDate) {
+
+        Date date = Date.valueOf(showDate);
+
+        // get all existing shows for that room + date
+        String sql = """
+            SELECT start_time, end_time
+            FROM shows
+            WHERE showroom_id = ?
+            AND show_date = ?
+        """;
+
+        List<TimeRange> existingShows = jdbcTemplate.query(
+            sql,
+            (rs, rowNum) -> new TimeRange(
+                rs.getTime("start_time").toLocalTime(),
+                rs.getTime("end_time").toLocalTime()
+            ),
+            showroomId,
+            date
+        );
+
+        return TIME_SLOTS.stream()
+            .map(LocalTime::parse)
+            .filter(slot -> {
+
+                // check if slot overlaps ANY existing show
+                for (TimeRange show : existingShows) {
+                    if (!slot.isBefore(show.end()) && slot.isBefore(show.start())) {
+                        return false;
+                    }
+
+                    boolean overlaps =
+                        slot.equals(show.start()) ||
+                        (slot.isAfter(show.start()) && slot.isBefore(show.end()));
+
+                    if (overlaps) return false;
+                }
+
+                return true;
+            })
+            .map(LocalTime::toString)
+            .toList();
+    }
+
+    private static record TimeRange(LocalTime start, LocalTime end) {}
 }

@@ -114,4 +114,14 @@ public class ShowtimeController {
     public ResponseEntity<List<String>> getEndTimes(@RequestParam String startTime) {
         return ResponseEntity.ok(showtimeService.getEndTimesAfter(startTime));
     }
+
+    @GetMapping("/available-start-times")
+    public ResponseEntity<List<String>> getAvailableStartTimes(
+            @RequestParam Long showroomId,
+            @RequestParam String showDate
+    ) {
+        return ResponseEntity.ok(
+            showtimeService.getAvailableStartTimes(showroomId, showDate)
+        );
+    }
 }
