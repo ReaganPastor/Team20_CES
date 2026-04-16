@@ -1,5 +1,5 @@
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback} from "react";
 import Navigation from "./Navigation";
 import "./BookingPage.css";
 
@@ -36,6 +36,18 @@ function BookingPage() {
     return `${hour}:${minute} ${ampm}`;
   };
 
+  const loadSeats = useCallback(() => {
+  if (!showId) return;
+
+  fetch(`http://localhost:8080/show-seats/${showId}`)
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("SEATS DATA:", data);
+      setSeats(data);
+    })
+    .catch(console.error);
+}, [showId]);
+
   useEffect(() => {
     fetch(`http://localhost:8080/movies/${id}`)
       .then((res) => res.json())
@@ -43,13 +55,9 @@ function BookingPage() {
       .catch(console.error);
   }, [id]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (!showId) return;
-
-    fetch(`http://localhost:8080/show-seats/${showId}`)
-      .then((res) => res.json())
-      .then(setSeats)
-      .catch(console.error);
+    loadSeats();
   }, [showId]);
 
   if (!movie || !showId) {
@@ -84,12 +92,17 @@ function BookingPage() {
   );
 
   const toggleSeat = async (seat) => {
-    if (seat.isReserved) return;
+    const backendReserved =
+      seat.isReserved ?? seat.reserved ?? seat.taken ?? false;
 
     const isSelected = selectedSeats.some(
       (s) => s.showSeatId === seat.showSeatId
     );
 
+    // Block only seats reserved by someone else
+    if (backendReserved && !isSelected) return;
+
+    // Unselect seat
     if (isSelected) {
       const res = await fetch(
         `http://localhost:8080/show-seats/release/${seat.showSeatId}`,
@@ -100,28 +113,33 @@ function BookingPage() {
         setSelectedSeats((prev) =>
           prev.filter((s) => s.showSeatId !== seat.showSeatId)
         );
+        loadSeats();
       }
+      return;
+    }
+
+    // Select seat
+    if (totalTickets === 0) {
+      alert("Please select at least one ticket before choosing seats.");
+      return;
+    }
+
+    if (selectedSeats.length >= totalTickets) {
+      alert(`You can only select ${totalTickets} seats.`);
+      return;
+    }
+
+    const res = await fetch(
+      `http://localhost:8080/show-seats/reserve/${seat.showSeatId}`,
+      { method: "POST" }
+    );
+
+    if (res.ok) {
+      // keep selected seats temporary on frontend
+      setSelectedSeats((prev) => [...prev, seat]);
     } else {
-      if (totalTickets === 0) {
-        alert("Please select at least one ticket before choosing seats.");
-        return;
-      }
-
-      if (selectedSeats.length >= totalTickets) {
-        alert(`You can only select ${totalTickets} seats.`);
-        return;
-      }
-
-      const res = await fetch(
-        `http://localhost:8080/show-seats/reserve/${seat.showSeatId}`,
-        { method: "POST" }
-      );
-
-      if (res.ok) {
-        setSelectedSeats((prev) => [...prev, seat]);
-      } else {
-        alert("Seat already taken");
-      }
+      alert("Seat already taken");
+      loadSeats();
     }
   };
 
@@ -145,6 +163,7 @@ function BookingPage() {
       });
 
       setSelectedSeats(selectedSeats.slice(0, newTotal));
+      loadSeats();
     }
 
     setTickets(newTickets);
@@ -288,19 +307,25 @@ function BookingPage() {
                 {groupedSeats[row].map((seat) => {
                   let classes = "seat-btn";
 
-                  if (seat.isReserved) {
-                    classes += " reserved";
-                  }
+                  const backendReserved =
+                    seat.isReserved ?? seat.reserved ?? seat.taken ?? false;
 
                   const isSelected = selectedSeats.some(
                     (s) => s.showSeatId === seat.showSeatId
                   );
 
-                  if (!seat.isReserved && isSelected) {
+                  // Only gray out seats reserved by others
+                  const reserved = backendReserved && !isSelected;
+
+                  if (reserved) {
+                    classes += " reserved";
+                  }
+
+                  if (isSelected) {
                     classes += " selected";
                   }
 
-                  if (!seat.isReserved && seat.seatType === "ACCESSIBLE") {
+                  if (!reserved && !isSelected && seat.seatType === "ACCESSIBLE") {
                     classes += " wheelchair";
                   }
 
@@ -308,7 +333,7 @@ function BookingPage() {
                     <button
                       key={seat.showSeatId}
                       onClick={() => toggleSeat(seat)}
-                      disabled={seat.isReserved}
+                      disabled={reserved}
                       className={classes}
                     >
                       {seat.seatNumber}
