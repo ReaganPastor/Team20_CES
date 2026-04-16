@@ -20,9 +20,7 @@ const [form, setForm] = useState({
   const [startTimes, setStartTimes] = useState([]);
   const [endTimes, setEndTimes] = useState([]);
 
-  // -------------------------
-  // FETCH MOVIES
-  // -------------------------
+
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -37,9 +35,7 @@ const [form, setForm] = useState({
     fetchMovies();
   }, []);
 
-  // -------------------------
-  // FETCH SHOWROOMS
-  // -------------------------
+
   useEffect(() => {
     const fetchShowrooms = async () => {
       try {
@@ -54,28 +50,30 @@ const [form, setForm] = useState({
     fetchShowrooms();
   }, []);
 
-  // -------------------------
-  // FETCH TIME OPTIONS
-  // -------------------------
-  useEffect(() => {
-    const fetchTimes = async () => {
-      try {
-        const res = await fetch("http://localhost:8080/showtimes/time-options");
-        const data = await res.json();
 
-        setStartTimes(data.startTimes || []);
-        setEndTimes(data.endTimes || []);
+  useEffect(() => {
+    const fetchAvailableTimes = async () => {
+      if (!form.showroomId || !form.showDate) return;
+
+      try {
+        const res = await fetch(
+          `http://localhost:8080/showtimes/available-start-times?showroomId=${form.showroomId}&showDate=${form.showDate}`
+        );
+
+        const data = await res.json();
+        setStartTimes(data || []);
+
+        // reset selection if it becomes invalid
+        setForm(prev => ({ ...prev, startTime: "" }));
+
       } catch (err) {
-        console.error("Failed to load time options:", err);
+        console.error("Failed to fetch available times:", err);
       }
     };
 
-    fetchTimes();
-  }, []);
+    fetchAvailableTimes();
+  }, [form.showroomId, form.showDate]);
 
-  // -------------------------
-  // FETCH END TIMES BASED ON START TIME
-  // -------------------------
   useEffect(() => {
     const fetchEndTimes = async () => {
       if (!form.startTime) {
