@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
 import "./CheckoutPage.css";
 
 const STORAGE_KEY = "pendingCheckout";
 
-export default function CheckoutPage() {
+export default function CheckoutAuthPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -18,6 +18,25 @@ export default function CheckoutPage() {
     return saved ? JSON.parse(saved) : null;
   }, [location.state]);
 
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+
+  const isAuthenticated = Boolean(localStorage.getItem("token"));
+
+  useEffect(() => {
+    if (!checkoutState) return;
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(checkoutState));
+  }, [checkoutState]);
+
+  useEffect(() => {
+    if (!checkoutState) return;
+
+    const savedEmail = localStorage.getItem("email") || "";
+    if (savedEmail) {
+      setEmail(savedEmail);
+    }
+  }, [checkoutState]);
+
   if (!checkoutState) {
     return (
       <div className="checkout-page">
@@ -25,7 +44,7 @@ export default function CheckoutPage() {
         <div className="checkout-container">
           <div className="checkout-left">
             <h1>Checkout</h1>
-            <p>No checkout information found.</p>
+            <p>No booking info found. Please go back and select seats again.</p>
             <button className="secondary-btn" onClick={() => navigate("/")}>
               Back Home
             </button>
@@ -41,17 +60,50 @@ export default function CheckoutPage() {
     seats = [],
     tickets = { adult: 0, child: 0, senior: 0 },
     totalPrice = 0,
-    email = "",
   } = checkoutState;
 
   const selectedSeats = seats.map((seat) => `${seat.seatRow}${seat.seatNumber}`);
-
-  const serviceFee = selectedSeats.length * 1.5;
-  const tax = (totalPrice + serviceFee) * 0.07;
-  const orderTotal = totalPrice + serviceFee + tax;
-
   const totalTickets =
     (tickets.adult || 0) + (tickets.child || 0) + (tickets.senior || 0);
+
+  const handleContinue = () => {
+    setError("");
+
+    if (!email.trim()) {
+      setError("Please enter your email.");
+      return;
+    }
+
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (!emailRegex.test(email.trim())) {
+      setError("Please enter a valid email.");
+      return;
+    }
+
+    localStorage.setItem("email", email.trim());
+
+    const updatedState = {
+      ...checkoutState,
+      email: email.trim(),
+    };
+
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(updatedState));
+
+    navigate("/checkout", {
+      state: updatedState,
+    });
+  };
+
+  const handleLogin = () => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(checkoutState));
+
+    navigate("/login", {
+      state: {
+        from: "/checkout/contact",
+        checkoutState,
+      },
+    });
+  };
 
   return (
     <div className="checkout-page">
@@ -59,62 +111,40 @@ export default function CheckoutPage() {
 
       <div className="checkout-container">
         <div className="checkout-left">
-          <p className="checkout-step">Checkout • Payment Mockup</p>
-          <h1>Payment Information</h1>
+          <p className="checkout-step">Checkout • Contact Information</p>
+          <h1>{isAuthenticated ? "Confirm Your Email" : "Enter Your Email"}</h1>
           <p className="checkout-subtext">
-            This is a mock payment page for the current deliverable. Final
-            payment processing and order confirmation will be added later.
+            {isAuthenticated
+              ? "You are logged in. Confirm your existing email or enter a new one before continuing to payment."
+              : "You can continue as a guest by entering your email, or log in first. Your selected seats will stay reserved."}
           </p>
 
+          {error && <div className="error">{error}</div>}
+
           <div className="mock-card">
-            <h2>Card Details</h2>
+            <h2>Contact Info</h2>
 
-            <label>Cardholder Name</label>
-            <input type="text" placeholder="Sara Ghadrdan" disabled />
-
-            <label>Card Number</label>
-            <input type="text" placeholder="4242 4242 4242 4242" disabled />
-
-            <div className="mock-row">
-              <div>
-                <label>Expiration Date</label>
-                <input type="text" placeholder="08/28" disabled />
-              </div>
-
-              <div>
-                <label>CVV</label>
-                <input type="text" placeholder="123" disabled />
-              </div>
-            </div>
-
-            <label>Billing ZIP Code</label>
-            <input type="text" placeholder="30602" disabled />
-
-            <div className="mock-badges">
-              <span>Visa</span>
-              <span>Mastercard</span>
-              <span>Mock Only</span>
-            </div>
+            <label>Email Address</label>
+            <input
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
 
           <div className="checkout-actions">
-            <button
-              className="secondary-btn"
-              onClick={() =>
-                navigate("/checkout/contact", {
-                  state: checkoutState,
-                })
-              }
-            >
-              Back
+            <button className="secondary-btn" onClick={() => navigate(-1)}>
+              Back to Seats
             </button>
 
-            <button
-              className="primary-btn"
-              onClick={() =>
-                alert("Payment processing is not part of this deliverable yet.")
-              }
-            >
+            {!isAuthenticated && (
+              <button className="secondary-btn" onClick={handleLogin}>
+                Login
+              </button>
+            )}
+
+            <button className="primary-btn" onClick={handleContinue}>
               Continue to Payment
             </button>
           </div>
@@ -132,7 +162,6 @@ export default function CheckoutPage() {
                 {selectedSeats.length ? selectedSeats.join(", ") : "None selected"}
               </p>
               <p><strong>Total Tickets:</strong> {totalTickets}</p>
-              <p><strong>Email:</strong> {email || "No email entered"}</p>
             </div>
 
             <div className="summary-block">
@@ -146,23 +175,7 @@ export default function CheckoutPage() {
                 <span>Tickets</span>
                 <span>${Number(totalPrice).toFixed(2)}</span>
               </div>
-              <div>
-                <span>Service Fee</span>
-                <span>${serviceFee.toFixed(2)}</span>
-              </div>
-              <div>
-                <span>Tax</span>
-                <span>${tax.toFixed(2)}</span>
-              </div>
-              <div className="total-line">
-                <span>Total</span>
-                <span>${orderTotal.toFixed(2)}</span>
-              </div>
             </div>
-
-            <p className="mock-note">
-              No real payment is processed on this screen.
-            </p>
           </div>
         </div>
       </div>
