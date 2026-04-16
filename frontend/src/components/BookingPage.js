@@ -18,7 +18,7 @@ function BookingPage() {
   const [tickets, setTickets] = useState({
     adult: 0,
     child: 0,
-    senior: 0
+    senior: 0,
   });
 
   const prices = { adult: 12.99, child: 8.99, senior: 9.99 };
@@ -38,7 +38,7 @@ function BookingPage() {
 
   useEffect(() => {
     fetch(`http://localhost:8080/movies/${id}`)
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setMovie)
       .catch(console.error);
   }, [id]);
@@ -47,7 +47,7 @@ function BookingPage() {
     if (!showId) return;
 
     fetch(`http://localhost:8080/show-seats/${showId}`)
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setSeats)
       .catch(console.error);
   }, [showId]);
@@ -64,16 +64,15 @@ function BookingPage() {
     );
   }
 
-  // Group seats by row
   const groupedSeats = {};
-  seats.forEach(seat => {
+  seats.forEach((seat) => {
     if (!groupedSeats[seat.seatRow]) groupedSeats[seat.seatRow] = [];
     groupedSeats[seat.seatRow].push(seat);
   });
 
   const rows = Object.keys(groupedSeats).sort();
 
-  rows.forEach(row => {
+  rows.forEach((row) => {
     groupedSeats[row].sort((a, b) => a.seatNumber - b.seatNumber);
   });
 
@@ -84,12 +83,11 @@ function BookingPage() {
     0
   );
 
-  // Seat toggle (real-time reserve/release)
   const toggleSeat = async (seat) => {
     if (seat.isReserved) return;
 
     const isSelected = selectedSeats.some(
-      s => s.showSeatId === seat.showSeatId
+      (s) => s.showSeatId === seat.showSeatId
     );
 
     if (isSelected) {
@@ -99,11 +97,16 @@ function BookingPage() {
       );
 
       if (res.ok) {
-        setSelectedSeats(prev =>
-          prev.filter(s => s.showSeatId !== seat.showSeatId)
+        setSelectedSeats((prev) =>
+          prev.filter((s) => s.showSeatId !== seat.showSeatId)
         );
       }
     } else {
+      if (totalTickets === 0) {
+        alert("Please select at least one ticket before choosing seats.");
+        return;
+      }
+
       if (selectedSeats.length >= totalTickets) {
         alert(`You can only select ${totalTickets} seats.`);
         return;
@@ -115,7 +118,7 @@ function BookingPage() {
       );
 
       if (res.ok) {
-        setSelectedSeats(prev => [...prev, seat]);
+        setSelectedSeats((prev) => [...prev, seat]);
       } else {
         alert("Seat already taken");
       }
@@ -124,12 +127,23 @@ function BookingPage() {
 
   const handleTicketChange = (type, value) => {
     const val = Math.max(0, parseInt(value) || 0);
-
     const newTickets = { ...tickets, [type]: val };
-
     const newTotal = Object.values(newTickets).reduce((a, b) => a + b, 0);
 
     if (selectedSeats.length > newTotal) {
+      const seatsToRelease = selectedSeats.slice(newTotal);
+
+      seatsToRelease.forEach(async (seat) => {
+        try {
+          await fetch(
+            `http://localhost:8080/show-seats/release/${seat.showSeatId}`,
+            { method: "POST" }
+          );
+        } catch (error) {
+          console.error("Error releasing seat:", error);
+        }
+      });
+
       setSelectedSeats(selectedSeats.slice(0, newTotal));
     }
 
@@ -137,18 +151,44 @@ function BookingPage() {
   };
 
   const confirm = () => {
-    if (selectedSeats.length === 0) return;
+    if (totalTickets === 0) {
+      alert("Please choose at least one ticket.");
+      return;
+    }
+
+    if (selectedSeats.length === 0) {
+      alert("Please select your seats.");
+      return;
+    }
+
+    if (selectedSeats.length !== totalTickets) {
+      alert(`Please select exactly ${totalTickets} seat(s).`);
+      return;
+    }
+
+    const checkoutState = {
+      movieId: id,
+      showId,
+      movieTitle: movie.title,
+      showtime: passedShowtime,
+      seats: selectedSeats,
+      tickets,
+      totalPrice,
+    };
+
+    sessionStorage.setItem("pendingCheckout", JSON.stringify(checkoutState));
+
+    const isAuthenticated = Boolean(localStorage.getItem("token"));
+
+    if (!isAuthenticated) {
+      navigate("/guest-checkout", {
+        state: checkoutState,
+      });
+      return;
+    }
 
     navigate("/checkout", {
-      state: {
-        movieId: id,
-        showId,
-        movieTitle: movie.title,
-        showtime: passedShowtime,
-        seats: selectedSeats,
-        tickets,
-        totalPrice
-      }
+      state: checkoutState,
     });
   };
 
@@ -157,8 +197,6 @@ function BookingPage() {
       <Navigation />
 
       <div className="booking-container">
-
-        {/* LEFT */}
         <div className="booking-info-box">
           <div className="movie-info">
             <img
@@ -179,25 +217,23 @@ function BookingPage() {
           </div>
 
           <div className="ticket-section">
-            {["adult", "child", "senior"].map(type => (
+            {["adult", "child", "senior"].map((type) => (
               <div key={type} className="ticket-row">
                 <span>
-                  {type.charAt(0).toUpperCase() + type.slice(1)} ($
-                  {prices[type]})
+                  {type.charAt(0).toUpperCase() + type.slice(1)} (${prices[type]})
                 </span>
                 <input
                   type="number"
                   min="0"
                   value={tickets[type]}
-                  onChange={e => handleTicketChange(type, e.target.value)}
+                  onChange={(e) => handleTicketChange(type, e.target.value)}
                   className="ticket-input"
                 />
               </div>
             ))}
 
             <div className="total-section">
-              Total Tickets: {totalTickets} | Total Price: $
-              {totalPrice.toFixed(2)}
+              Total Tickets: {totalTickets} | Total Price: ${totalPrice.toFixed(2)}
             </div>
           </div>
 
@@ -207,7 +243,7 @@ function BookingPage() {
               {selectedSeats.length === 0
                 ? "None"
                 : selectedSeats
-                    .map(s => `${s.seatRow}${s.seatNumber}`)
+                    .map((s) => `${s.seatRow}${s.seatNumber}`)
                     .sort()
                     .join(", ")}
             </div>
@@ -222,12 +258,11 @@ function BookingPage() {
               disabled={selectedSeats.length === 0}
               className="checkout-button"
             >
-              Confirm
+              Proceed to Checkout
             </button>
           </div>
         </div>
 
-        {/* RIGHT SEATS */}
         <div className="seat-panel">
           <h2 className="seating-header">Pick Seats</h2>
           <div className="screen-label">SCREEN</div>
@@ -235,39 +270,36 @@ function BookingPage() {
           <div
             className="seat-grid"
             style={{
-              gridTemplateColumns: `40px repeat(${groupedSeats[rows[0]]?.length || 0}, 44px)`
+              gridTemplateColumns: `40px repeat(${groupedSeats[rows[0]]?.length || 0}, 44px)`,
             }}
           >
             <div />
 
-            {groupedSeats[rows[0]]?.map(seat => (
+            {groupedSeats[rows[0]]?.map((seat) => (
               <div key={seat.seatNumber} className="seat-grid-header">
                 {seat.seatNumber}
               </div>
             ))}
 
-            {rows.map(row => (
+            {rows.map((row) => (
               <div key={row} style={{ display: "contents" }}>
                 <div className="seat-grid-header">{row}</div>
 
-                {groupedSeats[row].map(seat => {
+                {groupedSeats[row].map((seat) => {
                   let classes = "seat-btn";
 
-                  // RESERVED FIRST (highest priority)
                   if (seat.isReserved) {
                     classes += " reserved";
                   }
 
-                  // SELECTED overrides reserved visually only if not reserved
                   const isSelected = selectedSeats.some(
-                    s => s.showSeatId === seat.showSeatId
+                    (s) => s.showSeatId === seat.showSeatId
                   );
 
                   if (!seat.isReserved && isSelected) {
                     classes += " selected";
                   }
 
-                  // ACCESSIBLE only if NOT reserved
                   if (!seat.isReserved && seat.seatType === "ACCESSIBLE") {
                     classes += " wheelchair";
                   }
@@ -287,7 +319,6 @@ function BookingPage() {
             ))}
           </div>
 
-          {/* LEGEND */}
           <div className="seat-legend">
             <div className="seat-legend-item">
               <div className="seat-legend-color available" />
@@ -309,7 +340,6 @@ function BookingPage() {
               <span className="seat-legend-label">Reserved</span>
             </div>
           </div>
-
         </div>
       </div>
     </div>

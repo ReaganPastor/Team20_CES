@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./components/HomePage";
 import ViewDetails from "./components/ViewDetails";
@@ -12,14 +12,9 @@ import AdminHome from "./components/AdminHome";
 import AddMovie from "./components/AddMovie";
 import AddShowtime from "./components/AddShowtime";
 import CheckoutPage from "./components/CheckoutPage";
+import GuestCheckoutPage from "./components/GuestCheckoutPage";
 
 function App() {
-
-  useEffect(() => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-  }, []);
-
   return (
     <Router>
       <Routes>
@@ -36,6 +31,7 @@ function App() {
         <Route path="/admin" element={<AdminHome />} />
         <Route path="/admin/add-movie" element={<AddMovie />} />
         <Route path="/admin/showtimes" element={<AddShowtime />} />
+        <Route path="/guest-checkout" element={<GuestCheckoutPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
       </Routes>
     </Router>
