@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
 import "./CheckoutPage.css";
@@ -9,6 +9,24 @@ export default function CheckoutPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // ✅ Hooks must come BEFORE any conditional return
+  const [userEmail, setUserEmail] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) return;
+
+    fetch("http://localhost:8080/api/auth/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setUserEmail(data.email))
+      .catch((err) => console.error("Email fetch failed:", err));
+  }, []);
+
   const checkoutState = useMemo(() => {
     if (location.state && Object.keys(location.state).length > 0) {
       return location.state;
@@ -18,6 +36,7 @@ export default function CheckoutPage() {
     return saved ? JSON.parse(saved) : null;
   }, [location.state]);
 
+  // ✅ Safe early return AFTER hooks
   if (!checkoutState) {
     return (
       <div className="checkout-page">
@@ -61,40 +80,30 @@ export default function CheckoutPage() {
         <div className="checkout-left">
           <p className="checkout-step">Checkout • Payment Mockup</p>
           <h1>Payment Information</h1>
-          <p className="checkout-subtext">
-            This is a mock payment page for the current deliverable. Final
-            payment processing and order confirmation will be added later.
-          </p>
 
           <div className="mock-card">
             <h2>Card Details</h2>
 
             <label>Cardholder Name</label>
-            <input type="text" placeholder="Sara Ghadrdan" disabled />
+            <input type="text" disabled />
 
             <label>Card Number</label>
-            <input type="text" placeholder="4242 4242 4242 4242" disabled />
+            <input type="text" disabled />
 
             <div className="mock-row">
               <div>
                 <label>Expiration Date</label>
-                <input type="text" placeholder="08/28" disabled />
+                <input type="text" disabled />
               </div>
 
               <div>
                 <label>CVV</label>
-                <input type="text" placeholder="123" disabled />
+                <input type="text" disabled />
               </div>
             </div>
 
             <label>Billing ZIP Code</label>
-            <input type="text" placeholder="30602" disabled />
-
-            <div className="mock-badges">
-              <span>Visa</span>
-              <span>Mastercard</span>
-              <span>Mock Only</span>
-            </div>
+            <input type="text" disabled />
           </div>
 
           <div className="checkout-actions">
@@ -132,13 +141,12 @@ export default function CheckoutPage() {
                 {selectedSeats.length ? selectedSeats.join(", ") : "None selected"}
               </p>
               <p><strong>Total Tickets:</strong> {totalTickets}</p>
-              <p><strong>Email:</strong> {email || "No email entered"}</p>
-            </div>
 
-            <div className="summary-block">
-              <p><strong>Adult:</strong> {tickets.adult || 0}</p>
-              <p><strong>Child:</strong> {tickets.child || 0}</p>
-              <p><strong>Senior:</strong> {tickets.senior || 0}</p>
+              {/* ✅ EMAIL FIX */}
+              <p>
+                <strong>Email:</strong>{" "}
+                {userEmail || email || "Loading..."}
+              </p>
             </div>
 
             <div className="price-breakdown">
