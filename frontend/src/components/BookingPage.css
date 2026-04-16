@@ -215,3 +215,15 @@
   color: #cbd5e1;
   font-weight: bold;
 }
+
+.seat-legend-color.available {
+  background: #1f2937;
+}
+
+.seat-legend-color.selected {
+  background: #2563eb;
+}
+
+.seat-legend-color.reserved {
+  background: #6b7280;
+}

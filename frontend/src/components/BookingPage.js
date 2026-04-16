@@ -197,7 +197,6 @@ function BookingPage() {
 
         </div>
 
-        {/* RIGHT SIDE - SEATS */}
         <div className="seat-panel">
           <h2 className="seating-header">Pick Seats</h2>
 
@@ -249,9 +248,20 @@ function BookingPage() {
 
           {/* Legend */}
           <div className="seat-legend">
-            <div><span className="legend-box available" /> Available</div>
-            <div><span className="legend-box selected" /> Selected</div>
-            <div><span className="legend-box reserved" /> Reserved</div>
+            <div className="seat-legend-item">
+              <div className="seat-legend-color available"></div>
+              <span className="seat-legend-label">Available</span>
+            </div>
+
+            <div className="seat-legend-item">
+              <div className="seat-legend-color selected"></div>
+              <span className="seat-legend-label">Selected</span>
+            </div>
+
+            <div className="seat-legend-item">
+              <div className="seat-legend-color reserved"></div>
+              <span className="seat-legend-label">Reserved</span>
+            </div>
           </div>
 
         </div>
