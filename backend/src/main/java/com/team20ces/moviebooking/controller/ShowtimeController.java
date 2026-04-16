@@ -125,4 +125,13 @@ public class ShowtimeController {
             showtimeService.getAvailableStartTimes(showroomId, showDate, movieId)
         );
     }
+
+    @GetMapping("/movie/{movieId}")
+    public ResponseEntity<List<ShowtimeResponse>> getShowtimesByMovie(
+            @PathVariable Long movieId) {
+
+        return ResponseEntity.ok(
+            showtimeService.getShowtimesByMovie(movieId)
+        );
+    }
 }
