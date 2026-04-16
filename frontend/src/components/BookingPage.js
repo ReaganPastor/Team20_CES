@@ -90,18 +90,42 @@ function BookingPage() {
   );
 
   // Seat click logic
-  const toggleSeat = (seat) => {
+  const toggleSeat = async (seat) => {
     if (seat.isReserved) return;
 
-    const alreadySelected = selectedSeats.find(s => s.showSeatId === seat.showSeatId);
+    const isSelected = selectedSeats.find(
+      s => s.showSeatId === seat.showSeatId
+    );
 
-    if (alreadySelected) {
-      setSelectedSeats(selectedSeats.filter(s => s.showSeatId !== seat.showSeatId));
+    if (isSelected) {
+      // RELEASE
+      const res = await fetch(
+        `http://localhost:8080/show-seats/release/${seat.showSeatId}`,
+        { method: "POST" }
+      );
+
+      if (res.ok) {
+        setSelectedSeats(
+          selectedSeats.filter(s => s.showSeatId !== seat.showSeatId)
+        );
+      }
+
     } else {
-      if (selectedSeats.length < totalTickets) {
+      if (selectedSeats.length >= totalTickets) {
+        alert(`You can only select ${totalTickets} seats.`);
+        return;
+      }
+
+      // RESERVE
+      const res = await fetch(
+        `http://localhost:8080/show-seats/reserve/${seat.showSeatId}`,
+        { method: "POST" }
+      );
+
+      if (res.ok) {
         setSelectedSeats([...selectedSeats, seat]);
       } else {
-        alert(`You can only select ${totalTickets} seats.`);
+        alert("Seat already taken");
       }
     }
   };
