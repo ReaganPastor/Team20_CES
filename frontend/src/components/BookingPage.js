@@ -65,9 +65,14 @@ function BookingPage() {
 
   const confirm = () => {
     if (selectedSeats.length === 0) return;
-    alert(
-      `Movie: ${movie.title}\nTime: ${passedShowtime || movie.showtime}\nSeats: ${selectedSeats.sort().join(", ")}\nTickets: Adult-${tickets.adult}, Child-${tickets.child}, Senior-${tickets.senior}\nTotal: $${totalPrice}`
-    );
+
+    navigate("/checkout", {
+      state: {
+        movieTitle: movie.title,
+        showtime: passedShowtime || movie.showtime,
+        selectedSeats: selectedSeats.sort(),
+      },
+    });
   };
 
   return (
