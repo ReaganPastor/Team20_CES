@@ -5,7 +5,7 @@ import "./BookingPage.css";
 
 function BookingPage() {
   const navigate = useNavigate();
-  const { id } = useParams(); // movieId
+  const { id } = useParams();
   const location = useLocation();
 
   const passedShowtime = location.state?.selectedShowtime;
@@ -23,7 +23,21 @@ function BookingPage() {
 
   const prices = { adult: 12.99, child: 8.99, senior: 9.99 };
 
-  // ✅ Fetch movie info
+  const formatTime = (time) => {
+    if (!time) return "";
+
+    const [hourStr, minute] = time.split(":");
+    let hour = parseInt(hourStr, 10);
+
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+
+    return `${hour}:${minute} ${ampm}`;
+  };
+
+
+  // Fetch movie info
   useEffect(() => {
     fetch(`http://localhost:8080/movies/${id}`)
       .then(res => res.json())
@@ -31,7 +45,7 @@ function BookingPage() {
       .catch(err => console.error(err));
   }, [id]);
 
-  // ✅ Fetch seats from backend
+  // Fetch seats from backend
   useEffect(() => {
     if (!showId) return;
 
@@ -53,7 +67,7 @@ function BookingPage() {
     );
   }
 
-  // ✅ Group seats by row dynamically
+  // Group seats by row dynamically
   const groupedSeats = {};
   seats.forEach(seat => {
     if (!groupedSeats[seat.seatRow]) {
@@ -75,7 +89,7 @@ function BookingPage() {
     0
   );
 
-  // ✅ Seat click logic
+  // Seat click logic
   const toggleSeat = (seat) => {
     if (seat.isReserved) return;
 
@@ -92,7 +106,7 @@ function BookingPage() {
     }
   };
 
-  // ✅ Ticket input logic
+  // Ticket input logic
   const handleTicketChange = (type, value) => {
     let val = Math.max(0, parseInt(value) || 0);
 
@@ -106,7 +120,7 @@ function BookingPage() {
     setTickets(newTickets);
   };
 
-  // ✅ Proceed to checkout
+  // Proceed to checkout
   const confirm = () => {
     if (selectedSeats.length === 0) return;
 
@@ -143,7 +157,7 @@ function BookingPage() {
             />
             <div>
               <h3>{movie.title}</h3>
-              <p><strong>Time:</strong> {passedShowtime}</p>
+              <p><strong>Time:</strong> {formatTime(passedShowtime || movie.showtime)}</p>
             </div>
           </div>
 
