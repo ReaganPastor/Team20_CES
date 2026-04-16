@@ -22,24 +22,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Disable CSRF for REST API (token-based auth)
+        
             .csrf().disable()
 
-            // Endpoint authorization
             .authorizeHttpRequests()
-                // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/movies/**").permitAll()
                 .requestMatchers("/profile/**").permitAll()
                 .requestMatchers("/showrooms/**").permitAll()
                 .requestMatchers("/showtimes/**").permitAll()
                 .requestMatchers("/show-seats/**").permitAll()
-                // Only authenticated users with ROLE_USER can add cards
+                .requestMatchers("/bookings").permitAll()
                 .requestMatchers("/api/users/*/cards").hasRole("USER")
-                // Everything else requires authentication
                 .anyRequest().authenticated()
             .and()
-            // Disable default login form (we use REST API + frontend login)
             .formLogin().disable();
 
         return http.build();
