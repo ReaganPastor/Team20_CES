@@ -9,14 +9,10 @@ export default function CheckoutPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // -------------------------
-  // AUTH EMAIL STATE
-  // -------------------------
   const [userEmail, setUserEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [loadingEmailAction, setLoadingEmailAction] = useState(false);
 
-  // NEW: edit mode + temp email
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [editedEmail, setEditedEmail] = useState("");
 
@@ -34,9 +30,7 @@ export default function CheckoutPage() {
       .catch((err) => console.error("Email fetch failed:", err));
   }, []);
 
-  // -------------------------
-  // CHECKOUT STATE
-  // -------------------------
+  // Checkout State
   const checkoutState = useMemo(() => {
     if (location.state && Object.keys(location.state).length > 0) {
       return location.state;
@@ -86,9 +80,7 @@ export default function CheckoutPage() {
     (tickets.child || 0) +
     (tickets.senior || 0);
 
-  // -------------------------
-  // CONFIRM EMAIL ACTION
-  // -------------------------
+  // Confirm Email Handler
   const handleConfirmEmail = async () => {
     try {
       setLoadingEmailAction(true);
@@ -99,7 +91,7 @@ export default function CheckoutPage() {
         setIsEditingEmail(false);
       }
 
-      // mock backend call (same as before)
+      // mock backend call
       const token = localStorage.getItem("token");
       await fetch("http://localhost:8080/api/auth/profile", {
         headers: {
@@ -204,7 +196,7 @@ export default function CheckoutPage() {
                     value={editedEmail}
                     placeholder={userEmail || email}
                     onChange={(e) => setEditedEmail(e.target.value)}
-                    style={{ marginLeft: "5px" }}
+                    className="email-edit-input"
                   />
                 ) : (
                   userEmail || email || "Loading..."

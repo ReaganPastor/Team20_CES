@@ -4,6 +4,13 @@
   color: #f8fafc;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+/* =========================
+   LAYOUT
+========================= */
 .checkout-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -13,6 +20,15 @@
   gap: 28px;
 }
 
+/* Prevent grid overflow issues */
+.checkout-left,
+.checkout-right {
+  min-width: 0;
+}
+
+/* =========================
+   PANELS
+========================= */
 .checkout-left,
 .checkout-right {
   background: rgba(15, 23, 42, 0.8);
@@ -40,6 +56,9 @@
   line-height: 1.5;
 }
 
+/* =========================
+   CARDS
+========================= */
 .mock-card,
 .order-summary {
   background: #111827;
@@ -54,16 +73,13 @@
   margin-bottom: 18px;
 }
 
-.mock-card label {
-  display: block;
-  margin-bottom: 8px;
-  margin-top: 14px;
-  font-weight: 600;
-  color: #e2e8f0;
-}
-
+/* =========================
+   INPUTS
+========================= */
 .mock-card input {
   width: 100%;
+  max-width: 100%;
+  display: block;
   padding: 12px 14px;
   border-radius: 12px;
   border: 1px solid #475569;
@@ -72,6 +88,37 @@
   font-size: 0.98rem;
 }
 
+/* Email edit input matches style exactly */
+.email-edit-input {
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #475569;
+  background: #1e293b;
+  color: #f8fafc;
+  font-size: 0.98rem;
+  outline: none;
+}
+
+.email-edit-input:focus {
+  border-color: #2563eb;
+}
+
+/* Labels */
+.mock-card label {
+  display: block;
+  margin-bottom: 8px;
+  margin-top: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+/* =========================
+   LAYOUT HELPERS
+========================= */
 .mock-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -94,6 +141,9 @@
   font-weight: 600;
 }
 
+/* =========================
+   BUTTONS
+========================= */
 .checkout-actions {
   display: flex;
   gap: 12px;
@@ -129,6 +179,9 @@
   background: #334155;
 }
 
+/* =========================
+   SUMMARY
+========================= */
 .summary-block {
   border-bottom: 1px solid #334155;
   padding-bottom: 14px;
