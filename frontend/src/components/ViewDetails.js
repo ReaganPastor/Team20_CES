@@ -151,7 +151,10 @@ function ViewDetails() {
                   <button
                     onClick={() =>
                       navigate(`/movies/${movie.id}/book`, {
-                        state: { showtime: selectedShowtime }
+                        state: {
+                          showId: selectedShowtime.id,
+                          selectedShowtime: selectedShowtime.startTime || selectedShowtime.start_time
+                        }
                       })
                     }
                     disabled={!selectedShowtime}
