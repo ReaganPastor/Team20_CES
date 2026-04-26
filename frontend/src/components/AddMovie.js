@@ -59,7 +59,7 @@ function AddMovie() {
 
     const movieToSend = {
       ...form,
-      durationMinutes: duration, // now a real int
+      durationMinutes: duration,
     };
 
     try {
@@ -193,7 +193,7 @@ function AddMovie() {
             >
               <option value="">Select Status</option>
               <option value="COMING_SOON">Coming Soon</option>
-              <option value="NOW_SHOWING">Now Showing</option>
+              <option value="CURRENTLY_RUNNING">Currently Running</option>
             </select>
 
             <div className="button-row horizontal-buttons">
