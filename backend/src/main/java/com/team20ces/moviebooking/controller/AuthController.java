@@ -333,41 +333,36 @@ public class AuthController {
 
     // ---------- CHANGE PASSWORD (logged-in users) ----------
     @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> req) {
+    public ResponseEntity<?> changePassword(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody Map<String, String> req) {
 
-        String token = req.get("token");
-        String email = req.get("email");
+        User user = getUserFromToken(authHeader);
+
+        if (user == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
+        }
+
+        String oldPassword = req.get("oldPassword");
         String newPassword = req.get("newPassword");
 
-        System.out.println("[ChangePassword] email=" + email);
-
-        if (token == null || email == null || newPassword == null || newPassword.isEmpty()) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Missing required fields"));
+        if (oldPassword == null || newPassword == null || newPassword.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields"));
         }
 
-        // Find user by email
-        Optional<User> userOpt = userService.findByEmail(email);
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "User not found"));
+        // verify old password
+        if (!encoder.matches(oldPassword, user.getPasswordHash())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Current password is incorrect"));
         }
 
-        User user = userOpt.get();
-
-        // Validate reset token
-        if (user.getResetToken() == null || !user.getResetToken().equals(token)) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Invalid or expired token"));
+        // password rules
+        if (newPassword.length() < 8) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Password must be at least 8 characters"));
         }
 
-        // Update password
         user.setPasswordHash(encoder.encode(newPassword));
 
-        // Clear token so it can't be reused
-        user.setResetToken(null);
-
-        return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
+        return ResponseEntity.ok(Map.of("message", "Password updated successfully!"));
     }
 
     // ---------- GET USER FROM TOKEN ----------
