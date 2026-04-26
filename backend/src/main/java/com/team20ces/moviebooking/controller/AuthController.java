@@ -332,45 +332,35 @@ public class AuthController {
     }
 
     // ---------- CHANGE PASSWORD (logged-in users) ----------
-    @PostMapping("/{userId}/change-password")
+    @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(
-            @PathVariable Long userId,
+            @RequestHeader("Authorization") String authHeader,
             @RequestBody Map<String, String> req) {
 
-        System.out.println("[ChangePassword] Received request for userId: " + userId);
+        User user = getUserFromToken(authHeader);
+
+        if (user == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
+        }
 
         String oldPassword = req.get("oldPassword");
         String newPassword = req.get("newPassword");
 
         if (oldPassword == null || newPassword == null || newPassword.isEmpty()) {
-            System.err.println("[ChangePassword] Missing required fields");
             return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields"));
         }
 
-        Optional<User> userOpt = userService.findById(userId);
-        if (userOpt.isEmpty()) {
-            System.err.println("[ChangePassword] User not found with ID: " + userId);
-            return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
-        }
-
-        User user = userOpt.get();
-        System.out.println("[ChangePassword] Found user: " + user.getUsername());
-
-        // Verify old password
+        // verify old password
         if (!encoder.matches(oldPassword, user.getPasswordHash())) {
-            System.err.println("[ChangePassword] Current password is incorrect for user: " + user.getUsername());
             return ResponseEntity.badRequest().body(Map.of("error", "Current password is incorrect"));
         }
 
-        // Optional: enforce password rules server-side
+        // password rules
         if (newPassword.length() < 8) {
-            System.err.println("[ChangePassword] New password too short for user: " + user.getUsername());
             return ResponseEntity.badRequest().body(Map.of("error", "Password must be at least 8 characters"));
         }
 
-        // Update password
         user.setPasswordHash(encoder.encode(newPassword));
-        System.out.println("[ChangePassword] Password updated successfully for user: " + user.getUsername());
 
         return ResponseEntity.ok(Map.of("message", "Password updated successfully!"));
     }

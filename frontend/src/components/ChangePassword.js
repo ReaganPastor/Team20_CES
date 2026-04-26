@@ -1,21 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import "./ChangePassword.css"; // reuse same styling
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./ChangePassword.css";
 
 function ResetPassword() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-
-  // Get token and email from URL
-  const token = searchParams.get("token");
-  const email = searchParams.get("email");
 
   const [form, setForm] = useState({
+    oldPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState("");
+  const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -25,6 +23,11 @@ function ResetPassword() {
 
   const validate = () => {
     const newErrors = {};
+
+    if (!form.oldPassword) {
+      newErrors.oldPassword = "Current password is required";
+    }
+
     if (!form.newPassword) {
       newErrors.newPassword = "New password is required";
     } else if (form.newPassword.length < 8) {
@@ -59,14 +62,16 @@ function ResetPassword() {
     if (!validate()) return;
 
     try {
-      const res = await fetch("http://localhost:8080/reset-password", {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("http://localhost:8080/api/auth/change-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-          token,
-          email,
+          oldPassword: form.oldPassword,
           newPassword: form.newPassword,
         }),
       });
@@ -74,37 +79,50 @@ function ResetPassword() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErrors({ apiError: data.error || "Failed to reset password" });
+        setErrors({ apiError: data.error || "Failed to change password" });
         return;
       }
 
-      setSuccess("Password reset successfully! Redirecting to login...");
-      setForm({ newPassword: "", confirmPassword: "" });
+      setSuccess("Password updated successfully! Redirecting...");
+      setForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
 
-      setTimeout(() => navigate("/login"), 2000);
+      setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       console.error(err);
       setErrors({ apiError: "Server error. Please try again later." });
     }
   };
 
-  // If no token or email in URL, redirect to login
-  useEffect(() => {
-    if (!token || !email) {
-      navigate("/login");
-    }
-  }, [token, email, navigate]);
-
   return (
     <div className="login-page">
       <div className="login-card">
-        <h1>Reset Password</h1>
+        <h1>Change Password</h1>
 
         {errors.apiError && <p className="error">{errors.apiError}</p>}
         {success && <p className="success">{success}</p>}
 
         <form onSubmit={handleSubmit}>
-          {/* New password */}
+
+          {/* OLD PASSWORD */}
+          <div>
+            <input
+              type={showOld ? "text" : "password"}
+              name="oldPassword"
+              placeholder="Current Password"
+              value={form.oldPassword}
+              onChange={handleChange}
+              className="centered-input"
+            />
+            <span
+              className="forgot-password"
+              onClick={() => setShowOld(!showOld)}
+            >
+              {showOld ? "Hide" : "Show"}
+            </span>
+          </div>
+          {errors.oldPassword && <p className="error">{errors.oldPassword}</p>}
+
+          {/* NEW PASSWORD */}
           <div>
             <input
               type={showNew ? "text" : "password"}
@@ -121,6 +139,7 @@ function ResetPassword() {
               {showNew ? "Hide" : "Show"}
             </span>
           </div>
+
           {form.newPassword && (
             <p className={`success ${getPasswordStrength().toLowerCase()}`}>
               Strength: {getPasswordStrength()}
@@ -128,7 +147,7 @@ function ResetPassword() {
           )}
           {errors.newPassword && <p className="error">{errors.newPassword}</p>}
 
-          {/* Confirm password */}
+          {/* CONFIRM PASSWORD */}
           <div>
             <input
               type={showConfirm ? "text" : "password"}
@@ -149,9 +168,13 @@ function ResetPassword() {
             <p className="error">{errors.confirmPassword}</p>
           )}
 
-          <div className="button-row horizontal-buttons" style={{ justifyContent: "center" }}>
-            <button type="submit">Reset Password</button>
+          <div
+            className="button-row horizontal-buttons"
+            style={{ justifyContent: "center" }}
+          >
+            <button type="submit">Update Password</button>
           </div>
+
         </form>
       </div>
     </div>

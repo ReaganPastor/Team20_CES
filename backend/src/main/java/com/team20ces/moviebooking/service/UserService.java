@@ -39,6 +39,9 @@ public class UserService {
         User unverifiedUser = new User(4L, "unverified", "u@email.com",
                 encoder.encode("Test@123"), "user", "unverified", UUID.randomUUID().toString());
 
+        User reagan = new User(5L, "reagan", "reaganelizabeth@gmail.com",
+                encoder.encode("MyPassword"), "user", "active", UUID.randomUUID().toString());
+
         // Example existing movie (already in your database or in-memory list)
         Movie favoriteMovie = new Movie(
                 2L,
@@ -101,6 +104,7 @@ public class UserService {
         users.add(verifiedUser);
         users.add(suspendedUser);
         users.add(unverifiedUser);
+        users.add(reagan);
         /*
         users.add(new User(5L, "rpastor", "reaganelizabeth@gmail.com",
                 encoder.encode("MyPassword"), "admin", "active"));*/
