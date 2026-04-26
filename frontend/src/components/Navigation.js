@@ -29,34 +29,34 @@ function Navigation() {
             </div>
 
             <nav className="nav-tabs">
-                <a href="#" onClick={() => navigate("/")}>Movies</a>
+                <a href="" onClick={() => navigate("/")}>Movies</a>
 
                 {localStorage.getItem("role") && (
-                    <a href="#" onClick={() => navigate("/edit-profile")}>Edit Profile</a>
+                    <a href="" onClick={() => navigate("/edit-profile")}>Edit Profile</a>
                 )}
 
                 {localStorage.getItem("role") === "admin" && (
-                    <a href="#" onClick={() => navigate("/admin")}>Manage Movies</a>
+                    <a href="" onClick={() => navigate("/admin")}>Manage Movies</a>
                 )}
 
                 {localStorage.getItem("role") === "admin" && (
-                    <a href="#">Promotions</a>
+                    <a href="">Promotions</a>
                 )}
 
                 {localStorage.getItem("role") === "admin" && (
-                    <a href="#">Users</a>
+                    <a href="">Users</a>
                 )}
 
                 {localStorage.getItem("role") === "admin" && (
-                    <a href="#" onClick={() => navigate("/admin/showtimes")}>Showtimes</a>
+                    <a href="" onClick={() => navigate("/admin/showtimes")}>Showtimes</a>
                 )}
 
                 {(localStorage.getItem("role") === "user" || localStorage.getItem("role") === "admin") && (
-                    <a href="#" onClick={() => handleLogout()}>Logout</a>
+                    <a href="" onClick={() => handleLogout()}>Logout</a>
                 )}
 
                 {!localStorage.getItem("role") && (
-                    <a href="#" onClick={() => navigate("/login")}>Login</a>
+                    <a href="" onClick={() => navigate("/login")}>Login</a>
                 )}
             </nav>
         </header>
