@@ -13,6 +13,7 @@ import AddMovie from "./components/AddMovie";
 import AddShowtime from "./components/AddShowtime";
 import CheckoutPage from "./components/CheckoutPage";
 import GuestCheckoutPage from "./components/GuestCheckoutPage";
+import ChangePassword from "./components/ChangePassword";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="/admin/showtimes" element={<AddShowtime />} />
         <Route path="/guest-checkout" element={<GuestCheckoutPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/change-password" element={<ChangePassword />} />
       </Routes>
     </Router>
   );
