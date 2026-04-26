@@ -29,9 +29,7 @@ function ViewDetails() {
   return `${hour}:${minute} ${ampm}`;
 };
 
-  // -------------------------
-  // LOAD MOVIE
-  // -------------------------
+  // Load movie details
   useEffect(() => {
     fetch(`http://localhost:8080/movies/${id}`)
       .then((res) => res.json())
@@ -39,9 +37,7 @@ function ViewDetails() {
       .catch((err) => console.error("Movie error:", err));
   }, [id]);
 
-  // -------------------------
-  // LOAD SHOWTIMES FOR MOVIE
-  // -------------------------
+  // Load showtimes for this movie
   useEffect(() => {
     fetch(`http://localhost:8080/showtimes/movie/${id}`)
       .then((res) => res.json())
@@ -49,7 +45,7 @@ function ViewDetails() {
       .catch((err) => console.error("Showtimes error:", err));
   }, [id]);
 
-  // reset selection when movie changes
+  // Reset selection when movie changes
   useEffect(() => {
     setSelectedShowtime(null);
     setBookingMessage("");
