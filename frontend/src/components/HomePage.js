@@ -6,60 +6,45 @@ import SearchForMovie from "./SearchForMovie";
 import ShowDatesFilter from "./ShowDateFilter";
 
 function HomePage() {
-    const [message, setMessage] = useState(""); // state to store backend response
     const [movies, setMovies] = useState([]);
     const [selectedGenres, setSelectedGenres] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const [genres, setGenres] = useState([]);
-    const [role, setRole] = useState(null);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const [chatInput, setChatInput] = useState("");
     const [chatMessages, setChatMessages] = useState([]);
     const [chatLoading, setChatLoading] = useState(false);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        const storedRole = localStorage.getItem("role");
-
-        if (token) {
-            setIsLoggedIn(true);
-            setRole(storedRole);
-        }
-    }, []);
-
-
-    useEffect(() => {
         const fetchGenres = async () => {
             try {
-            const resp = await fetch("http://localhost:8080/movies/genres");
-            const data = await resp.json();
-            setGenres(data); // set the unique genres
+                const resp = await fetch("http://localhost:8080/movies/genres");
+                const data = await resp.json();
+                setGenres(data);
             } catch (error) {
-            console.error("Error fetching genres:", error);
+                console.error("Error fetching genres:", error);
             }
         };
 
         fetchGenres();
-    }, []); // run once on mount
+    }, []);
 
-    // Creates query to fetch movies by genre - Reagan
     const getMoviesByGenres = async (genres) => {
         try {
             setLoading(true);
 
-            // Build query string for multiple genres
-            const query = genres.map(g => `genre=${encodeURIComponent(g)}`).join("&");
+            const query = genres
+                .map(g => `genre=${encodeURIComponent(g)}`)
+                .join("&");
 
             const resp = await fetch(
-            `http://localhost:8080/movies${query ? `?${query}` : ""}`
+                `http://localhost:8080/movies${query ? `?${query}` : ""}`
             );
 
             const data = await resp.json();
             setMovies(data);
-
         } catch (error) {
             console.error("Error fetching movies:", error);
         } finally {
@@ -67,23 +52,25 @@ function HomePage() {
         }
     };
 
-    // Calls getMoviesByGenre when effect occurs - Reagan
     useEffect(() => {
         getMoviesByGenres(selectedGenres);
     }, [selectedGenres]);
 
-    // Adds selected genres to list - Reagan
     const handleGenreChange = (genre) => {
-        setSelectedGenres((prev) => prev.includes(genre) ? prev.filter((g) => g != genre) : [...prev, genre]);
-    }
+        setSelectedGenres((prev) =>
+            prev.includes(genre)
+                ? prev.filter((g) => g !== genre)
+                : [...prev, genre]
+        );
+    };
 
-    // Close genre dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
-        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-            setIsOpen(false);
-        }
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
         };
+
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
@@ -122,134 +109,140 @@ function HomePage() {
     };
 
     const handleDateChange = (start, end) => {
-        console.log("Selected dates:", start, end);
+        console.log(start, end);
     };
 
+    const currentlyRunningMovies = movies.filter(
+        (m) => m.status === "CURRENTLY_RUNNING"
+    );
 
-    const currentlyRunningMovies = movies.filter((m) => m.status === "CURRENTLY_RUNNING");
-    const comingSoonMovies = movies.filter((m) => m.status === "COMING_SOON");
+    const comingSoonMovies = movies.filter(
+        (m) => m.status === "COMING_SOON"
+    );
+
     return (
-        <div>
-            <Navigation />
+        <div className="page-layout">
 
-            <div className="filter-search-row">
-                <SearchForMovie setMovies={setMovies} />
+            {/* LEFT SIDE */}
+            <div className="main-content">
+                <Navigation />
 
-                <div className="genre-section">
-                    <div ref={dropdownRef} className="dropdown-container">
-                        {/* Dropdown Button */}
-                        <div
-                        onClick={() => setIsOpen(!isOpen)}
-                        className="dropdown-button"
-                        >
-                        {selectedGenres.length === 0
-                            ? "Filter by Genre"
-                            : `${selectedGenres.length} Selected`}
-                        <span
-                            className="dropdown-arrow"
-                            style={{
-                            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)"
-                            }}
-                        >
-                            ▼
-                        </span>
-                        </div>
+                <div className="filter-search-row">
+                    <SearchForMovie setMovies={setMovies} />
 
-                        {/* Dropdown Menu */}
-                        {isOpen && (
-                        <div className="dropdown-menu">
-                            {genres.length === 0 ? (
-                            <p style={{ padding: "8px", color: "#888" }}>Loading genres...</p>
-                            ) : (
-                            genres.map((genre) => (
-                                <label
-                                key={genre}
-                                className={`genre-item ${
-                                    selectedGenres.includes(genre) ? "checked" : ""
-                                }`}
+                    <div className="genre-section">
+                        <div ref={dropdownRef} className="dropdown-container">
+
+                            <div
+                                onClick={() => setIsOpen(!isOpen)}
+                                className="dropdown-button"
+                            >
+                                {selectedGenres.length === 0
+                                    ? "Filter by Genre"
+                                    : `${selectedGenres.length} Selected`}
+                                <span
+                                    className="dropdown-arrow"
+                                    style={{
+                                        transform: isOpen ? "rotate(180deg)" : "rotate(0deg)"
+                                    }}
                                 >
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGenres.includes(genre)}
-                                    onChange={() => handleGenreChange(genre)}
-                                />
-                                {genre}
-                                </label>
-                            ))
+                                    ▼
+                                </span>
+                            </div>
+
+                            {isOpen && (
+                                <div className="dropdown-menu">
+                                    {genres.map((genre) => (
+                                        <label
+                                            key={genre}
+                                            className={`genre-item ${
+                                                selectedGenres.includes(genre) ? "checked" : ""
+                                            }`}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedGenres.includes(genre)}
+                                                onChange={() => handleGenreChange(genre)}
+                                            />
+                                            {genre}
+                                        </label>
+                                    ))}
+                                </div>
                             )}
                         </div>
-                        )}
+
+                        <div className="selected-pills">
+                            {selectedGenres.length === 0 ? (
+                                <span className="no-movies">No Genre Selected</span>
+                            ) : (
+                                selectedGenres.map((genre) => (
+                                    <div
+                                        key={genre}
+                                        className="pill"
+                                        onClick={() => handleGenreChange(genre)}
+                                    >
+                                        {genre} ×
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     </div>
 
-                    {/* Selected Pills */}
-                    <div className="selected-pills">
-                        {selectedGenres.length === 0 ? (
-                        <span className="no-movies">No Genre Selected</span>
-                        ) : (
-                        selectedGenres.map((genre) => (
+                    <ShowDatesFilter onChange={handleDateChange} />
+                </div>
+
+                <h2>Currently Running</h2>
+                <MovieCarousel
+                    movies={currentlyRunningMovies}
+                    moviesPerPage={6}
+                />
+
+                <h2>Coming Soon</h2>
+                <MovieCarousel
+                    movies={comingSoonMovies}
+                    moviesPerPage={6}
+                />
+            </div>
+
+            {/* RIGHT SIDE CHAT */}
+            <div className="chat-sidebar">
+                <div className="chat-container">
+                    <h2>AI Assistant</h2>
+
+                    <div className="chat-box">
+                        {chatMessages.map((msg, i) => (
                             <div
-                            key={genre}
-                            className="pill"
-                            onClick={() => handleGenreChange(genre)}
+                                key={i}
+                                className={`chat-message ${msg.role}`}
                             >
-                            {genre} ×
+                                {msg.text}
                             </div>
-                        ))
+                        ))}
+
+                        {chatLoading && (
+                            <div className="chat-message ai">
+                                Typing...
+                            </div>
                         )}
                     </div>
-                </div>
 
-                <ShowDatesFilter onChange={handleDateChange} />
-            </div>
+                    <div className="chat-input-row">
+                        <input
+                            value={chatInput}
+                            onChange={(e) => setChatInput(e.target.value)}
+                            placeholder="Ask about movies..."
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") sendMessage();
+                            }}
+                        />
 
-            <div className="chat-container">
-                <h2>AI Assistant</h2>
-
-                <div className="chat-box">
-                    {chatMessages.map((msg, index) => (
-                        <div
-                            key={index}
-                            className={`chat-message ${msg.role}`}
-                        >
-                            {msg.text}
-                        </div>
-                    ))}
-
-                    {chatLoading && (
-                        <div className="chat-message ai">
-                            Typing...
-                        </div>
-                    )}
-                </div>
-
-                <div className="chat-input-row">
-                    <input
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        placeholder="Ask something about movies..."
-                    />
-
-                    <button onClick={sendMessage}>
-                        Send
-                    </button>
+                        <button onClick={sendMessage}>
+                            Send
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* Currently Running */}
-            <h2>Currently Running</h2>
-            {currentlyRunningMovies.length === 0 ? (
-            <p style={{ fontStyle: "italic", color: "#555"}}>No movies found</p>
-            ) : (
-            <MovieCarousel movies={currentlyRunningMovies} moviesPerPage={6} />
-            )}
-
-            {/* Coming Soon*/}
-            <h2>Coming Soon</h2>
-            {comingSoonMovies.length === 0 ? (
-            <p style={{ fontStyle: "italic", color: "#555" }}>No movies found</p>
-            ) : (
-            <MovieCarousel movies={comingSoonMovies} moviesPerPage={6} />
-            )}
         </div>
     );
 }
