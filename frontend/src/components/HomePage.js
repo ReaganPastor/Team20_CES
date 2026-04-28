@@ -16,6 +16,7 @@ function HomePage() {
     const [chatInput, setChatInput] = useState("");
     const [chatMessages, setChatMessages] = useState([]);
     const [chatLoading, setChatLoading] = useState(false);
+    const [chatOpen, setChatOpen] = useState(true);
 
     useEffect(() => {
         const fetchGenres = async () => {
@@ -189,6 +190,13 @@ function HomePage() {
                     </div>
 
                     <ShowDatesFilter onChange={handleDateChange} />
+
+                    <button
+                        className="chat-toggle-btn"
+                        onClick={() => setChatOpen(!chatOpen)}
+                    >
+                        {chatOpen ? "Hide AI" : "Show AI"}
+                    </button>
                 </div>
 
                 <h2>Currently Running</h2>
@@ -205,43 +213,36 @@ function HomePage() {
             </div>
 
             {/* RIGHT SIDE CHAT */}
-            <div className="chat-sidebar">
-                <div className="chat-container">
-                    <h2>AI Assistant</h2>
+            {chatOpen && (
+                <div className="chat-sidebar">
+                    <div className="chat-container">
+                        <h2>AI Assistant</h2>
 
-                    <div className="chat-box">
-                        {chatMessages.map((msg, i) => (
-                            <div
-                                key={i}
-                                className={`chat-message ${msg.role}`}
-                            >
-                                {msg.text}
-                            </div>
-                        ))}
+                        <div className="chat-box">
+                            {chatMessages.map((msg, i) => (
+                                <div key={i} className={`chat-message ${msg.role}`}>
+                                    {msg.text}
+                                </div>
+                            ))}
 
-                        {chatLoading && (
-                            <div className="chat-message ai">
-                                Typing...
-                            </div>
-                        )}
-                    </div>
+                            {chatLoading && (
+                                <div className="chat-message ai">Typing...</div>
+                            )}
+                        </div>
 
-                    <div className="chat-input-row">
-                        <input
-                            value={chatInput}
-                            onChange={(e) => setChatInput(e.target.value)}
-                            placeholder="Ask about movies..."
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") sendMessage();
-                            }}
-                        />
+                        <div className="chat-input-row">
+                            <input
+                                value={chatInput}
+                                onChange={(e) => setChatInput(e.target.value)}
+                                placeholder="Ask about movies..."
+                                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                            />
 
-                        <button onClick={sendMessage}>
-                            Send
-                        </button>
+                            <button onClick={sendMessage}>Send</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
         </div>
     );
