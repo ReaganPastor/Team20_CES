@@ -51,6 +51,7 @@ public class SecurityConfig {
                 .requestMatchers("/bookings/**").permitAll()
                 .requestMatchers("/release/**").permitAll()
                 .requestMatchers("/reserve/**").permitAll()
+                .requestMatchers("/api/chat").permitAll()
                 .requestMatchers("/api/users/*/cards").hasRole("USER")
                 .anyRequest().authenticated()
             .and()

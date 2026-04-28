@@ -24,8 +24,8 @@ public class GeminiService {
 
     public String askGemini(String message) {
 
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/"
-                + "gemini-1.5-flash:generateContent?key=" + apiKey;
+        String url = "https://generativelanguage.googleapis.com/v1/models/"
+        + "gemini-2.5-flash:generateContent?key=" + apiKey;
 
         Map<String, Object> body = Map.of(
                 "contents", List.of(
@@ -54,8 +54,8 @@ public class GeminiService {
             return (String) firstPart.get("text");
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return "Error calling Gemini API";
+                e.printStackTrace();
+                return "Error calling Gemini API: " + e.getMessage();
         }
     }
 }

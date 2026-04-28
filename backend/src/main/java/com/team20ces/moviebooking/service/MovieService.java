@@ -65,6 +65,10 @@ public class MovieService {
         return jdbcTemplate.query(sql.toString(), movieRowMapper, params.toArray());
     }
 
+    public List<Movie> getAllMovies() {
+        return getAll(Optional.empty(), List.of());
+    }
+
     /**
      * Get one movie by ID.
      */
