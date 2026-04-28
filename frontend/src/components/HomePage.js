@@ -190,13 +190,6 @@ function HomePage() {
                     </div>
 
                     <ShowDatesFilter onChange={handleDateChange} />
-
-                    <button
-                        className="chat-toggle-btn"
-                        onClick={() => setChatOpen(!chatOpen)}
-                    >
-                        {chatOpen ? "Hide AI" : "Show AI"}
-                    </button>
                 </div>
 
                 <h2>Currently Running</h2>
@@ -211,7 +204,6 @@ function HomePage() {
                     moviesPerPage={6}
                 />
             </div>
-
             {/* RIGHT SIDE CHAT */}
             {chatOpen && (
                 <div className="chat-sidebar">
@@ -244,6 +236,12 @@ function HomePage() {
                 </div>
             )}
 
+            <button
+                className="chat-toggle-btn"
+                onClick={() => setChatOpen(!chatOpen)}
+            >
+                {chatOpen ? "Close Chat" : "Open Chat"}
+            </button>
         </div>
     );
 }
