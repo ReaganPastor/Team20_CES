@@ -140,54 +140,104 @@ h2 {
   width: 100%;
 }
 
+/* CHAT CONTAINER (match app background) */
 .chat-container {
-    margin: 20px 0;
+    margin: 20px auto;
     padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    background: #fafafa;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    background: #1e293b; /* slate like dropdown */
+    width: 90%;
+    max-width: 1100px;
 }
 
-.chat-box {
-    max-height: 250px;
-    overflow-y: auto;
+/* CHAT TITLE */
+.chat-container h2 {
+    color: #60a5fa;
     margin-bottom: 10px;
-    padding: 10px;
-    background: white;
-    border-radius: 8px;
 }
 
+/* CHAT BOX */
+.chat-box {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: #0f172a; /* deep navy like body */
+    border: 1px solid #334155;
+    border-radius: 10px;
+}
+
+/* SCROLLBAR (optional but nice) */
+.chat-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-box::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+}
+
+/* MESSAGE BASE */
 .chat-message {
-    margin: 5px 0;
-    padding: 8px 10px;
-    border-radius: 8px;
+    margin: 6px 0;
+    padding: 10px 12px;
+    border-radius: 10px;
     width: fit-content;
     max-width: 70%;
+    font-size: 0.95rem;
+    line-height: 1.4;
 }
 
+/* USER MESSAGE */
 .chat-message.user {
-    background: #d1e7ff;
+    background: #2563eb;
+    color: white;
     margin-left: auto;
     text-align: right;
 }
 
+/* AI MESSAGE */
 .chat-message.ai {
-    background: #e6e6e6;
+    background: #334155;
+    color: #f1f5f9;
     margin-right: auto;
 }
 
+/* INPUT ROW */
 .chat-input-row {
     display: flex;
     gap: 10px;
 }
 
+/* INPUT FIELD */
 .chat-input-row input {
     flex: 1;
-    padding: 8px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #f1f5f9;
+    outline: none;
 }
 
+.chat-input-row input:focus {
+    border-color: #2563eb;
+}
+
+/* SEND BUTTON */
 .chat-input-row button {
-    padding: 8px 12px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.chat-input-row button:hover {
+    background: #1d4ed8;
 }
 
 @media (max-width: 768px) {
