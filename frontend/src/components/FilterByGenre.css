@@ -140,6 +140,56 @@ h2 {
   width: 100%;
 }
 
+.chat-container {
+    margin: 20px 0;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fafafa;
+}
+
+.chat-box {
+    max-height: 250px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 8px;
+}
+
+.chat-message {
+    margin: 5px 0;
+    padding: 8px 10px;
+    border-radius: 8px;
+    width: fit-content;
+    max-width: 70%;
+}
+
+.chat-message.user {
+    background: #d1e7ff;
+    margin-left: auto;
+    text-align: right;
+}
+
+.chat-message.ai {
+    background: #e6e6e6;
+    margin-right: auto;
+}
+
+.chat-input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input-row input {
+    flex: 1;
+    padding: 8px;
+}
+
+.chat-input-row button {
+    padding: 8px 12px;
+}
+
 @media (max-width: 768px) {
   .filter-search-row {
     flex-direction: column;

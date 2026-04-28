@@ -16,6 +16,10 @@ function HomePage() {
     const [role, setRole] = useState(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+    const [chatInput, setChatInput] = useState("");
+    const [chatMessages, setChatMessages] = useState([]);
+    const [chatLoading, setChatLoading] = useState(false);
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         const storedRole = localStorage.getItem("role");
@@ -84,6 +88,38 @@ function HomePage() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    const sendMessage = async () => {
+        if (!chatInput.trim()) return;
+
+        const userMessage = chatInput;
+
+        setChatMessages(prev => [...prev, { role: "user", text: userMessage }]);
+        setChatInput("");
+        setChatLoading(true);
+
+        try {
+            const res = await fetch("http://localhost:8080/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userMessage })
+            });
+
+            const data = await res.json();
+
+            setChatMessages(prev => [
+                ...prev,
+                { role: "ai", text: data.reply }
+            ]);
+
+        } catch (err) {
+            setChatMessages(prev => [
+                ...prev,
+                { role: "ai", text: "Error contacting AI." }
+            ]);
+        } finally {
+            setChatLoading(false);
+        }
+    };
 
     const handleDateChange = (start, end) => {
         console.log("Selected dates:", start, end);
@@ -164,6 +200,39 @@ function HomePage() {
                 </div>
 
                 <ShowDatesFilter onChange={handleDateChange} />
+            </div>
+
+            <div className="chat-container">
+                <h2>AI Assistant</h2>
+
+                <div className="chat-box">
+                    {chatMessages.map((msg, index) => (
+                        <div
+                            key={index}
+                            className={`chat-message ${msg.role}`}
+                        >
+                            {msg.text}
+                        </div>
+                    ))}
+
+                    {chatLoading && (
+                        <div className="chat-message ai">
+                            Typing...
+                        </div>
+                    )}
+                </div>
+
+                <div className="chat-input-row">
+                    <input
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder="Ask something about movies..."
+                    />
+
+                    <button onClick={sendMessage}>
+                        Send
+                    </button>
+                </div>
             </div>
 
             {/* Currently Running */}
