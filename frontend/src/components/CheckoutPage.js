@@ -109,9 +109,6 @@ export default function CheckoutPage() {
     return `${hour}:${minute} ${ampm}`;
   };
 
-  // =========================================
-  // EMAIL CONFIRMATION (UNCHANGED)
-  // =========================================
   const handleConfirmEmail = async () => {
     try {
       setLoadingEmailAction(true);
@@ -130,9 +127,6 @@ export default function CheckoutPage() {
     }
   };
 
-  // =========================================
-  // 🔥 FINAL ORDER LOGIC (CHANGED)
-  // =========================================
   const handleCompleteOrder = async () => {
     if (!confirmEmail) {
       alert("Please confirm your email before completing the order.");
@@ -237,6 +231,8 @@ export default function CheckoutPage() {
                     selectedShowtime: checkoutState.showtime,
                     selectedShowDate: checkoutState.showDate,
                     showId: checkoutState.showId,
+                    seats: checkoutState.seats,
+                    fromCheckout: true
                   },
                 })
               }
