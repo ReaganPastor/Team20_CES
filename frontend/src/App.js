@@ -14,6 +14,8 @@ import AddShowtime from "./components/AddShowtime";
 import CheckoutPage from "./components/CheckoutPage";
 import GuestCheckoutPage from "./components/GuestCheckoutPage";
 import ChangePassword from "./components/ChangePassword";
+import OrderConfirmationPage from "./components/OrderConfirmationPage";
+import OrderHistoryPage from "./components/OrderHistoryPage";
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
         <Route path="/guest-checkout" element={<GuestCheckoutPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+        <Route path="/order-history" element={<OrderHistoryPage />} />
       </Routes>
     </Router>
   );

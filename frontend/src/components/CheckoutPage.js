@@ -108,6 +108,33 @@ export default function CheckoutPage() {
     }
   };
 
+  const handleCompleteOrder = () => {
+    const order = {
+      confirmationNumber: `CES-${Date.now()}`,
+      movieTitle,
+      showtime,
+      selectedSeats,
+      tickets,
+      email: userEmail || email,
+      ticketTotal: totalPrice,
+      serviceFee,
+      tax,
+      orderTotal,
+      orderDate: new Date().toLocaleString(),
+    };
+
+    const oldOrders = JSON.parse(localStorage.getItem("orderHistory")) || [];
+    const updatedOrders = [order, ...oldOrders];
+
+    localStorage.setItem("orderHistory", JSON.stringify(updatedOrders));
+    sessionStorage.setItem("lastOrder", JSON.stringify(order));
+    sessionStorage.removeItem("pendingCheckout");
+
+    navigate("/order-confirmation", {
+      state: order,
+    });
+  };
+
   return (
     <div className="checkout-page">
       <Navigation />
@@ -164,11 +191,9 @@ export default function CheckoutPage() {
 
             <button
               className="primary-btn"
-              onClick={() =>
-                alert("Payment processing is not part of this deliverable yet.")
-              }
+              onClick={handleCompleteOrder}
             >
-              Continue to Payment
+              Complete Order
             </button>
           </div>
         </div>
