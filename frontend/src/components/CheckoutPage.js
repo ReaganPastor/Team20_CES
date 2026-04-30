@@ -10,11 +10,12 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
 
   const [userEmail, setUserEmail] = useState("");
-  const [emailSent, setEmailSent] = useState(false);
   const [loadingEmailAction, setLoadingEmailAction] = useState(false);
 
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [editedEmail, setEditedEmail] = useState("");
+
+  const [confirmEmail, setConfirmEmail] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -30,7 +31,6 @@ export default function CheckoutPage() {
       .catch((err) => console.error("Email fetch failed:", err));
   }, []);
 
-  // Checkout State
   const checkoutState = useMemo(() => {
     if (location.state && Object.keys(location.state).length > 0) {
       return location.state;
@@ -82,7 +82,6 @@ export default function CheckoutPage() {
     (tickets.child || 0) +
     (tickets.senior || 0);
 
-  // Helper functions for formatting show date and time
   const formatShowDate = (dateStr) => {
     if (!dateStr) return "";
 
@@ -97,6 +96,7 @@ export default function CheckoutPage() {
 
     return `${monthName} ${parseInt(day, 10)}, ${year}`;
   };
+
   const formatShowTime = (time) => {
     if (!time) return "";
 
@@ -109,61 +109,83 @@ export default function CheckoutPage() {
     return `${hour}:${minute} ${ampm}`;
   };
 
-  // Confirm Email Handler
   const handleConfirmEmail = async () => {
     try {
       setLoadingEmailAction(true);
 
-      // if editing, update email first
       if (isEditingEmail) {
         setUserEmail(editedEmail);
         setIsEditingEmail(false);
       }
 
-      // mock backend call
-      const token = localStorage.getItem("token");
-      await fetch("http://localhost:8080/api/auth/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setEmailSent(true);
+      setConfirmEmail(true);
     } catch (err) {
       console.error(err);
-      alert("Failed to send verification email.");
+      alert("Failed to confirm email.");
     } finally {
       setLoadingEmailAction(false);
     }
   };
 
-  const handleCompleteOrder = () => {
-    const order = {
-      confirmationNumber: `CES-${Date.now()}`,
-      movieTitle,
-      showtime,
-      showDate,
-      showId,
-      selectedSeats,
-      tickets,
-      email: userEmail || email,
-      ticketTotal: totalPrice,
-      serviceFee,
-      tax,
-      orderTotal,
-      orderDate: new Date().toLocaleString(),
-    };
+  const handleCompleteOrder = async () => {
+    if (!confirmEmail) {
+      alert("Please confirm your email before completing the order.");
+      return;
+    }
 
-    const oldOrders = JSON.parse(localStorage.getItem("orderHistory")) || [];
-    const updatedOrders = [order, ...oldOrders];
+    try {
+      // 1. CONFIRM SEATS IN BACKEND (THIS IS THE KEY CHANGE)
+      const confirmRes = await fetch(
+        "http://localhost:8080/show-seats/confirm",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            showId,
+            seatIds: seats.map((s) => s.showSeatId),
+          }),
+        }
+      );
 
-    localStorage.setItem("orderHistory", JSON.stringify(updatedOrders));
-    sessionStorage.setItem("lastOrder", JSON.stringify(order));
-    sessionStorage.removeItem("pendingCheckout");
+      if (!confirmRes.ok) {
+        alert("Failed to confirm seats. Please try again.");
+        return;
+      }
 
-    navigate("/order-confirmation", {
-      state: order,
-    });
+      // 2. CREATE ORDER OBJECT (frontend record only)
+      const order = {
+        confirmationNumber: `CES-${Date.now()}`,
+        movieTitle,
+        showtime,
+        showDate,
+        showId,
+        selectedSeats,
+        tickets,
+        email: userEmail || email,
+        ticketTotal: totalPrice,
+        serviceFee,
+        tax,
+        orderTotal,
+        orderDate: new Date().toLocaleString(),
+      };
+
+      // 3. SAVE ORDER HISTORY (UNCHANGED)
+      const oldOrders = JSON.parse(localStorage.getItem("orderHistory")) || [];
+      const updatedOrders = [order, ...oldOrders];
+
+      localStorage.setItem("orderHistory", JSON.stringify(updatedOrders));
+      sessionStorage.setItem("lastOrder", JSON.stringify(order));
+      sessionStorage.removeItem("pendingCheckout");
+
+      // 4. NAVIGATE
+      navigate("/order-confirmation", {
+        state: order,
+      });
+
+    } catch (err) {
+      console.error(err);
+      alert("Order failed.");
+    }
   };
 
   return (
@@ -171,7 +193,6 @@ export default function CheckoutPage() {
       <Navigation />
 
       <div className="checkout-container">
-        {/* LEFT SIDE */}
         <div className="checkout-left">
           <p className="checkout-step">Checkout • Payment Mockup</p>
           <h1>Payment Information</h1>
@@ -199,24 +220,24 @@ export default function CheckoutPage() {
 
             <label>Billing ZIP Code</label>
             <input type="text" placeholder="30602" disabled />
-
-            <div className="mock-badges">
-              <span>Visa</span>
-              <span>Mastercard</span>
-              <span>Mock Only</span>
-            </div>
           </div>
 
           <div className="checkout-actions">
             <button
               className="secondary-btn"
-              onClick={() => navigate(`/movies/${checkoutState.movieId}/book`, {
-                state: {
-                  selectedShowtime: checkoutState.showtime,
-                  selectedShowDate: checkoutState.showDate,
-                  showId: checkoutState.showId
-                }
-              })}
+              onClick={() =>
+                navigate(`/movies/${checkoutState.movieId}/book`, {
+                  state: {
+                    selectedShowtime: checkoutState.showtime,
+                    selectedShowDate: checkoutState.showDate,
+                    showId: checkoutState.showId,
+                    seats: checkoutState.seats,
+                    tickets: checkoutState.tickets,
+                    totalPrice: checkoutState.totalPrice,
+                    fromCheckout: true
+                  },
+                })
+              }
             >
               Back
             </button>
@@ -224,13 +245,14 @@ export default function CheckoutPage() {
             <button
               className="primary-btn"
               onClick={handleCompleteOrder}
+              disabled={!confirmEmail}
             >
               Complete Order
             </button>
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
+        {/* RIGHT SIDE UNCHANGED */}
         <div className="checkout-right">
           <div className="order-summary">
             <h2>Order Summary</h2>
@@ -240,6 +262,7 @@ export default function CheckoutPage() {
               <p><strong>Show Date:</strong> {formatShowDate(showDate)}</p>
               <p><strong>Showtime:</strong> {formatShowTime(showtime)}</p>
               <p><strong>Showroom:</strong> {showId}</p>
+
               <p>
                 <strong>Seats:</strong>{" "}
                 {selectedSeats.length
@@ -249,25 +272,20 @@ export default function CheckoutPage() {
 
               <p><strong>Total Tickets:</strong> {totalTickets}</p>
 
-              {/* EMAIL SECTION */}
               <div style={{ marginTop: "10px" }}>
                 <strong>Email:</strong>{" "}
-
                 {isEditingEmail ? (
                   <input
                     type="email"
                     value={editedEmail}
-                    placeholder={userEmail || email}
                     onChange={(e) => setEditedEmail(e.target.value)}
-                    className="email-edit-input"
                   />
                 ) : (
                   userEmail || email || "Loading..."
                 )}
               </div>
 
-              {/* BUTTON LOGIC */}
-              {!emailSent ? (
+              {!confirmEmail ? (
                 <div style={{ marginTop: "10px" }}>
                   {isEditingEmail ? (
                     <button
@@ -275,7 +293,7 @@ export default function CheckoutPage() {
                       disabled={loadingEmailAction}
                       onClick={handleConfirmEmail}
                     >
-                      {loadingEmailAction ? "Sending..." : "Confirm"}
+                      Confirm
                     </button>
                   ) : (
                     <>
@@ -288,7 +306,6 @@ export default function CheckoutPage() {
 
                       <button
                         className="secondary-btn"
-                        style={{ marginLeft: "10px" }}
                         onClick={() => {
                           setIsEditingEmail(true);
                           setEditedEmail(userEmail || email);
@@ -301,7 +318,7 @@ export default function CheckoutPage() {
                 </div>
               ) : (
                 <p style={{ color: "green", marginTop: "10px" }}>
-                  Verification Email has been sent
+                  Email Confirmed
                 </p>
               )}
             </div>

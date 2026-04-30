@@ -218,6 +218,12 @@
   font-size: 0.92rem;
 }
 
+.primary-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background-color: #999;
+}
+
 @media (max-width: 900px) {
   .checkout-container {
     grid-template-columns: 1fr;
