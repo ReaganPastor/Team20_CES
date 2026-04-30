@@ -36,6 +36,21 @@ function BookingPage() {
     return `${hour}:${minute} ${ampm}`;
   };
 
+  const formatShowDate = (dateStr) => {
+    if (!dateStr) return "";
+
+    const [year, month, day] = dateStr.split("-");
+
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+
+    const monthName = months[parseInt(month, 10) - 1];
+
+    return `${monthName} ${parseInt(day, 10)}, ${year}`;
+  };
+
   const loadSeats = useCallback(() => {
     if (!showId) return;
 
@@ -225,6 +240,10 @@ function BookingPage() {
             />
             <div>
               <h3>{movie.title}</h3>
+              <p>
+                <strong>Date:</strong>{" "}
+                {formatShowDate(passedDate || movie.showDate)}
+              </p>
               <p>
                 <strong>Time:</strong>{" "}
                 {formatTime(passedShowtime || movie.showtime)}
