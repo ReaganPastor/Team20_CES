@@ -1,0 +1,37 @@
+.order-history-page {
+    min-height: 100vh;
+    background-color: #f5f5f5;
+  }
+  
+  .order-history-container {
+    max-width: 900px;
+    margin: 50px auto;
+    background: white;
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    color: #222;
+  }
+  
+  .order-history-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    background: #fafafa;
+    color: #222;
+  }
+  
+  .order-history-card h2 {
+    margin-top: 0;
+    color: #222;
+  }
+  
+  .order-history-container p,
+  .order-history-container h1,
+  .order-history-container h2,
+  .order-history-container strong,
+  .order-history-card p,
+  .order-history-card span {
+    color: #222;
+  }

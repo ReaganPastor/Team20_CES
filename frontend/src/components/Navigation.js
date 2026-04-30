@@ -35,6 +35,10 @@ function Navigation() {
                     <a href="" onClick={() => navigate("/edit-profile")}>Edit Profile</a>
                 )}
 
+                {localStorage.getItem("role") && (
+                    <a href="" onClick={() => navigate("/order-history")}>Order History</a>
+                )}
+
                 {localStorage.getItem("role") === "admin" && (
                     <a href="" onClick={() => navigate("/admin")}>Manage Movies</a>
                 )}
