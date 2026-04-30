@@ -29,6 +29,33 @@ function OrderConfirmationPage() {
     );
   }
 
+    // Helper functions for formatting show date and time
+  const formatShowDate = (dateStr) => {
+    if (!dateStr) return "";
+
+    const [year, month, day] = dateStr.split("-");
+
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+
+    const monthName = months[parseInt(month, 10) - 1];
+
+    return `${monthName} ${parseInt(day, 10)}, ${year}`;
+  };
+  const formatShowTime = (time) => {
+    if (!time) return "";
+
+    const [hourStr, minute] = time.split(":");
+    let hour = parseInt(hourStr, 10);
+
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+
+    return `${hour}:${minute} ${ampm}`;
+  };
+
   return (
     <div>
       <Navigation />
@@ -42,7 +69,8 @@ function OrderConfirmationPage() {
           <div className="confirmation-details">
             <p><strong>Confirmation Number:</strong> {order.confirmationNumber}</p>
             <p><strong>Movie:</strong> {order.movieTitle}</p>
-            <p><strong>Showtime:</strong> {order.showtime}</p>
+            <p><strong>Show Date:</strong> {formatShowDate(order.showDate)}</p>
+            <p><strong>Showtime:</strong> {formatShowTime(order.showtime)}</p>
             <p><strong>Seats:</strong> {order.selectedSeats.join(", ")}</p>
             <p><strong>Email:</strong> {order.email || "Not provided"}</p>
             <p><strong>Total:</strong> ${Number(order.orderTotal).toFixed(2)}</p>

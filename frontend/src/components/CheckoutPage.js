@@ -81,6 +81,7 @@ export default function CheckoutPage() {
     (tickets.child || 0) +
     (tickets.senior || 0);
 
+  // Helper functions for formatting show date and time
   const formatShowDate = (dateStr) => {
     if (!dateStr) return "";
 
@@ -140,6 +141,7 @@ export default function CheckoutPage() {
       confirmationNumber: `CES-${Date.now()}`,
       movieTitle,
       showtime,
+      showDate,
       selectedSeats,
       tickets,
       email: userEmail || email,
@@ -209,6 +211,7 @@ export default function CheckoutPage() {
               onClick={() => navigate(`/movies/${checkoutState.movieId}/book`, {
                 state: {
                   selectedShowtime: checkoutState.showtime,
+                  selectedShowDate: checkoutState.showDate,
                   showId: checkoutState.showId
                 }
               })}
