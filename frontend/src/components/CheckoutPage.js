@@ -109,6 +109,9 @@ export default function CheckoutPage() {
     return `${hour}:${minute} ${ampm}`;
   };
 
+  // =========================================
+  // EMAIL CONFIRMATION (UNCHANGED)
+  // =========================================
   const handleConfirmEmail = async () => {
     try {
       setLoadingEmailAction(true);
@@ -127,38 +130,68 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleCompleteOrder = () => {
+  // =========================================
+  // 🔥 FINAL ORDER LOGIC (CHANGED)
+  // =========================================
+  const handleCompleteOrder = async () => {
     if (!confirmEmail) {
       alert("Please confirm your email before completing the order.");
       return;
     }
 
-    const order = {
-      confirmationNumber: `CES-${Date.now()}`,
-      movieTitle,
-      showtime,
-      showDate,
-      showId,
-      selectedSeats,
-      tickets,
-      email: userEmail || email,
-      ticketTotal: totalPrice,
-      serviceFee,
-      tax,
-      orderTotal,
-      orderDate: new Date().toLocaleString(),
-    };
+    try {
+      // 1. CONFIRM SEATS IN BACKEND (THIS IS THE KEY CHANGE)
+      const confirmRes = await fetch(
+        "http://localhost:8080/show-seats/confirm",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            showId,
+            seatIds: seats.map((s) => s.showSeatId),
+          }),
+        }
+      );
 
-    const oldOrders = JSON.parse(localStorage.getItem("orderHistory")) || [];
-    const updatedOrders = [order, ...oldOrders];
+      if (!confirmRes.ok) {
+        alert("Failed to confirm seats. Please try again.");
+        return;
+      }
 
-    localStorage.setItem("orderHistory", JSON.stringify(updatedOrders));
-    sessionStorage.setItem("lastOrder", JSON.stringify(order));
-    sessionStorage.removeItem("pendingCheckout");
+      // 2. CREATE ORDER OBJECT (frontend record only)
+      const order = {
+        confirmationNumber: `CES-${Date.now()}`,
+        movieTitle,
+        showtime,
+        showDate,
+        showId,
+        selectedSeats,
+        tickets,
+        email: userEmail || email,
+        ticketTotal: totalPrice,
+        serviceFee,
+        tax,
+        orderTotal,
+        orderDate: new Date().toLocaleString(),
+      };
 
-    navigate("/order-confirmation", {
-      state: order,
-    });
+      // 3. SAVE ORDER HISTORY (UNCHANGED)
+      const oldOrders = JSON.parse(localStorage.getItem("orderHistory")) || [];
+      const updatedOrders = [order, ...oldOrders];
+
+      localStorage.setItem("orderHistory", JSON.stringify(updatedOrders));
+      sessionStorage.setItem("lastOrder", JSON.stringify(order));
+      sessionStorage.removeItem("pendingCheckout");
+
+      // 4. NAVIGATE
+      navigate("/order-confirmation", {
+        state: order,
+      });
+
+    } catch (err) {
+      console.error(err);
+      alert("Order failed.");
+    }
   };
 
   return (
@@ -221,6 +254,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
+        {/* RIGHT SIDE UNCHANGED */}
         <div className="checkout-right">
           <div className="order-summary">
             <h2>Order Summary</h2>
