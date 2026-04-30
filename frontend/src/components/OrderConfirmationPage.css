@@ -1,59 +1,88 @@
+/* PAGE BACKGROUND */
 .confirmation-page {
-    min-height: 100vh;
-    background-color: #f5f5f5;
-  }
-  
+  min-height: 100vh;
+  color: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  gap: 40px;
+}
+
+/* MAIN CARD */
+.confirmation-card {
+  background: linear-gradient(145deg, #020617, #0a0f22);
+  border-radius: 16px;
+  box-shadow: 0 0 12px 2px rgba(59, 130, 246, 0.5);
+  max-width: 800px;
+  width: 100%;
+  padding: 30px;
+  text-align: center;
+}
+
+/* TITLE */
+.confirmation-card h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+/* MESSAGE */
+.confirmation-message {
+  margin-bottom: 20px;
+  color: #cbd5e1;
+}
+
+/* DETAILS BOX */
+.confirmation-details {
+  background: linear-gradient(145deg, #0a0f22, #020617);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: left;
+  box-shadow: 0 0 10px 2px rgba(59, 130, 246, 0.4);
+  margin-bottom: 20px;
+}
+
+.confirmation-details p {
+  margin: 8px 0;
+  color: #e2e8f0;
+}
+
+.confirmation-details strong {
+  color: #f1f5f9;
+}
+
+/* BUTTONS */
+.confirmation-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.confirmation-buttons button,
+.confirmation-card button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #1e293b;
+  color: #f1f5f9;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+  transition: 0.2s ease;
+}
+
+.confirmation-buttons button:hover,
+.confirmation-card button:hover {
+  transform: scale(1.03);
+  background: #0f172a;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
   .confirmation-card {
-    max-width: 700px;
-    margin: 60px auto;
-    background: white;
-    padding: 35px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    color: #222;
-  }
-  
-  .confirmation-card h1 {
-    margin-bottom: 10px;
-    color: #222;
-  }
-  
-  .confirmation-message {
-    margin-bottom: 25px;
-    color: #333;
-  }
-  
-  .confirmation-details {
-    background: #f0f0f0;
     padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 25px;
-    color: #222;
   }
-  
-  .confirmation-details p {
-    margin: 10px 0;
-    color: #222;
-  }
-  
-  .confirmation-card p,
-  .confirmation-card strong,
-  .confirmation-details strong,
-  .confirmation-details span {
-    color: #222;
-  }
-  
+
   .confirmation-buttons {
-    display: flex;
-    gap: 15px;
+    flex-direction: column;
   }
-  
-  .confirmation-buttons button,
-  .confirmation-card button {
-    padding: 10px 18px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    background: #222;
-    color: white;
-  }
+}
