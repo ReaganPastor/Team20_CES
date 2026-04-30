@@ -81,7 +81,20 @@ export default function CheckoutPage() {
     (tickets.child || 0) +
     (tickets.senior || 0);
 
-  const formatShowDate = (date) => date || "";
+  const formatShowDate = (dateStr) => {
+    if (!dateStr) return "";
+
+    const [year, month, day] = dateStr.split("-");
+
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+
+    const monthName = months[parseInt(month, 10) - 1];
+
+    return `${monthName} ${parseInt(day, 10)}, ${year}`;
+  };
   const formatShowTime = (time) => {
     if (!time) return "";
 
@@ -93,7 +106,7 @@ export default function CheckoutPage() {
 
     return `${hour}:${minute} ${ampm}`;
   };
-  
+
   // Confirm Email Handler
   const handleConfirmEmail = async () => {
     try {
