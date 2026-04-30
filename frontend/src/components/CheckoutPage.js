@@ -62,6 +62,7 @@ export default function CheckoutPage() {
     movieTitle = "Movie Title",
     showtime = "Showtime not selected",
     showDate = "Show date not selected",
+    showId,
     seats = [],
     tickets = { adult: 0, child: 0, senior: 0 },
     totalPrice = 0,
@@ -142,6 +143,7 @@ export default function CheckoutPage() {
       movieTitle,
       showtime,
       showDate,
+      showId,
       selectedSeats,
       tickets,
       email: userEmail || email,
@@ -237,6 +239,7 @@ export default function CheckoutPage() {
               <p><strong>Movie:</strong> {movieTitle}</p>
               <p><strong>Show Date:</strong> {formatShowDate(showDate)}</p>
               <p><strong>Showtime:</strong> {formatShowTime(showtime)}</p>
+              <p><strong>Showroom:</strong> {showId}</p>
               <p>
                 <strong>Seats:</strong>{" "}
                 {selectedSeats.length

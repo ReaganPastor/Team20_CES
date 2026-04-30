@@ -71,6 +71,7 @@ function OrderConfirmationPage() {
             <p><strong>Movie:</strong> {order.movieTitle}</p>
             <p><strong>Show Date:</strong> {formatShowDate(order.showDate)}</p>
             <p><strong>Showtime:</strong> {formatShowTime(order.showtime)}</p>
+            <p><strong>Showroom:</strong> {order.showId}</p>
             <p><strong>Seats:</strong> {order.selectedSeats.join(", ")}</p>
             <p><strong>Email:</strong> {order.email || "Not provided"}</p>
             <p><strong>Total:</strong> ${Number(order.orderTotal).toFixed(2)}</p>
