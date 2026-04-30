@@ -80,6 +80,28 @@ export default function CheckoutPage() {
     (tickets.child || 0) +
     (tickets.senior || 0);
 
+
+  const formatShowtime = (timeString) => {
+    if (!timeString) return "Showtime not selected";
+
+    const date = new Date(timeString);
+
+    // If it's just "HH:mm", manually parse it
+    if (isNaN(date.getTime())) {
+      const [hours, minutes] = timeString.split(":");
+      const h = parseInt(hours, 10);
+      const ampm = h >= 12 ? "PM" : "AM";
+      const formattedHour = h % 12 || 12;
+
+      return `${formattedHour}:${minutes} ${ampm}`;
+    }
+
+    return date.toLocaleString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
   // Confirm Email Handler
   const handleConfirmEmail = async () => {
     try {
@@ -205,7 +227,7 @@ export default function CheckoutPage() {
 
             <div className="summary-block">
               <p><strong>Movie:</strong> {movieTitle}</p>
-              <p><strong>Showtime:</strong> {showtime}</p>
+              <p><strong>Showtime:</strong> {formatShowtime(showtime)}</p>
 
               <p>
                 <strong>Seats:</strong>{" "}
