@@ -1,70 +1,84 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./Navigation.css";
-import logo from "../icons/projectorLogo.png"; // <- correct import from src/icons
+import logo from "../icons/projectorLogo.png";
 
 function Navigation() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const role = localStorage.getItem("role");
 
-    const handleLogout = () => {
-        localStorage.removeItem("role");
-        localStorage.removeItem("username");
-        localStorage.removeItem("token");
-        navigate("/");
-    };
+  const handleLogout = () => {
+    localStorage.removeItem("role");
+    localStorage.removeItem("username");
+    localStorage.removeItem("token");
+    navigate("/");
+  };
 
-    return(
-        <header className="App-header">
-            <div className="logo">
-                <img
-                    src={logo}  // <- use the imported logo
-                    alt="CES Logo"
-                    className="logo-img"
-                />
-                <div className="logo-text">
-                    <span>Cinema</span>
-                    <span>E-booking</span>
-                    <span>System</span>
-                </div>
-            </div>
+  return (
+    <header className="App-header">
+      <div className="logo">
+        <img src={logo} alt="CES Logo" className="logo-img" />
 
-            <nav className="nav-tabs">
-                <a href="" onClick={() => navigate("/")}>Movies</a>
+        <div className="logo-text">
+          <span>Cinema</span>
+          <span>E-booking</span>
+          <span>System</span>
+        </div>
+      </div>
 
-                {localStorage.getItem("role") && (
-                    <a href="" onClick={() => navigate("/edit-profile")}>Edit Profile</a>
-                )}
+      <nav className="nav-tabs">
+        <div className="nav-center">
+          <button onClick={() => navigate("/")}>Movies</button>
 
-                {localStorage.getItem("role") && (
-                    <a href="" onClick={() => navigate("/order-history")}>Order History</a>
-                )}
+          {role && (
+            <button onClick={() => navigate("/edit-profile")}>
+              Edit Profile
+            </button>
+          )}
 
-                {localStorage.getItem("role") === "admin" && (
-                    <a href="" onClick={() => navigate("/admin")}>Manage Movies</a>
-                )}
+          {role && (
+            <button onClick={() => navigate("/order-history")}>
+              Order History
+            </button>
+          )}
 
-                {localStorage.getItem("role") === "admin" && (
-                    <a href="">Promotions</a>
-                )}
+          {role === "admin" && (
+            <button onClick={() => navigate("/admin")}>
+              Manage Movies
+            </button>
+          )}
 
-                {localStorage.getItem("role") === "admin" && (
-                    <a href="">Users</a>
-                )}
+          {role === "admin" && (
+            <button onClick={() => navigate("/admin/promotions")}>
+              Promotions
+            </button>
+          )}
 
-                {localStorage.getItem("role") === "admin" && (
-                    <a href="" onClick={() => navigate("/admin/showtimes")}>Showtimes</a>
-                )}
+          {role === "admin" && (
+            <button onClick={() => navigate("/admin/users")}>
+              Users
+            </button>
+          )}
 
-                {(localStorage.getItem("role") === "user" || localStorage.getItem("role") === "admin") && (
-                    <a href="" onClick={() => handleLogout()}>Logout</a>
-                )}
+          {role === "admin" && (
+            <button onClick={() => navigate("/admin/showtimes")}>
+              Showtimes
+            </button>
+          )}
+        </div>
 
-                {!localStorage.getItem("role") && (
-                    <a href="" onClick={() => navigate("/login")}>Login</a>
-                )}
-            </nav>
-        </header>
-    );
+        <div className="nav-right">
+          {(role === "user" || role === "admin") && (
+            <button onClick={handleLogout}>Logout</button>
+          )}
+
+          {!role && (
+            <button onClick={() => navigate("/login")}>Login</button>
+          )}
+        </div>
+      </nav>
+    </header>
+  );
 }
 
 export default Navigation;

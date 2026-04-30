@@ -192,6 +192,8 @@ function HomePage() {
                     <ShowDatesFilter onChange={handleDateChange} />
                 </div>
 
+                {loading && <p className="loading-text">Loading movies...</p>}
+
                 <h2>Currently Running</h2>
                 <MovieCarousel
                     movies={currentlyRunningMovies}
