@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./EditProfile.css";
-import MovieCard from "../components/MovieCard";
+//import MovieCard from "../components/MovieCard";
 import Navigation from "./Navigation";
 
 export default function EditProfile() {
@@ -40,6 +40,7 @@ export default function EditProfile() {
 
   // Fetch profile
   // Loads profile data when page opens
+  useEffect(() => {
   const fetchProfile = async () => {
     if (!userId) {
       setError("No user ID found. Please login again.");
@@ -59,10 +60,8 @@ export default function EditProfile() {
 
       const data = await res.json();
 
-      // Save backend profile data
       setProfile(data);
 
-      // Fill form with current user data
       setForm({
         firstName: data.firstName || "",
         lastName: data.lastName || "",
@@ -81,11 +80,8 @@ export default function EditProfile() {
     }
   };
 
-  // Run once when component loads
-  useEffect(() => {
-    if (!token) navigate("/login");
-    else fetchProfile();
-  }, [token, userId]);
+  fetchProfile();
+}, [userId, token, navigate]);
 
   // Form Handling
   // Handles typing in normal fields + nested address fields
