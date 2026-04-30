@@ -357,13 +357,32 @@ function BookingPage() {
           <h2 className="seating-header">Pick Seats</h2>
           <div className="screen-label">SCREEN</div>
 
-          <div className="seat-grid">
+          <div
+            className="seat-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: `40px repeat(${
+                Math.max(...rows.map((r) => groupedSeats[r].length))
+              }, 44px)`,
+            }}
+          >
+            {/* top-left empty corner */}
             <div />
 
+            {/* column headers */}
+            {groupedSeats[rows[0]]?.map((seat) => (
+              <div key={seat.seatNumber} className="seat-grid-header">
+                {seat.seatNumber}
+              </div>
+            ))}
+
+            {/* rows */}
             {rows.map((row) => (
               <div key={row} style={{ display: "contents" }}>
+                {/* row label */}
                 <div className="seat-grid-header">{row}</div>
 
+                {/* seats */}
                 {groupedSeats[row].map((seat) => {
                   const isSelected = selectedSeats.some(
                     (s) => s.showSeatId === seat.showSeatId
