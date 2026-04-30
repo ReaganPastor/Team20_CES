@@ -15,10 +15,12 @@ function BookingPage() {
   const [movie, setMovie] = useState(null);
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const [tickets, setTickets] = useState({
-    adult: 0,
-    child: 0,
-    senior: 0,
+  const [tickets, setTickets] = useState(() => {
+    return location.state?.tickets || {
+      adult: 0,
+      child: 0,
+      senior: 0,
+    };
   });
 
   const isCheckingOut = useRef(false);

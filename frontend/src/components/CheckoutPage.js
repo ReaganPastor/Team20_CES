@@ -232,6 +232,8 @@ export default function CheckoutPage() {
                     selectedShowDate: checkoutState.showDate,
                     showId: checkoutState.showId,
                     seats: checkoutState.seats,
+                    tickets: checkoutState.tickets,
+                    totalPrice: checkoutState.totalPrice,
                     fromCheckout: true
                   },
                 })
