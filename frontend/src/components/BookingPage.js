@@ -10,6 +10,7 @@ function BookingPage() {
 
   const passedShowtime = location.state?.selectedShowtime;
   const showId = location.state?.showId;
+  const passedDate = location.state?.showDate;
 
   const [movie, setMovie] = useState(null);
   const [seats, setSeats] = useState([]);
@@ -189,6 +190,7 @@ function BookingPage() {
       showId,
       movieTitle: movie.title,
       showtime: passedShowtime,
+      showDate: passedDate,
       seats: selectedSeats,
       tickets,
       totalPrice,

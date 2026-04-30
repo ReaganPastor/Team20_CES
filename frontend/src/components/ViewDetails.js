@@ -150,7 +150,8 @@ function ViewDetails() {
                       navigate(`/movies/${movie.id}/book`, {
                         state: {
                           showId: selectedShowtime.id,
-                          selectedShowtime: selectedShowtime.startTime || selectedShowtime.start_time
+                          selectedShowtime: selectedShowtime.startTime || selectedShowtime.start_time,
+                          showDate: selectedShowtime.showDate || selectedShowtime.show_date
                         }
                       })
                     }

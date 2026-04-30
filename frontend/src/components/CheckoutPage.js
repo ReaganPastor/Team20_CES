@@ -61,6 +61,7 @@ export default function CheckoutPage() {
   const {
     movieTitle = "Movie Title",
     showtime = "Showtime not selected",
+    showDate = "Show date not selected",
     seats = [],
     tickets = { adult: 0, child: 0, senior: 0 },
     totalPrice = 0,
@@ -80,28 +81,19 @@ export default function CheckoutPage() {
     (tickets.child || 0) +
     (tickets.senior || 0);
 
+  const formatShowDate = (date) => date || "";
+  const formatShowTime = (time) => {
+    if (!time) return "";
 
-  const formatShowtime = (timeString) => {
-    if (!timeString) return "Showtime not selected";
+    const [hourStr, minute] = time.split(":");
+    let hour = parseInt(hourStr, 10);
 
-    const date = new Date(timeString);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
 
-    // If it's just "HH:mm", manually parse it
-    if (isNaN(date.getTime())) {
-      const [hours, minutes] = timeString.split(":");
-      const h = parseInt(hours, 10);
-      const ampm = h >= 12 ? "PM" : "AM";
-      const formattedHour = h % 12 || 12;
-
-      return `${formattedHour}:${minutes} ${ampm}`;
-    }
-
-    return date.toLocaleString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
+    return `${hour}:${minute} ${ampm}`;
   };
+  
   // Confirm Email Handler
   const handleConfirmEmail = async () => {
     try {
@@ -227,8 +219,8 @@ export default function CheckoutPage() {
 
             <div className="summary-block">
               <p><strong>Movie:</strong> {movieTitle}</p>
-              <p><strong>Showtime:</strong> {formatShowtime(showtime)}</p>
-
+              <p><strong>Show Date:</strong> {formatShowDate(showDate)}</p>
+              <p><strong>Showtime:</strong> {formatShowTime(showtime)}</p>
               <p>
                 <strong>Seats:</strong>{" "}
                 {selectedSeats.length
