@@ -10,6 +10,7 @@ function BookingPage() {
 
   const passedShowtime = location.state?.selectedShowtime;
   const showId = location.state?.showId;
+  const passedDate = location.state?.showDate;
 
   const [movie, setMovie] = useState(null);
   const [seats, setSeats] = useState([]);
@@ -33,6 +34,21 @@ function BookingPage() {
     hour = hour % 12;
     if (hour === 0) hour = 12;
     return `${hour}:${minute} ${ampm}`;
+  };
+
+  const formatShowDate = (dateStr) => {
+    if (!dateStr) return "";
+
+    const [year, month, day] = dateStr.split("-");
+
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+
+    const monthName = months[parseInt(month, 10) - 1];
+
+    return `${monthName} ${parseInt(day, 10)}, ${year}`;
   };
 
   const loadSeats = useCallback(() => {
@@ -189,6 +205,7 @@ function BookingPage() {
       showId,
       movieTitle: movie.title,
       showtime: passedShowtime,
+      showDate: passedDate,
       seats: selectedSeats,
       tickets,
       totalPrice,
@@ -223,6 +240,10 @@ function BookingPage() {
             />
             <div>
               <h3>{movie.title}</h3>
+              <p>
+                <strong>Date:</strong>{" "}
+                {formatShowDate(passedDate || movie.showDate)}
+              </p>
               <p>
                 <strong>Time:</strong>{" "}
                 {formatTime(passedShowtime || movie.showtime)}

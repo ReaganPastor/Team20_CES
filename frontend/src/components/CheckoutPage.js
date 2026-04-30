@@ -61,6 +61,8 @@ export default function CheckoutPage() {
   const {
     movieTitle = "Movie Title",
     showtime = "Showtime not selected",
+    showDate = "Show date not selected",
+    showId,
     seats = [],
     tickets = { adult: 0, child: 0, senior: 0 },
     totalPrice = 0,
@@ -79,6 +81,33 @@ export default function CheckoutPage() {
     (tickets.adult || 0) +
     (tickets.child || 0) +
     (tickets.senior || 0);
+
+  // Helper functions for formatting show date and time
+  const formatShowDate = (dateStr) => {
+    if (!dateStr) return "";
+
+    const [year, month, day] = dateStr.split("-");
+
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+
+    const monthName = months[parseInt(month, 10) - 1];
+
+    return `${monthName} ${parseInt(day, 10)}, ${year}`;
+  };
+  const formatShowTime = (time) => {
+    if (!time) return "";
+
+    const [hourStr, minute] = time.split(":");
+    let hour = parseInt(hourStr, 10);
+
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+
+    return `${hour}:${minute} ${ampm}`;
+  };
 
   // Confirm Email Handler
   const handleConfirmEmail = async () => {
@@ -113,6 +142,8 @@ export default function CheckoutPage() {
       confirmationNumber: `CES-${Date.now()}`,
       movieTitle,
       showtime,
+      showDate,
+      showId,
       selectedSeats,
       tickets,
       email: userEmail || email,
@@ -182,6 +213,7 @@ export default function CheckoutPage() {
               onClick={() => navigate(`/movies/${checkoutState.movieId}/book`, {
                 state: {
                   selectedShowtime: checkoutState.showtime,
+                  selectedShowDate: checkoutState.showDate,
                   showId: checkoutState.showId
                 }
               })}
@@ -205,8 +237,9 @@ export default function CheckoutPage() {
 
             <div className="summary-block">
               <p><strong>Movie:</strong> {movieTitle}</p>
-              <p><strong>Showtime:</strong> {showtime}</p>
-
+              <p><strong>Show Date:</strong> {formatShowDate(showDate)}</p>
+              <p><strong>Showtime:</strong> {formatShowTime(showtime)}</p>
+              <p><strong>Showroom:</strong> {showId}</p>
               <p>
                 <strong>Seats:</strong>{" "}
                 {selectedSeats.length
