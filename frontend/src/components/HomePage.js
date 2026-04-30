@@ -16,7 +16,7 @@ function HomePage() {
     const [chatInput, setChatInput] = useState("");
     const [chatMessages, setChatMessages] = useState([]);
     const [chatLoading, setChatLoading] = useState(false);
-    const [chatOpen, setChatOpen] = useState(true);
+    const [chatOpen, setChatOpen] = useState(false);
 
     useEffect(() => {
         const fetchGenres = async () => {
