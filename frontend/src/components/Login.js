@@ -7,10 +7,8 @@ import Navigation from "./Navigation";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
   const [rememberMe, setRememberMe] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
@@ -19,6 +17,7 @@ const Login = () => {
 
   useEffect(() => {
     const remembered = JSON.parse(localStorage.getItem("rememberedUser"));
+
     if (remembered) {
       setUsername(remembered.username);
       setPassword(remembered.password);
@@ -38,7 +37,9 @@ const Login = () => {
     try {
       const res = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           username: username.trim(),
           password: password.trim(),
@@ -46,7 +47,6 @@ const Login = () => {
       });
 
       const data = await res.json();
-      console.log("Login response:", data);
 
       if (!res.ok) {
         setError(data.error || "Login failed");
@@ -66,14 +66,16 @@ const Login = () => {
       if (userId !== "") {
         localStorage.setItem("userId", String(userId));
       } else {
-        console.warn("Login response did not include user ID");
         localStorage.removeItem("userId");
       }
 
       if (rememberMe) {
         localStorage.setItem(
           "rememberedUser",
-          JSON.stringify({ username, password })
+          JSON.stringify({
+            username,
+            password,
+          })
         );
       } else {
         localStorage.removeItem("rememberedUser");
@@ -81,26 +83,26 @@ const Login = () => {
 
       setSuccess("Login successful! Redirecting...");
 
-      const redirectTo = location.state?.from || "/homepage";
       const checkoutState =
         location.state?.checkoutState ||
         JSON.parse(sessionStorage.getItem("pendingCheckout") || "null");
 
+      const redirectPath = location.state?.from || "/homepage";
+
       setTimeout(() => {
-        navigate(redirectTo, {
-          replace: true,
-          state: checkoutState || undefined,
+        navigate(redirectPath, {
+          state: checkoutState,
         });
       }, 1000);
     } catch (err) {
-      console.error(err);
-      setError("Server error. Please try again later.");
+      setError("Cannot connect to server");
     }
   };
 
   return (
     <div>
       <Navigation />
+
       <div className="login-page">
         <div className="login-card">
           <h1>Login</h1>
@@ -144,7 +146,14 @@ const Login = () => {
 
           <div className="button-row horizontal-buttons">
             <button onClick={handleLogin}>Login</button>
-            <button onClick={() => navigate("/signup", { state: location.state })}>
+
+            <button
+              onClick={() =>
+                navigate("/signup", {
+                  state: location.state,
+                })
+              }
+            >
               Sign Up
             </button>
           </div>
