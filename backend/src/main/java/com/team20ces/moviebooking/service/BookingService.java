@@ -177,24 +177,6 @@ public class BookingService {
         }, bookingId);
     }
 
-    public Map<String, Object> checkout(Long bookingId) {
-
-        String sql = """
-            SELECT id, total_amount
-            FROM bookings
-            WHERE id = ?
-        """;
-
-        Map<String, Object> booking = jdbcTemplate.queryForMap(sql, bookingId);
-
-        return Map.of(
-                "bookingId", booking.get("id"),
-                "status", "READY_FOR_PAYMENT",
-                "total", booking.get("total_amount"),
-                "message", "Proceed to mock payment page"
-        );
-    }
-
     public List<BookingSummaryResponse> getBookingsByCustomer(Long customerId) {
 
         String sql = """
