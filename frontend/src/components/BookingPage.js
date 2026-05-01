@@ -15,19 +15,18 @@ function BookingPage() {
   const [movie, setMovie] = useState(null);
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const [tickets, setTickets] = useState(() => {
-    return location.state?.tickets || {
+  const [tickets, setTickets] = useState(
+    location.state?.tickets || {
       adult: 0,
       child: 0,
       senior: 0,
-    };
-  });
+    }
+  );
 
   const isCheckingOut = useRef(false);
 
   const prices = { adult: 12.99, child: 8.99, senior: 9.99 };
 
-  // Restore selected seats if coming back from checkout
   useEffect(() => {
     const fromCheckout = location.state?.fromCheckout === true;
     const restoredSeats = location.state?.seats;
@@ -39,7 +38,6 @@ function BookingPage() {
     }
   }, [location.state]);
 
-  // Format time from "HH:mm" to "h:mm AM/PM"
   const formatTime = (time) => {
     if (!time) return "";
     const [hourStr, minute] = time.split(":");
@@ -50,18 +48,16 @@ function BookingPage() {
     return `${hour}:${minute} ${ampm}`;
   };
 
-  // Format date from "YYYY-MM-DD" to "Mon DD, YYYY"
   const formatShowDate = (dateStr) => {
     if (!dateStr) return "";
     const [year, month, day] = dateStr.split("-");
     const months = [
-      "Jan","Feb","Mar","Apr","May","Jun",
-      "Jul","Aug","Sep","Oct","Nov","Dec"
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
     return `${months[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
   };
 
-  // Load seats for the selected showtime
   const loadSeats = useCallback(() => {
     if (!showId) return;
 
@@ -82,10 +78,12 @@ function BookingPage() {
     loadSeats();
   }, [loadSeats]);
 
-  // Group seats by row for easier rendering
   const groupedSeats = {};
+
   seats.forEach((seat) => {
-    if (!groupedSeats[seat.seatRow]) groupedSeats[seat.seatRow] = [];
+    if (!groupedSeats[seat.seatRow]) {
+      groupedSeats[seat.seatRow] = [];
+    }
     groupedSeats[seat.seatRow].push(seat);
   });
 
@@ -102,7 +100,6 @@ function BookingPage() {
     0
   );
 
-  // Ticket quantity change handler
   const handleTicketChange = (type, value) => {
     const val = Math.max(0, parseInt(value) || 0);
     const newTickets = { ...tickets, [type]: val };
@@ -121,7 +118,9 @@ function BookingPage() {
               seatIds: [seat.showSeatId],
             }),
           });
-        } catch {}
+        } catch (err) {
+          console.error(err);
+        }
       });
 
       setSelectedSeats(selectedSeats.slice(0, newTotal));
@@ -131,31 +130,22 @@ function BookingPage() {
     setTickets(newTickets);
   };
 
-  // Toggle seat selection
   const toggleSeat = async (seat) => {
     const isSelected = selectedSeats.some(
       (s) => s.showSeatId === seat.showSeatId
     );
 
-    const status = seat.reservationStatus;
-
-    // block reserved seats
-    if (status === "RESERVED" && !isSelected) return;
+    if (seat.reservationStatus === "RESERVED" && !isSelected) {
+      return;
+    }
 
     let newSelected;
 
-    // ====================
-    // REMOVE (pop)
-    // ====================
     if (isSelected) {
       newSelected = selectedSeats.filter(
         (s) => s.showSeatId !== seat.showSeatId
       );
-    }
-    // ====================
-    // ADD (push)
-    // ====================
-    else {
+    } else {
       if (totalTickets === 0) {
         alert("Please select tickets first.");
         return;
@@ -169,11 +159,9 @@ function BookingPage() {
       newSelected = [...selectedSeats, seat];
     }
 
-    // update UI immediately
     setSelectedSeats(newSelected);
 
     try {
-      // 🔥 STEP 1: release EVERYTHING
       await fetch("http://localhost:8080/show-seats/release", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -183,7 +171,6 @@ function BookingPage() {
         }),
       });
 
-      // 🔥 STEP 2: hold NEW selection (if any)
       if (newSelected.length > 0) {
         const res = await fetch("http://localhost:8080/show-seats/hold", {
           method: "POST",
@@ -208,7 +195,6 @@ function BookingPage() {
     }
   };
 
-  // Cleanup function to release held seats if user navigates away or refreshes
   const releaseHeldSeats = useCallback(async () => {
     if (!selectedSeats.length || isCheckingOut.current) return;
 
@@ -221,7 +207,9 @@ function BookingPage() {
           seatIds: selectedSeats.map((s) => s.showSeatId),
         }),
       });
-    } catch {}
+    } catch (err) {
+      console.error(err);
+    }
   }, [selectedSeats, showId]);
 
   useEffect(() => {
@@ -252,14 +240,21 @@ function BookingPage() {
     };
   }, [selectedSeats, showId]);
 
-  // ============================
-  // CHECKOUT (UNCHANGED)
-  // ============================
   const confirm = () => {
-    if (totalTickets === 0) return alert("Please choose tickets.");
-    if (selectedSeats.length === 0) return alert("Please select seats.");
-    if (selectedSeats.length !== totalTickets)
-      return alert(`Select exactly ${totalTickets} seats.`);
+    if (totalTickets === 0) {
+      alert("Please choose tickets.");
+      return;
+    }
+
+    if (selectedSeats.length === 0) {
+      alert("Please select seats.");
+      return;
+    }
+
+    if (selectedSeats.length !== totalTickets) {
+      alert(`Select exactly ${totalTickets} seats.`);
+      return;
+    }
 
     isCheckingOut.current = true;
 
@@ -277,14 +272,33 @@ function BookingPage() {
 
     sessionStorage.setItem("pendingCheckout", JSON.stringify(checkoutState));
 
+    const token = localStorage.getItem("token");
+const username = localStorage.getItem("username");
+const userId = localStorage.getItem("userId");
+
+const isLoggedIn =
+  token &&
+  username &&
+  userId &&
+  token.trim() !== "" &&
+  username.trim() !== "" &&
+  userId.trim() !== "";
+
+if (!isLoggedIn) {
+  navigate("/login", {
+    state: {
+      from: "/checkout",
+      checkoutState,
+    },
+  });
+  return;
+}
+
     navigate("/checkout", {
       state: checkoutState,
     });
   };
 
-  // ============================
-  // RENDER (UNCHANGED)
-  // ============================
   if (!movie || !showId) {
     return (
       <div>
@@ -312,17 +326,28 @@ function BookingPage() {
                 e.target.src = "/icons/NoPoster.png";
               }}
             />
+
             <div>
               <h3>{movie.title}</h3>
-              <p><strong>Date:</strong> {formatShowDate(passedDate || movie.showDate)}</p>
-              <p><strong>Time:</strong> {formatTime(passedShowtime || movie.showtime)}</p>
+              <p>
+                <strong>Date:</strong>{" "}
+                {formatShowDate(passedDate || movie.showDate)}
+              </p>
+              <p>
+                <strong>Time:</strong>{" "}
+                {formatTime(passedShowtime || movie.showtime)}
+              </p>
             </div>
           </div>
 
           <div className="ticket-section">
             {["adult", "child", "senior"].map((type) => (
               <div key={type} className="ticket-row">
-                <span>{type.charAt(0).toUpperCase() + type.slice(1)} (${prices[type]})</span>
+                <span>
+                  {type.charAt(0).toUpperCase() + type.slice(1)} ($
+                  {prices[type]})
+                </span>
+
                 <input
                   type="number"
                   min="0"
@@ -334,25 +359,38 @@ function BookingPage() {
             ))}
 
             <div className="total-section">
-              Total Tickets: {totalTickets} | Total Price: ${totalPrice.toFixed(2)}
+              Total Tickets: {totalTickets} | Total Price: $
+              {totalPrice.toFixed(2)}
             </div>
           </div>
 
           <div className="selected-seats">
-            <p><strong>Selected Seats:</strong></p>
+            <p>
+              <strong>Selected Seats:</strong>
+            </p>
+
             <div className="selected-seats-box">
               {selectedSeats.length === 0
                 ? "None"
-                : selectedSeats.map((s) => `${s.seatRow}${s.seatNumber}`).join(", ")}
+                : selectedSeats
+                    .map((s) => `${s.seatRow}${s.seatNumber}`)
+                    .join(", ")}
             </div>
           </div>
 
           <div className="button-row">
-            <button onClick={() => navigate(`/movies/${id}`)} className="back-button">
+            <button
+              onClick={() => navigate(`/movies/${id}`)}
+              className="back-button"
+            >
               Back
             </button>
 
-            <button onClick={confirm} disabled={selectedSeats.length === 0} className="checkout-button">
+            <button
+              onClick={confirm}
+              disabled={selectedSeats.length === 0}
+              className="checkout-button"
+            >
               Proceed to Checkout
             </button>
           </div>
@@ -367,27 +405,24 @@ function BookingPage() {
             style={{
               display: "grid",
               gridTemplateColumns: `40px repeat(${
-                Math.max(...rows.map((r) => groupedSeats[r].length))
+                rows.length > 0
+                  ? Math.max(...rows.map((r) => groupedSeats[r].length))
+                  : 1
               }, 44px)`,
             }}
           >
-            {/* top-left empty corner */}
             <div />
 
-            {/* column headers */}
             {groupedSeats[rows[0]]?.map((seat) => (
               <div key={seat.seatNumber} className="seat-grid-header">
                 {seat.seatNumber}
               </div>
             ))}
 
-            {/* rows */}
             {rows.map((row) => (
               <div key={row} style={{ display: "contents" }}>
-                {/* row label */}
                 <div className="seat-grid-header">{row}</div>
 
-                {/* seats */}
                 {groupedSeats[row].map((seat) => {
                   const isSelected = selectedSeats.some(
                     (s) => s.showSeatId === seat.showSeatId

@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import "./Signup.css";
 import Navigation from "./Navigation";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Signup() {
+  const navigate = useNavigate();
+  const location = useLocation(); 
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -207,7 +210,7 @@ export default function Signup() {
               <button type="submit">Sign Up</button>
               <button
                 type="button"
-                onClick={() => (window.location.href = "/login")}
+                onClick={() => navigate("/login", { state: location.state })}
               >
                 Login
               </button>
