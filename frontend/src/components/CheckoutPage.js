@@ -20,6 +20,13 @@ export default function CheckoutPage() {
 
   const [confirmEmail, setConfirmEmail] = useState(false);
 
+  const [manualCard, setManualCard] = useState({
+    cardholderName: "",
+    cardNumber: "",
+    expirationDate: "",
+    cvv: ""
+  });
+
   // Load user email on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -38,20 +45,25 @@ export default function CheckoutPage() {
       .catch((err) => console.error("Email fetch failed:", err));
   }, []);
 
-    // Load user's saved payment cards
+  // Load payment cards
   useEffect(() => {
     if (!userId) return;
 
     fetch(`http://localhost:8080/profile/${userId}`)
       .then((res) => res.json())
       .then((data) => {
-        setPaymentCards(data.paymentCards || []);
+        const cards = Array.isArray(data?.paymentCards)
+          ? data.paymentCards
+          : [];
+
+        console.log("Loaded payment cards:", cards);
+        setPaymentCards(cards);
       })
       .catch((err) => console.error("Failed to load cards:", err));
   }, [userId]);
 
-  // Default to first card if available
-  const defaultCard = paymentCards.length > 0 ? paymentCards[0] : null;
+  const hasCards = paymentCards && paymentCards.length > 0;
+  const defaultCard = hasCards ? paymentCards[0] : null;
 
   // Load checkout state from location or session storage
   const checkoutState = useMemo(() => {
@@ -249,6 +261,11 @@ export default function CheckoutPage() {
     }
   };
 
+  // mask card number
+  const maskedCardNumber = defaultCard
+    ? `**** **** **** ${defaultCard.lastFour}`
+    : manualCard.cardNumber;
+
   return (
     <div className="checkout-page">
       <Navigation />
@@ -262,29 +279,44 @@ export default function CheckoutPage() {
             <h2>Card Details</h2>
 
             <label>Cardholder Name</label>
-            <input type="text" value={defaultCard?.cardholderName || ""} placeholder="Cardholder Name" disabled={!defaultCard}/>
+            <input type="text" value={hasCards ? defaultCard?.cardholderName || "" : manualCard.cardholderName} onChange={(e) =>
+                !hasCards &&
+                setManualCard({ ...manualCard, cardholderName: e.target.value })
+            }/>
 
             <label>Card Number</label>
             <input
               type="text"
-              value={
-                defaultCard
-                  ? `**** **** **** ${defaultCard.lastFour}`
-                  : ""
+              value={maskedCardNumber}
+              onChange={(e) =>
+                !hasCards &&
+                setManualCard({ ...manualCard, cardNumber: e.target.value })
               }
-              placeholder="**** **** **** 1234"
-              disabled={!defaultCard}
             />
 
             <div className="mock-row">
               <div>
                 <label>Expiration Date</label>
-                <input type="text" value={defaultCard?.expirationDate || ""} placeholder="MM/YY" disabled={!defaultCard} />
+                <input
+                  type="text"
+                  value={hasCards ? defaultCard?.expirationDate || "" : manualCard.expirationDate}
+                  onChange={(e) =>
+                    !hasCards &&
+                    setManualCard({ ...manualCard, expirationDate: e.target.value })
+                  }
+                />
               </div>
 
               <div>
                 <label>CVV</label>
-                <input type="text" value={defaultCard?.cvv || ""} placeholder="***" disabled={!defaultCard} />
+                <input
+                  type="text"
+                  value={hasCards ? defaultCard?.cvv || "" : manualCard.cvv}
+                  onChange={(e) =>
+                    !hasCards &&
+                    setManualCard({ ...manualCard, cvv: e.target.value })
+                  }
+                />
               </div>
             </div>
           </div>
