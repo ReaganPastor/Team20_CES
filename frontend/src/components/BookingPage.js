@@ -27,9 +27,7 @@ function BookingPage() {
 
   const prices = { adult: 12.99, child: 8.99, senior: 9.99 };
 
-  // ============================
-  // RESTORE STATE FROM CHECKOUT
-  // ============================
+  // Restore selected seats if coming back from checkout
   useEffect(() => {
     const fromCheckout = location.state?.fromCheckout === true;
     const restoredSeats = location.state?.seats;
@@ -41,9 +39,7 @@ function BookingPage() {
     }
   }, [location.state]);
 
-  // ============================
-  // FORMATTERS (UNCHANGED)
-  // ============================
+  // Format time from "HH:mm" to "h:mm AM/PM"
   const formatTime = (time) => {
     if (!time) return "";
     const [hourStr, minute] = time.split(":");
@@ -54,6 +50,7 @@ function BookingPage() {
     return `${hour}:${minute} ${ampm}`;
   };
 
+  // Format date from "YYYY-MM-DD" to "Mon DD, YYYY"
   const formatShowDate = (dateStr) => {
     if (!dateStr) return "";
     const [year, month, day] = dateStr.split("-");
@@ -64,9 +61,7 @@ function BookingPage() {
     return `${months[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
   };
 
-  // ============================
-  // LOAD MOVIE + SEATS
-  // ============================
+  // Load seats for the selected showtime
   const loadSeats = useCallback(() => {
     if (!showId) return;
 
@@ -87,9 +82,7 @@ function BookingPage() {
     loadSeats();
   }, [loadSeats]);
 
-  // ============================
-  // GROUP SEATS
-  // ============================
+  // Group seats by row for easier rendering
   const groupedSeats = {};
   seats.forEach((seat) => {
     if (!groupedSeats[seat.seatRow]) groupedSeats[seat.seatRow] = [];
@@ -109,9 +102,7 @@ function BookingPage() {
     0
   );
 
-  // ============================
-  // TICKET HANDLING (FIXED STATE SYNC)
-  // ============================
+  // Ticket quantity change handler
   const handleTicketChange = (type, value) => {
     const val = Math.max(0, parseInt(value) || 0);
     const newTickets = { ...tickets, [type]: val };
@@ -140,9 +131,7 @@ function BookingPage() {
     setTickets(newTickets);
   };
 
-  // ============================
-  // SEAT TOGGLE (FIXED CORE LOGIC)
-  // ============================
+  // Toggle seat selection
   const toggleSeat = async (seat) => {
     const isSelected = selectedSeats.some(
       (s) => s.showSeatId === seat.showSeatId
@@ -150,61 +139,76 @@ function BookingPage() {
 
     const status = seat.reservationStatus;
 
-    // BLOCK OTHER USERS' RESERVED SEATS
+    // block reserved seats
     if (status === "RESERVED" && !isSelected) return;
 
-    // UNSELECT
+    let newSelected;
+
+    // ====================
+    // REMOVE (pop)
+    // ====================
     if (isSelected) {
-      const res = await fetch("http://localhost:8080/show-seats/release", {
+      newSelected = selectedSeats.filter(
+        (s) => s.showSeatId !== seat.showSeatId
+      );
+    }
+    // ====================
+    // ADD (push)
+    // ====================
+    else {
+      if (totalTickets === 0) {
+        alert("Please select tickets first.");
+        return;
+      }
+
+      if (selectedSeats.length >= totalTickets) {
+        alert(`You can only select ${totalTickets} seats.`);
+        return;
+      }
+
+      newSelected = [...selectedSeats, seat];
+    }
+
+    // update UI immediately
+    setSelectedSeats(newSelected);
+
+    try {
+      // 🔥 STEP 1: release EVERYTHING
+      await fetch("http://localhost:8080/show-seats/release", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           showId,
-          seatIds: [seat.showSeatId],
+          seatIds: selectedSeats.map((s) => s.showSeatId),
         }),
       });
 
-      if (res.ok) {
-        setSelectedSeats((prev) =>
-          prev.filter((s) => s.showSeatId !== seat.showSeatId)
-        );
-        loadSeats();
+      // 🔥 STEP 2: hold NEW selection (if any)
+      if (newSelected.length > 0) {
+        const res = await fetch("http://localhost:8080/show-seats/hold", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            showId,
+            seatIds: newSelected.map((s) => s.showSeatId),
+          }),
+        });
+
+        if (!res.ok) {
+          alert("One or more seats were taken.");
+          setSelectedSeats([]);
+          loadSeats();
+          return;
+        }
       }
-      return;
-    }
 
-    // SELECT
-    if (totalTickets === 0) {
-      alert("Please select tickets first.");
-      return;
-    }
-
-    if (selectedSeats.length >= totalTickets) {
-      alert(`You can only select ${totalTickets} seats.`);
-      return;
-    }
-
-    const res = await fetch("http://localhost:8080/show-seats/hold", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        showId,
-        seatIds: [seat.showSeatId],
-      }),
-    });
-
-    if (res.ok) {
-      setSelectedSeats((prev) => [...prev, seat]);
       loadSeats();
-    } else {
-      alert("Seat already taken");
-      loadSeats();
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  // ============================
-  // CLEANUP RULE (IMPORTANT FIX)
-  // ============================
+  // Cleanup function to release held seats if user navigates away or refreshes
   const releaseHeldSeats = useCallback(async () => {
     if (!selectedSeats.length || isCheckingOut.current) return;
 
@@ -220,7 +224,6 @@ function BookingPage() {
     } catch {}
   }, [selectedSeats, showId]);
 
-  // release ONLY when leaving page (NOT checkout navigation)
   useEffect(() => {
     return () => {
       releaseHeldSeats();
@@ -250,7 +253,7 @@ function BookingPage() {
   }, [selectedSeats, showId]);
 
   // ============================
-  // CHECKOUT
+  // CHECKOUT (UNCHANGED)
   // ============================
   const confirm = () => {
     if (totalTickets === 0) return alert("Please choose tickets.");
