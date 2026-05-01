@@ -42,7 +42,7 @@
   scroll-behavior: smooth; /* smooth scrolling if we switch to scroll in future */
 }
 
-/* Optional: gap between cards (if needed) */
+/* Gap between cards */
 .carousel-cards > div {
   margin-right: 10px;
 }

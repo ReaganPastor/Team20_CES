@@ -8,9 +8,7 @@
   box-sizing: border-box;
 }
 
-/* =========================
-   LAYOUT
-========================= */
+/* Layout */
 .checkout-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -26,9 +24,7 @@
   min-width: 0;
 }
 
-/* =========================
-   PANELS
-========================= */
+/* Panels */
 .checkout-left,
 .checkout-right {
   background: rgba(15, 23, 42, 0.8);
@@ -56,9 +52,7 @@
   line-height: 1.5;
 }
 
-/* =========================
-   CARDS
-========================= */
+/* Cards */
 .mock-card,
 .order-summary {
   background: #111827;
@@ -73,9 +67,7 @@
   margin-bottom: 18px;
 }
 
-/* =========================
-   INPUTS
-========================= */
+/* Inputs */
 .mock-card input {
   width: 100%;
   max-width: 100%;
@@ -116,9 +108,7 @@
   color: #e2e8f0;
 }
 
-/* =========================
-   LAYOUT HELPERS
-========================= */
+/* Layout Helpers*/
 .mock-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -141,9 +131,7 @@
   font-weight: 600;
 }
 
-/* =========================
-   BUTTONS
-========================= */
+/* Buttons*/
 .checkout-actions {
   display: flex;
   gap: 12px;
@@ -179,9 +167,7 @@
   background: #334155;
 }
 
-/* =========================
-   SUMMARY
-========================= */
+/* Summary Block */
 .summary-block {
   border-bottom: 1px solid #334155;
   padding-bottom: 14px;

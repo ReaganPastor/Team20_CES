@@ -103,7 +103,7 @@ function ResetPassword() {
 
         <form onSubmit={handleSubmit}>
 
-          {/* OLD PASSWORD */}
+          {/* Old Password */}
           <div>
             <input
               type={showOld ? "text" : "password"}
@@ -122,7 +122,7 @@ function ResetPassword() {
           </div>
           {errors.oldPassword && <p className="error">{errors.oldPassword}</p>}
 
-          {/* NEW PASSWORD */}
+          {/* New Password */}
           <div>
             <input
               type={showNew ? "text" : "password"}
@@ -147,7 +147,7 @@ function ResetPassword() {
           )}
           {errors.newPassword && <p className="error">{errors.newPassword}</p>}
 
-          {/* CONFIRM PASSWORD */}
+          {/* Confirm Password */}
           <div>
             <input
               type={showConfirm ? "text" : "password"}

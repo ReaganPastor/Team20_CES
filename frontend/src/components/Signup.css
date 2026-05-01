@@ -1,4 +1,4 @@
-/* ---------- PAGE ---------- */
+/* Page Background */
 .login-page {
   display: flex;
   justify-content: center;
@@ -7,7 +7,7 @@
   align-items: flex-start;
 }
 
-/* ---------- CARD ---------- */
+/* Login Card */
 .login-card {
   background: linear-gradient(145deg, #020617, #0a0f22);
   padding: 30px 25px;
@@ -22,7 +22,7 @@
   align-self: flex-start;
 }
 
-/* ---------- INPUTS ---------- */
+/* Centered Input */
 .centered-input {
   width: 100%;
   padding: 10px 12px; /* Slightly larger padding */
@@ -40,7 +40,7 @@
   color: #94a3b8;
 }
 
-/* ---------- BUTTONS ---------- */
+/* Buttons */
 .button-row.horizontal-buttons {
   display: flex;
   gap: 12px;
@@ -63,7 +63,7 @@
   background: #2563eb;
 }
 
-/* ---------- TEXT LINKS ---------- */
+/* Text Links */
 .forgot-password {
   color: #3b82f6;
   cursor: pointer;
@@ -73,7 +73,7 @@
   display: block;
 }
 
-/* ---------- MESSAGES ---------- */
+/* Messages */
 .error {
   color: #f87171;
   font-size: 14px;
@@ -88,7 +88,7 @@
   margin-bottom: 8px; /* space after success */
 }
 
-/* ---------- BACK TO LOGIN BUTTON ---------- */
+/* Back to Login */
 .button-back {
   padding: 10px 0;
   font-size: 14px;

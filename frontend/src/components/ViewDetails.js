@@ -12,9 +12,8 @@ function ViewDetails() {
   const [selectedShowtime, setSelectedShowtime] = useState(null);
   const [bookingMessage, setBookingMessage] = useState("");
 
-  // -------------------------
-  // FORMAT TIME (AM/PM)
-  // -------------------------
+  
+  // Format Time (am/pm)
   const formatTime = (time) => {
   if (!time) return "";
 

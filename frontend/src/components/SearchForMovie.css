@@ -23,9 +23,7 @@
   cursor: pointer;
 }
 
-/* ---------------------------------------------
-   Movie List Section
----------------------------------------------- */
+/* Movie List Section */
 
 .movie-list {
   margin: 1.5rem auto;
@@ -52,9 +50,7 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* ---------------------------------------------
-   Simple Responsive Behavior
----------------------------------------------- */
+/* Simple Responsive Behavior */
 
 @media (max-width: 600px) {
     nav {

@@ -1,4 +1,4 @@
-/* ---------- LOGIN PAGE ---------- */
+/* Login Page */
 .login-page {
   display: flex;
   justify-content: center; /* horizontally center login card */
@@ -8,7 +8,7 @@
   align-items: flex-start;  /* top align login box */
 }
 
-/* ---------- LOGIN CARD ---------- */
+/* Login Card */
 .login-card {
   background: linear-gradient(145deg, #020617, #0a0f22);
   padding: 30px 25px;
@@ -25,7 +25,7 @@
   align-self: flex-start;  
 }
 
-/* INPUT FIELDS */
+/* Input Fields */
 .centered-input {
   width: 100%;
   padding: 8px 10px;
@@ -46,7 +46,7 @@
   color: #94a3b8;
 }
 
-/* OPTIONS ROW */
+/* Options Row */
 .options-row {
   display: flex;
   justify-content: space-between;
@@ -67,7 +67,7 @@
   text-decoration: underline;
 }
 
-/* BUTTON ROW: Login + Sign Up */
+/* Button Row: Login + Sign Up */
 .button-row.horizontal-buttons {
   display: flex;
   gap: 12px;
@@ -105,7 +105,7 @@
   background: #2563eb;
 }
 
-/* ERROR / SUCCESS MESSAGES */
+/* Error / Success Messages */
 .error {
   color: #f87171;
   font-size: 14px;
@@ -118,7 +118,7 @@
   text-align: center;
 }
 
-/* ---------- MODAL ---------- */
+/* Modal */
 .modal {
   position: fixed;
   top: 0;
@@ -193,7 +193,7 @@
   cursor: pointer;
 }
 
-/* ---------- Poster Upload ---------- */
+/* Poster Upload */
 .poster-upload {
   width: 100%;
   padding: 10px;
