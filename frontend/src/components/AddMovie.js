@@ -168,7 +168,7 @@ function AddMovie() {
             <input
               type="file"
               accept="image/*"
-              className="centered-input"
+              className="centered-input poster-upload"
               onChange={(e) => {
                 const file = e.target.files[0];
                 if (!file) return;
