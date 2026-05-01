@@ -10,6 +10,7 @@ public class UserProfileResponse {
     private String lastName;
     private String phoneNumber;
     private Address address; 
+    private Long id;
     
     public UserProfileResponse(User user) {
         this.username = user.getUsername();
@@ -18,6 +19,7 @@ public class UserProfileResponse {
         this.lastName = user.getLastName();
         this.phoneNumber = user.getPhoneNumber();
         this.address = user.getAddress();
+        this.id = user.getId();
     }
 
     // Getters
@@ -27,4 +29,5 @@ public class UserProfileResponse {
     public String getLastName() { return lastName; }
     public String getPhoneNumber() { return phoneNumber; }
     public Address getAddress() { return address; }
+    public Long getId() { return id; }
 }

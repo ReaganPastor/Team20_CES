@@ -10,6 +10,8 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
 
   const [userEmail, setUserEmail] = useState("");
+  const [userId, setUserId] = useState(null);
+
   const [loadingEmailAction, setLoadingEmailAction] = useState(false);
 
   const [isEditingEmail, setIsEditingEmail] = useState(false);
@@ -27,7 +29,10 @@ export default function CheckoutPage() {
       },
     })
       .then((res) => res.json())
-      .then((data) => setUserEmail(data.email))
+      .then((data) => {
+        setUserEmail(data.email);
+        setUserId(data.id); // 🔥 IMPORTANT FIX
+      })
       .catch((err) => console.error("Email fetch failed:", err));
   }, []);
 
@@ -67,6 +72,7 @@ export default function CheckoutPage() {
     tickets = { adult: 0, child: 0, senior: 0 },
     totalPrice = 0,
     email = "",
+    movieId
   } = checkoutState;
 
   const selectedSeats = seats.map(
@@ -133,8 +139,13 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (!userId) {
+      alert("User not loaded yet. Please try again.");
+      return;
+    }
+
     try {
-      // 1. CONFIRM SEATS IN BACKEND
+      // 1. CONFIRM SEATS
       const confirmRes = await fetch(
         "http://localhost:8080/show-seats/confirm",
         {
@@ -152,36 +163,31 @@ export default function CheckoutPage() {
         return;
       }
 
-      // 2. CREATE BOOKING (THIS TRIGGERS EMAIL ON BACKEND)
+      // 2. CREATE BOOKING IN BACKEND 🔥
       const bookingRes = await fetch("http://localhost:8080/bookings", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          customerId: 1, // replace later with real auth user id
-          movieId: checkoutState.movieId || null,
-          showId,
+          customerId: userId,
+          movieId: movieId,
+          showId: showId,
           showSeatIds: seats.map((s) => s.showSeatId),
-          email: userEmail || email,
         }),
       });
 
       if (!bookingRes.ok) {
-        const errorText = await bookingRes.text();
-        console.error("Booking error:", errorText);
-        alert("Booking failed: " + errorText);
+        const msg = await bookingRes.text();
+        alert("Booking failed: " + msg);
         return;
       }
 
       const bookingData = await bookingRes.json();
 
-      // 3. CREATE ORDER OBJECT (frontend record only)
+      // 3. CREATE ORDER OBJECT
       const order = {
-        confirmationNumber: bookingData.bookingId
-          ? `CES-${bookingData.bookingId}`
-          : `CES-${Date.now()}`,
-
         bookingId: bookingData.bookingId,
-
         movieTitle,
         showtime,
         showDate,
@@ -196,11 +202,17 @@ export default function CheckoutPage() {
         orderDate: new Date().toLocaleString(),
       };
 
-      // 4. SAVE ORDER HISTORY (UNCHANGED)
-      const oldOrders = JSON.parse(localStorage.getItem("orderHistory")) || [];
+      // 4. KEEP LOCAL STORAGE (temporary compatibility)
+      const oldOrders =
+        JSON.parse(localStorage.getItem("orderHistory")) || [];
+
       const updatedOrders = [order, ...oldOrders];
 
-      localStorage.setItem("orderHistory", JSON.stringify(updatedOrders));
+      localStorage.setItem(
+        "orderHistory",
+        JSON.stringify(updatedOrders)
+      );
+
       sessionStorage.setItem("lastOrder", JSON.stringify(order));
       sessionStorage.removeItem("pendingCheckout");
 
