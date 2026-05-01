@@ -1,4 +1,4 @@
-/* PAGE BACKGROUND */
+/* Page Background */
 .order-history-page {
   min-height: 100vh;
   color: #f1f5f9;
@@ -9,12 +9,12 @@
   gap: 40px;
 }
 
-/* MAIN CONTAINER */
+/* Main Container */
 .order-history-container {
   background: linear-gradient(145deg, #020617, #0a0f22);
   border-radius: 16px;
 
-  /* STRONG BLUE GLOW (same as confirmation-card) */
+  /* Blue Glow */
   box-shadow: 0 0 12px 2px rgba(59, 130, 246, 0.5);
 
   max-width: 800px;
@@ -22,7 +22,7 @@
   padding: 30px;
 }
 
-/* TITLE */
+/* Title */
 .order-history-container h1 {
   font-size: 2.5rem;
   margin-bottom: 10px;
@@ -30,18 +30,18 @@
   color: #f1f5f9;
 }
 
-/* ORDER CARD */
+/* Order Card */
 .order-history-card {
   background: linear-gradient(145deg, #0a0f22, #020617);
   border-radius: 12px;
   padding: 20px;
   margin-top: 20px;
 
-  /* SAME GLOW STYLE */
+  /* Same Glow Style */
   box-shadow: 0 0 10px 2px rgba(59, 130, 246, 0.4);
 }
 
-/* TEXT */
+/* Text */
 .order-history-card p {
   margin: 8px 0;
   color: #e2e8f0;
@@ -51,13 +51,13 @@
   color: #f1f5f9;
 }
 
-/* OPTIONAL: hover glow enhancement */
+/* Hover Glow Enhancement */
 .order-history-card:hover {
   box-shadow: 0 0 16px 3px rgba(59, 130, 246, 0.6);
   transition: 0.2s ease;
 }
 
-/* RESPONSIVE */
+/* Responsive */
 @media (max-width: 768px) {
   .order-history-container {
     padding: 20px;

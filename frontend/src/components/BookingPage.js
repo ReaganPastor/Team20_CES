@@ -144,17 +144,13 @@ function BookingPage() {
 
     let newSelected;
 
-    // ====================
-    // REMOVE (pop)
-    // ====================
+    /* Remove */
     if (isSelected) {
       newSelected = selectedSeats.filter(
         (s) => s.showSeatId !== seat.showSeatId
       );
     }
-    // ====================
-    // ADD (push)
-    // ====================
+    /* Add */
     else {
       if (totalTickets === 0) {
         alert("Please select tickets first.");
@@ -173,7 +169,7 @@ function BookingPage() {
     setSelectedSeats(newSelected);
 
     try {
-      // 🔥 STEP 1: release EVERYTHING
+      // Step 1: release old selection
       await fetch("http://localhost:8080/show-seats/release", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -183,7 +179,7 @@ function BookingPage() {
         }),
       });
 
-      // 🔥 STEP 2: hold NEW selection (if any)
+      // Step 2: hold new selection (if any)
       if (newSelected.length > 0) {
         const res = await fetch("http://localhost:8080/show-seats/hold", {
           method: "POST",
@@ -252,9 +248,7 @@ function BookingPage() {
     };
   }, [selectedSeats, showId]);
 
-  // ============================
-  // CHECKOUT (UNCHANGED)
-  // ============================
+  /* Checkout Confirmation Handler */
   const confirm = () => {
     if (totalTickets === 0) return alert("Please choose tickets.");
     if (selectedSeats.length === 0) return alert("Please select seats.");
@@ -282,9 +276,7 @@ function BookingPage() {
     });
   };
 
-  // ============================
-  // RENDER (UNCHANGED)
-  // ============================
+  /* Render */
   if (!movie || !showId) {
     return (
       <div>

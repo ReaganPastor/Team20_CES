@@ -210,7 +210,7 @@
   border: 1px solid #0d9488;
 }
 
-/* BASE SEAT */
+/* Base Seat */
 .seat-btn {
   width: 44px;
   height: 44px;
@@ -223,18 +223,18 @@
   transition: all 0.2s ease;
 }
 
-/* AVAILABLE hover */
+/* Available Hover */
 .seat-btn:hover {
   filter: brightness(1.2);
 }
 
-/* SELECTED (user choice) */
+/* Selected (user choice) */
 .seat-btn.selected {
   background: #2563eb;
   border: 1px solid #60a5fa;
 }
 
-/* RESERVED (MUST OVERRIDE EVERYTHING) */
+/* Reserved */
 .seat-btn.reserved {
   background: #6b7280 !important;
   border: 1px solid #9ca3af !important;
@@ -243,7 +243,7 @@
   opacity: 0.9;
 }
 
-/* ACCESSIBLE */
+/* Accessible */
 .seat-btn.wheelchair {
   background: #0f766e;
   border: 1px solid #0d9488;

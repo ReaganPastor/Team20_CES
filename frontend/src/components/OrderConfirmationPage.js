@@ -7,9 +7,7 @@ function OrderConfirmationPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // =========================================
-  // SAFE ORDER RESOLUTION (FIXED)
-  // =========================================
+  /* Safe Order Resolution */
   const order = useMemo(() => {
     const source =
       location.state && Object.keys(location.state).length > 0
@@ -45,9 +43,7 @@ function OrderConfirmationPage() {
     );
   }
 
-  // =========================================
-  // FORMATTERS (UNCHANGED LOGIC)
-  // =========================================
+  /* Formatters */
   const formatShowDate = (dateStr) => {
     if (!dateStr) return "";
 
@@ -73,9 +69,7 @@ function OrderConfirmationPage() {
     return `${hour}:${minute} ${ampm}`;
   };
 
-  // =========================================
-  // SAFE DERIVED VALUES
-  // =========================================
+  /* Safe Derived Values */
   const seats = order.selectedSeats || [];
 
   const total = (Number(order.orderTotal) || 0).toFixed(2);

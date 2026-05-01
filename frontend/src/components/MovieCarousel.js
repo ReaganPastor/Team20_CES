@@ -59,7 +59,7 @@ function MovieCarousel({ movies, moviesPerPage = 6 }) {
     );
   };
 
-  // MAIN FAVORITE FUNCTION (connects to backend)
+  // Main favorite function (connects to backend)
   const handleFavoriteToggle = async (movie, shouldFavorite) => {
     if (!token || !userId) {
       console.error("User not authenticated");
@@ -112,7 +112,7 @@ function MovieCarousel({ movies, moviesPerPage = 6 }) {
   return (
     <div className="carousel-container">
 
-      {/* LEFT BUTTON */}
+      {/* Left Button */}
       <button
         className="carousel-arrow left-arrow"
         onClick={handlePrev}
@@ -121,7 +121,7 @@ function MovieCarousel({ movies, moviesPerPage = 6 }) {
         ◀
       </button>
 
-      {/* MOVIE LIST */}
+      {/* Movie List */}
       <div className="carousel-cards">
         {visibleMovies.map((movie) => (
           <MovieCard
@@ -137,7 +137,7 @@ function MovieCarousel({ movies, moviesPerPage = 6 }) {
         ))}
       </div>
 
-      {/* RIGHT BUTTON */}
+      {/* Right Button */}
       <button
         className="carousel-arrow right-arrow"
         onClick={handleNext}

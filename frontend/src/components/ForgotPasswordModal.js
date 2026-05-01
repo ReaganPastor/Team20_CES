@@ -5,19 +5,19 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
-  // ===== CHRIS FRONTEND CHANGE =====
+  // Chris Frontend Change: Clear form and messages when modal closes
   useEffect(() => {
     if (!isOpen) {
       setEmail("");
       setMessage("");
     }
   }, [isOpen]);
-  // ===== CHRIS FRONTEND CHANGE END =====
+  // Chris Frontend Change End 
 
   const handleSend = async () => {
     setMessage("");
 
-    // ===== CHRIS FRONTEND CHANGE =====
+    // Chris Frontend Change: Basic email validation before sending request
     if (!email.trim()) {
       setMessage("Please enter your email");
       return;
@@ -27,15 +27,15 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
       setMessage("Please enter a valid email");
       return;
     }
-    // ===== CHRIS FRONTEND CHANGE END =====
+    // Chris Frontend Change End
 
     try {
       const res = await fetch("http://localhost:8080/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // ===== CHRIS FRONTEND CHANGE =====
+        // Chris Frontend Change: Send email in request body instead of query param for better security and standard practice
         body: JSON.stringify({ email: email.trim() }),
-        // ===== CHRIS FRONTEND CHANGE END =====
+        // Chris Frontend Change End
       });
 
       const data = await res.json();
