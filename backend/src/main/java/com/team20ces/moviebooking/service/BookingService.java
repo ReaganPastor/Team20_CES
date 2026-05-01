@@ -6,6 +6,7 @@ import com.team20ces.moviebooking.dto.BookingSummaryResponse;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.team20ces.moviebooking.service.EmailService;
 
 import java.util.stream.Collectors;
 import java.util.List;
@@ -15,9 +16,11 @@ import java.util.Map;
 public class BookingService {
 
     private final JdbcTemplate jdbcTemplate;
+    private final EmailService emailService;
 
-    public BookingService(JdbcTemplate jdbcTemplate) {
+    public BookingService(JdbcTemplate jdbcTemplate, EmailService emailService) {
         this.jdbcTemplate = jdbcTemplate;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -28,13 +31,13 @@ public class BookingService {
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
 
-        // 1. Validate seats
+        // Validate seats
         String checkSql = """
             SELECT COUNT(*)
             FROM show_seats
             WHERE id IN (%s)
             AND show_id = ?
-            AND reservation_status = 'AVAILABLE'
+            AND reservation_status IN ('HELD', 'RESERVED')
         """;
 
         Integer validCount = jdbcTemplate.queryForObject(
@@ -47,10 +50,10 @@ public class BookingService {
             throw new IllegalStateException("One or more seats are already taken or invalid for this show");
         }
 
-        // 2. Total price
+        // Total price
         double total = req.getShowSeatIds().size() * 12.99;
 
-        // 3. Create booking
+        // Create booking
         Long bookingId = jdbcTemplate.queryForObject("""
             INSERT INTO bookings (customer_id, movie_id, booking_date, total_amount, booking_status)
             VALUES (?, ?, NOW(), ?, 'CONFIRMED')
@@ -62,14 +65,12 @@ public class BookingService {
         total
         );
 
-        // 4. Reserve seats
+        // Reserve seats
         String updateSql = "UPDATE show_seats " +
                 "SET is_reserved = TRUE, reservation_status = 'RESERVED' " +
                 "WHERE id IN (" + ids + ")";
 
         jdbcTemplate.update(updateSql);
-
-        // 🔥 FIX #1: get ticket_price_id BEFORE inserting tickets
         Long ticketPriceId = jdbcTemplate.queryForObject("""
             SELECT id
             FROM ticket_prices
@@ -77,7 +78,7 @@ public class BookingService {
             LIMIT 1
         """, Long.class);
 
-        // 5. Insert tickets (FIXED)
+        // Insert tickets
         for (Long showSeatId : req.getShowSeatIds()) {
             jdbcTemplate.update("""
                 INSERT INTO tickets (booking_id, show_seat_id, ticket_price_id, ticket_type, price_paid)
@@ -90,6 +91,31 @@ public class BookingService {
             12.99
             );
         }
+
+        BookingSummaryResponse summary = getBookingSummary(bookingId);
+
+        // build simple HTML
+        String html = """
+            <h2>🎬 Your Booking is Confirmed!</h2>
+            <p><strong>Movie:</strong> %s</p>
+            <p><strong>Date:</strong> %s</p>
+            <p><strong>Time:</strong> %s</p>
+            <p><strong>Seats:</strong> %s</p>
+            <p><strong>Total Tickets:</strong> %d</p>
+            <p><strong>Total Paid:</strong> $%.2f</p>
+            <br/>
+            <p>Enjoy your movie! 🍿</p>
+        """.formatted(
+                summary.getMovieTitle(),
+                summary.getShowDate(),
+                summary.getStartTime(),
+                String.join(", ", summary.getSeats()),
+                summary.getTicketCount(),
+                summary.getTotal()
+        );
+
+        // Send confirmation email
+        emailService.sendEmail(req.getEmail(), "Booking Confirmation", html);
 
         return new BookingResponse(bookingId, total);
     }

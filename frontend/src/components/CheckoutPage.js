@@ -134,7 +134,7 @@ export default function CheckoutPage() {
     }
 
     try {
-      // 1. CONFIRM SEATS IN BACKEND (THIS IS THE KEY CHANGE)
+      // 1. CONFIRM SEATS IN BACKEND
       const confirmRes = await fetch(
         "http://localhost:8080/show-seats/confirm",
         {
@@ -152,9 +152,36 @@ export default function CheckoutPage() {
         return;
       }
 
-      // 2. CREATE ORDER OBJECT (frontend record only)
+      // 2. CREATE BOOKING (THIS TRIGGERS EMAIL ON BACKEND)
+      const bookingRes = await fetch("http://localhost:8080/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerId: 1, // replace later with real auth user id
+          movieId: checkoutState.movieId || null,
+          showId,
+          showSeatIds: seats.map((s) => s.showSeatId),
+          email: userEmail || email,
+        }),
+      });
+
+      if (!bookingRes.ok) {
+        const errorText = await bookingRes.text();
+        console.error("Booking error:", errorText);
+        alert("Booking failed: " + errorText);
+        return;
+      }
+
+      const bookingData = await bookingRes.json();
+
+      // 3. CREATE ORDER OBJECT (frontend record only)
       const order = {
-        confirmationNumber: `CES-${Date.now()}`,
+        confirmationNumber: bookingData.bookingId
+          ? `CES-${bookingData.bookingId}`
+          : `CES-${Date.now()}`,
+
+        bookingId: bookingData.bookingId,
+
         movieTitle,
         showtime,
         showDate,
@@ -169,7 +196,7 @@ export default function CheckoutPage() {
         orderDate: new Date().toLocaleString(),
       };
 
-      // 3. SAVE ORDER HISTORY (UNCHANGED)
+      // 4. SAVE ORDER HISTORY (UNCHANGED)
       const oldOrders = JSON.parse(localStorage.getItem("orderHistory")) || [];
       const updatedOrders = [order, ...oldOrders];
 
@@ -177,7 +204,7 @@ export default function CheckoutPage() {
       sessionStorage.setItem("lastOrder", JSON.stringify(order));
       sessionStorage.removeItem("pendingCheckout");
 
-      // 4. NAVIGATE
+      // 5. NAVIGATE
       navigate("/order-confirmation", {
         state: order,
       });
