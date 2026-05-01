@@ -166,12 +166,18 @@ function AddMovie() {
             />
 
             <input
-              type="text"
-              name="poster_path"
-              placeholder="Poster Path"
-              value={form.poster_path}
-              onChange={handleChange}
-              className="centered-input"
+              type="file"
+              accept="image/*"
+              className="centered-input poster-upload"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                  setForm({ ...form, poster_path: reader.result });
+                };
+                reader.readAsDataURL(file);
+              }}
             />
 
             <input
