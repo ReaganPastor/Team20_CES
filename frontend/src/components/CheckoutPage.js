@@ -16,9 +16,18 @@ export default function CheckoutPage() {
 
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [editedEmail, setEditedEmail] = useState("");
+  const [paymentCards, setPaymentCards] = useState([]);
 
   const [confirmEmail, setConfirmEmail] = useState(false);
 
+  const [manualCard, setManualCard] = useState({
+    cardholderName: "",
+    cardNumber: "",
+    expirationDate: "",
+    cvv: ""
+  });
+
+  // Load user email on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -36,6 +45,27 @@ export default function CheckoutPage() {
       .catch((err) => console.error("Email fetch failed:", err));
   }, []);
 
+  // Load payment cards
+  useEffect(() => {
+    if (!userId) return;
+
+    fetch(`http://localhost:8080/profile/${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const cards = Array.isArray(data?.paymentCards)
+          ? data.paymentCards
+          : [];
+
+        console.log("Loaded payment cards:", cards);
+        setPaymentCards(cards);
+      })
+      .catch((err) => console.error("Failed to load cards:", err));
+  }, [userId]);
+
+  const hasCards = paymentCards && paymentCards.length > 0;
+  const defaultCard = hasCards ? paymentCards[0] : null;
+
+  // Load checkout state from location or session storage
   const checkoutState = useMemo(() => {
     if (location.state && Object.keys(location.state).length > 0) {
       return location.state;
@@ -45,6 +75,7 @@ export default function CheckoutPage() {
     return saved ? JSON.parse(saved) : null;
   }, [location.state]);
 
+  // If no checkout state, show error message
   if (!checkoutState) {
     return (
       <div className="checkout-page">
@@ -63,6 +94,7 @@ export default function CheckoutPage() {
     );
   }
 
+  // Destructure checkout state with defaults
   const {
     movieTitle = "Movie Title",
     showtime = "Showtime not selected",
@@ -75,19 +107,23 @@ export default function CheckoutPage() {
     movieId
   } = checkoutState;
 
+  // Calculate derived values
   const selectedSeats = seats.map(
     (seat) => `${seat.seatRow}${seat.seatNumber}`
   );
 
+  // For simplicity, service fee is $1.50 per ticket
   const serviceFee = selectedSeats.length * 1.5;
   const tax = (totalPrice + serviceFee) * 0.07;
   const orderTotal = totalPrice + serviceFee + tax;
 
+  // Calculate total tickets
   const totalTickets =
     (tickets.adult || 0) +
     (tickets.child || 0) +
     (tickets.senior || 0);
 
+  // Helper functions to format date and time
   const formatShowDate = (dateStr) => {
     if (!dateStr) return "";
 
@@ -115,6 +151,7 @@ export default function CheckoutPage() {
     return `${hour}:${minute} ${ampm}`;
   };
 
+  // Handle email confirmation
   const handleConfirmEmail = async () => {
     try {
       setLoadingEmailAction(true);
@@ -133,6 +170,7 @@ export default function CheckoutPage() {
     }
   };
 
+  // Handle complete order
   const handleCompleteOrder = async () => {
     if (!confirmEmail) {
       alert("Please confirm your email before completing the order.");
@@ -145,7 +183,7 @@ export default function CheckoutPage() {
     }
 
     try {
-      // 1. CONFIRM SEATS
+      // Confirm seats first to ensure they are still available
       const confirmRes = await fetch(
         "http://localhost:8080/show-seats/confirm",
         {
@@ -163,7 +201,6 @@ export default function CheckoutPage() {
         return;
       }
 
-      // 2. CREATE BOOKING IN BACKEND 🔥
       const bookingRes = await fetch("http://localhost:8080/bookings", {
         method: "POST",
         headers: {
@@ -185,7 +222,6 @@ export default function CheckoutPage() {
 
       const bookingData = await bookingRes.json();
 
-      // 3. CREATE ORDER OBJECT
       const order = {
         bookingId: bookingData.bookingId,
         movieTitle,
@@ -202,7 +238,6 @@ export default function CheckoutPage() {
         orderDate: new Date().toLocaleString(),
       };
 
-      // 4. KEEP LOCAL STORAGE (temporary compatibility)
       const oldOrders =
         JSON.parse(localStorage.getItem("orderHistory")) || [];
 
@@ -216,7 +251,6 @@ export default function CheckoutPage() {
       sessionStorage.setItem("lastOrder", JSON.stringify(order));
       sessionStorage.removeItem("pendingCheckout");
 
-      // 5. NAVIGATE
       navigate("/order-confirmation", {
         state: order,
       });
@@ -226,6 +260,27 @@ export default function CheckoutPage() {
       alert("Order failed.");
     }
   };
+
+  const handleExpiryChange = (e) => {
+    let value = e.target.value.replace(/\D/g, ""); // numbers only
+
+    if (value.length > 2) {
+      value = value.slice(0, 2) + "/" + value.slice(2, 4);
+    }
+
+    if (value.length > 5) value = value.slice(0, 5);
+
+    setManualCard({ ...manualCard, expirationDate: value });
+  };
+
+  // mask card number
+  const maskedCardNumber = defaultCard
+    ? `**** **** **** ${defaultCard.lastFour}`
+    : manualCard.cardNumber;
+
+  const maskedCVV = defaultCard
+    ? "***"
+    : manualCard.cvv;
 
   return (
     <div className="checkout-page">
@@ -240,25 +295,47 @@ export default function CheckoutPage() {
             <h2>Card Details</h2>
 
             <label>Cardholder Name</label>
-            <input type="text" placeholder="Sara Ghadrdan" disabled />
+            <input type="text" value={hasCards ? defaultCard?.cardholderName || "" : manualCard.cardholderName} onChange={(e) =>
+                !hasCards &&
+                setManualCard({ ...manualCard, cardholderName: e.target.value })
+            }/>
 
             <label>Card Number</label>
-            <input type="text" placeholder="4242 4242 4242 4242" disabled />
+            <input
+              type="password"
+              value={maskedCardNumber}
+              onChange={(e) =>
+                !hasCards &&
+                setManualCard({ ...manualCard, cardNumber: e.target.value })
+              }
+              maxLength={14}
+            />
 
             <div className="mock-row">
               <div>
                 <label>Expiration Date</label>
-                <input type="text" placeholder="08/28" disabled />
+                <input
+                  type="text"
+                  value={hasCards ? defaultCard?.expirationDate || "" : manualCard.expirationDate}
+                  onChange={(e) => !hasCards && handleExpiryChange(e)}
+                  placeholder="MM/YY"
+                  maxLength={5}
+                />
               </div>
 
               <div>
                 <label>CVV</label>
-                <input type="text" placeholder="123" disabled />
+                <input
+                  type="password"
+                  value={defaultCard ? "***" : manualCard.cvv}
+                  onChange={(e) =>
+                    !hasCards &&
+                    setManualCard({ ...manualCard, cvv: e.target.value.replace(/\D/g, "").slice(0, 4) })
+                  }
+                  maxLength={4}
+                />
               </div>
             </div>
-
-            <label>Billing ZIP Code</label>
-            <input type="text" placeholder="30602" disabled />
           </div>
 
           <div className="checkout-actions">
