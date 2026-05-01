@@ -40,4 +40,10 @@ public class BookingController {
             bookingService.checkout(bookingId)
         );
     }
+
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<List<BookingSummaryResponse>> getCustomerBookings(
+            @PathVariable Long customerId) {
+        return ResponseEntity.ok(bookingService.getBookingsByCustomer(customerId));
+    }
 }

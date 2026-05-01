@@ -194,4 +194,61 @@ public class BookingService {
                 "message", "Proceed to mock payment page"
         );
     }
+
+    public List<BookingSummaryResponse> getBookingsByCustomer(Long customerId) {
+
+        String sql = """
+            SELECT
+                b.id AS booking_id,
+                m.title AS movie_title,
+                sh.show_date,
+                sh.start_time,
+                s.seat_row,
+                s.seat_number,
+                t.price_paid
+            FROM bookings b
+            JOIN movies m ON b.movie_id = m.id
+            JOIN tickets t ON t.booking_id = b.id
+            JOIN show_seats ss ON t.show_seat_id = ss.id
+            JOIN seats s ON ss.seat_id = s.id
+            JOIN shows sh ON ss.show_id = sh.id
+            WHERE b.customer_id = ?
+            ORDER BY b.id DESC
+        """;
+
+        Map<Long, BookingSummaryResponse> map = new java.util.LinkedHashMap<>();
+
+        jdbcTemplate.query(sql, rs -> {
+
+            Long bookingId = rs.getLong("booking_id");
+
+            BookingSummaryResponse existing = map.get(bookingId);
+
+            String seat = rs.getString("seat_row") + rs.getInt("seat_number");
+
+            if (existing == null) {
+                List<String> seats = new java.util.ArrayList<>();
+                seats.add(seat);
+
+                BookingSummaryResponse newBooking = new BookingSummaryResponse(
+                        bookingId,
+                        rs.getString("movie_title"),
+                        rs.getString("show_date"),
+                        rs.getString("start_time"),
+                        seats,
+                        1,
+                        12.99,
+                        rs.getDouble("price_paid")
+                );
+
+                map.put(bookingId, newBooking);
+
+            } else {
+                existing.getSeats().add(seat);
+            }
+
+        }, customerId);
+
+        return new java.util.ArrayList<>(map.values());
+    }
 }
