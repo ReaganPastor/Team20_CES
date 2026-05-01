@@ -261,10 +261,26 @@ export default function CheckoutPage() {
     }
   };
 
+  const handleExpiryChange = (e) => {
+    let value = e.target.value.replace(/\D/g, ""); // numbers only
+
+    if (value.length > 2) {
+      value = value.slice(0, 2) + "/" + value.slice(2, 4);
+    }
+
+    if (value.length > 5) value = value.slice(0, 5);
+
+    setManualCard({ ...manualCard, expirationDate: value });
+  };
+
   // mask card number
   const maskedCardNumber = defaultCard
     ? `**** **** **** ${defaultCard.lastFour}`
     : manualCard.cardNumber;
+
+  const maskedCVV = defaultCard
+    ? "***"
+    : manualCard.cvv;
 
   return (
     <div className="checkout-page">
@@ -286,12 +302,13 @@ export default function CheckoutPage() {
 
             <label>Card Number</label>
             <input
-              type="text"
+              type="password"
               value={maskedCardNumber}
               onChange={(e) =>
                 !hasCards &&
                 setManualCard({ ...manualCard, cardNumber: e.target.value })
               }
+              maxLength={14}
             />
 
             <div className="mock-row">
@@ -300,22 +317,22 @@ export default function CheckoutPage() {
                 <input
                   type="text"
                   value={hasCards ? defaultCard?.expirationDate || "" : manualCard.expirationDate}
-                  onChange={(e) =>
-                    !hasCards &&
-                    setManualCard({ ...manualCard, expirationDate: e.target.value })
-                  }
+                  onChange={(e) => !hasCards && handleExpiryChange(e)}
+                  placeholder="MM/YY"
+                  maxLength={5}
                 />
               </div>
 
               <div>
                 <label>CVV</label>
                 <input
-                  type="text"
-                  value={hasCards ? defaultCard?.cvv || "" : manualCard.cvv}
+                  type="password"
+                  value={defaultCard ? "***" : manualCard.cvv}
                   onChange={(e) =>
                     !hasCards &&
-                    setManualCard({ ...manualCard, cvv: e.target.value })
+                    setManualCard({ ...manualCard, cvv: e.target.value.replace(/\D/g, "").slice(0, 4) })
                   }
+                  maxLength={4}
                 />
               </div>
             </div>
